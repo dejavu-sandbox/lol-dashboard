@@ -584,7 +584,7 @@
                             Toxicity
                             <div class="help-icon">?
                                 <span class="tooltip-text">
-                                    Average of <strong>"?"</strong> (Missing) and <strong>"Push"</strong> (Bait) pings per game over the last 20 matches.
+                                    Average of <strong>"?"</strong> (Missing) and <strong>"Push Forward"</strong> pings per game over the last 20 matches.
                                 </span>
                             </div>
                         </div>
@@ -700,7 +700,7 @@
 
                 // Badges HTML construction
                 let badgesHtml = "";
-                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 TOXIC: Mad Pinger! (Averaging 6+ 'Missing' or 'Bait' pings per game over the last 20 matches)">`;
+                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 TOXIC: Mad Pinger! (Averaging 6+ 'Missing' or 'Push Forward' pings per game over the last 20 matches)">`;
                 if (player.StreakType === "Win" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/SummonerDot.png" class="badge-icon badge-fire" title="🔥 ON FIRE: Unstoppable! (Achieved by winning 4+ matches in a row)">`;
                 if (player.StreakType === "Loss" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/AuraofDespair.png" class="badge-icon badge-sad" title="😢 SAD: Tough night? (Achieved by losing 4+ matches in a row)">`;
                 if (player.AvgKDA < 1.5) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/Feast.png" class="badge-icon badge-feed" title="🍔 FEEDER: Michelin Star Chef! (Average KDA is below 1.5 over the last 20 matches)">`;
@@ -868,5 +868,6 @@
 
 
 </html>
+
 
 
