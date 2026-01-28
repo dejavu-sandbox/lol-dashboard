@@ -700,17 +700,17 @@
 
                 // Badges HTML construction
                 let badgesHtml = "";
-                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 Toxic">`;
-                if (player.StreakType === "Win" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/SummonerDot.png" class="badge-icon badge-fire" title="🔥 On Fire!">`;
-                if (player.StreakType === "Loss" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/AuraofDespair.png" class="badge-icon badge-sad" title="😢 Sad">`;
-                if (player.AvgKDA < 1.5) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/Feast.png" class="badge-icon badge-feed" title="🍔 Feeder">`;
-                if (player.Winrate >= 60) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/UndyingRage.png" class="badge-icon" style="border: 1px solid #ffd700;" title="👑 Smurf">`;
+                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 TOXIC: Mad Pinger! (Averaging 6+ 'Missing' or 'Bait' pings per game over the last 20 matches)">`;
+                if (player.StreakType === "Win" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/SummonerDot.png" class="badge-icon badge-fire" title="🔥 ON FIRE: Unstoppable! (Achieved by winning 4+ matches in a row)">`;
+                if (player.StreakType === "Loss" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/AuraofDespair.png" class="badge-icon badge-sad" title="😢 SAD: Tough night? (Achieved by losing 4+ matches in a row)">`;
+                if (player.AvgKDA < 1.5) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/Feast.png" class="badge-icon badge-feed" title="🍔 FEEDER: Michelin Star Chef! (Average KDA is below 1.5 over the last 20 matches)">`;
+                if (player.Winrate >= 60) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/UndyingRage.png" class="badge-icon" style="border: 1px solid #ffd700;" title="👑 SMURF: Built Different! (Maintaining a 60% Winrate or higher over the last 20 matches)">`;
 
-                if (player.TotalPentas > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/666.png" class="badge-icon" style="border: 1px solid #ffd700;" title="🤘 PENTAKILL ! (${player.TotalPentas})">`;
+                if (player.TotalPentas > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/666.png" class="badge-icon" style="border: 1px solid #ffd700;" title="🤘 PENTAKILL! (Achieved ${player.TotalPentas} Pentakill(s) recently)">`;
 
                 // 2. QUADRAKILL (Icone Jhin - Le Virtuose du 4)
                 if (player.TotalQuadras > 0) {
-                    badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Jhin.png" class="badge-icon" style="border: 1px solid #ff4c4c;" title="🎭 Perfection ! ${player.TotalQuadras} Quadrakills">`;
+                    badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Jhin.png" class="badge-icon" style="border: 1px solid #ff4c4c;" title="🎭 PERFECTION! (Achieved ${player.TotalQuadras} Quadrakill(s) recently)">`;
                 }
 
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
@@ -868,4 +868,5 @@
 
 
 </html>
+
 
