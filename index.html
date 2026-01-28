@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Chaudron : LoL Ranked Dashboard</title>
+    <style>
+        /* --- GENERAL --- */
+        body {
+            background-color: #091428;
+            color: #f0e6d2;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #c8aa6e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #c8aa6e;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+            /* Masqué pendant le chargement */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #0a0a0c;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid #c8aa6e;
+            border-radius: 8px;
+        }
+
+        th {
+            background-color: #1e2328;
+            color: #c8aa6e;
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            border-bottom: 2px solid #c8aa6e;
+            position: relative;
+            overflow: visible;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            vertical-align: middle;
+        }
+
+        tr.player-row:hover {
+            background-color: #1e282d;
+            cursor: pointer;
+            transform: scale(1.01);
+            transition: 0.1s;
+        }
+
+        /* COLORS */
+        .win-high {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .win-mid {
+            color: #f0e6d2;
+            font-weight: bold;
+        }
+
+        .win-low {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        .streak-win {
+            color: #ff8c00;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 140, 0, 0.5);
+        }
+
+        .streak-loss {
+            color: #888;
+            font-style: italic;
+        }
+
+        .toxic-ping {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .name-tag-row {
+            display: flex;
+            align-items: baseline;
+            /* Aligne le bas du texte */
+            gap: 6px;
+            /* Espace entre le pseudo et le tag */
+        }
+
+        /* On ajuste le tag pour qu'il soit propre à côté du nom */
+        .tag {
+            font-size: 0.8em;
+            color: #666;
+            font-weight: normal;
+            /* Plus de margin-top car il est sur la même ligne */
+            margin: 0;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 4px;
+            /* Espace entre la ligne nom/tag et la ligne des boutons */
+        }
+
+        .profile-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #c8aa6e;
+            margin-right: 15px;
+        }
+
+        .player-cell {
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+        }
+
+        /* --- LOADING SPINNER --- */
+        #loading {
+            margin-top: 50px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #c8aa6e;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #0a0a0c;
+            margin: 2% auto;
+            padding: 20px;
+            border: 2px solid #c8aa6e;
+            width: 95%;
+            max-width: 1000px;
+            border-radius: 10px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .match-history {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .match-container {
+            margin-bottom: 8px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        /* --- GRILLE DES MATCHS --- */
+        .match-header,
+        .match-row {
+            display: grid;
+            grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr;
+            align-items: center;
+            padding: 12px;
+            font-size: 0.9em;
+        }
+
+        .match-header {
+            font-weight: bold;
+            color: #c8aa6e;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            border-bottom: 1px solid #333;
+        }
+
+        .match-row {
+            background: #151a21;
+            border-left: 5px solid #555;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .match-row:hover {
+            background-color: #1f2731;
+            transform: translateX(2px);
+        }
+
+        .match-win {
+            border-left-color: #2deb90;
+            background: linear-gradient(90deg, rgba(45, 235, 144, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+        }
+
+        .match-loss {
+            border-left-color: #ff5859;
+            background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+        }
+
+        .champ-flex {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-weight: bold;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .champ-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .vs-column {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .enemy-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            transition: 0.2s;
+        }
+
+        .enemy-icon:hover {
+            border-color: #c8aa6e;
+            transform: scale(1.1);
+        }
+
+        .match-details {
+            display: none;
+            background-color: #0f1216;
+            padding: 15px;
+            border-top: 1px solid #333;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #1c2129;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #f0e6d2;
+        }
+
+        .gold-text {
+            color: #ffd700;
+        }
+
+        .dmg-text {
+            color: #ff5859;
+        }
+
+        .heal-text {
+            color: #2deb90;
+        }
+
+        .stat-detail {
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        /* --- BADGES PROPRES --- */
+        .badges-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 100%;
+        }
+
+        .badge-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
+            cursor: help;
+        }
+
+        .badge-icon:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .badge-toxic {
+            border: 1px solid #ff5859;
+        }
+
+        .badge-fire {
+            border: 1px solid #ff8c00;
+        }
+
+        .badge-sad {
+            border: 1px solid #888;
+        }
+
+        .badge-feed {
+            border: 1px solid #a020f0;
+        }
+
+        /* --- LIENS EXTERNES (OP.GG / DeepLoL) --- */
+        .external-links {
+            display: flex;
+            gap: 6px;
+            /* Espace entre les deux boutons */
+            margin-top: 3px;
+            /* Petit espace sous le pseudo */
+        }
+
+        .link-icon {
+            font-size: 0.7em;
+            /* Taille du texte */
+            text-decoration: none;
+            /* Enlève le soulignement moche */
+            padding: 2px 8px;
+            /* Donne du volume au bouton */
+            border-radius: 4px;
+            /* Coins arrondis */
+            font-weight: bold;
+            transition: 0.2s;
+            display: inline-block;
+            /* Important pour que le padding marche */
+            line-height: normal;
+        }
+
+        /* Couleurs spécifiques */
+        .op-gg {
+            background-color: #5383e8;
+            color: white;
+        }
+
+        .deeplol {
+            background-color: #1a1f29;
+            /* Fond sombre pour DeepLoL */
+            color: #00d9ff;
+            /* Texte cyan */
+            border: 1px solid #333;
+            /* Petite bordure subtile */
+        }
+
+        /* Effet au survol */
+        .link-icon:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            /* Petit effet de clic */
+            filter: brightness(1.1);
+        }
+
+        /* Styles pour la colonne Daily LP */
+        .lp-plus {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .lp-minus {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        .lp-na {
+            color: #444;
+            font-style: italic;
+        }
+        /* --- TOOLTIP (INFO-BULLE) --- */
+/* --- TOOLTIP CORRECTIF --- */
+        .help-icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #555;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 6px;
+            cursor: help;
+            position: relative; /* Indispensable pour que la bulle s'accroche ici */
+        }
+
+        .help-icon:hover {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        /* La bulle de texte */
+        .help-icon .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #1a1a1a;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            
+            /* Positionnement Absolu */
+            position: absolute;
+            z-index: 9999; /* Très haut pour passer au-dessus du tableau */
+            bottom: 125%;  /* Juste au-dessus du ? */
+            left: 50%;
+            transform: translateX(-50%); /* Pour centrer parfaitement */
+            
+            /* Style */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid #ffd700;
+            font-weight: normal;
+            font-size: 0.85em;
+            line-height: 1.4;
+            
+            /* Animation */
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none; /* Pour que la souris ne bloque pas dessus */
+        }
+
+        /* La petite flèche en bas de la bulle */
+/* La bulle de texte (Style Amélioré) */
+        .help-icon .tooltip-text {
+            visibility: hidden;
+            width: 210px;
+            background-color: #121212; /* Fond un peu plus profond */
+            
+            /* --- NOUVEAU STYLE DE TEXTE --- */
+            color: #e0e0e0; /* Blanc cassé, moins agressif pour les yeux */
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* Police moderne et propre */
+            font-size: 12px;       /* Taille lisible */
+            font-weight: 400;      /* Poids normal */
+            line-height: 1.5;      /* Meilleur espacement entre les lignes */
+            letter-spacing: 0.3px; /* Légère aération des lettres */
+            text-transform: none;  /* On s'assure que ce n'est pas en majuscules */
+            text-align: center;
+            /* ----------------------------- */
+            
+            border-radius: 6px;
+            padding: 12px;
+            
+            /* Positionnement Absolu (Inchangé) */
+            position: absolute;
+            z-index: 9999;
+            bottom: 135%; 
+            left: 50%;
+            transform: translateX(-50%);
+            
+            /* Style de la boîte */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            border: 1px solid #ffd700; /* Bordure dorée fine */
+            
+            /* Animation */
+            opacity: 0;
+            transition: all 0.2s ease-in-out;
+            pointer-events: none;
+        }
+
+        /* Affichage au survol */
+        .help-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🏆 Le Chaudron : LoL Ranked Dashboard 🏆</h1>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <p style="color:#c8aa6e; letter-spacing:1px;">Summoning data from the Void...</p>
+        <p style="color:#666; font-size:0.8em;">(First load may take 10-20s, please wait!)</p>
+    </div>
+
+    <div class="container" id="dashboard">
+        <table id="statsTable">
+            <thead>
+                <tr>
+                    <th style="text-align: left; padding-left: 40px;">Player</th>
+                    <th>Rank</th>
+                    <th>Streak</th>
+                    <th>Winrate</th>
+                    <th>KDA</th>
+                    <th>
+                        <div style="display:flex; align-items:center; justify-content:center;">
+                            Toxicity
+                            <div class="help-icon">?
+                                <span class="tooltip-text">
+                                    Average of <strong>"?"</strong> (Missing) and <strong>"Push"</strong> (Bait) pings per game over the last 20 matches.
+                                </span>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div style="display:flex; align-items:center; justify-content:center;">
+                            Trend
+                            <div class="help-icon">
+                                ?
+                                <span class="tooltip-text">
+                                    Estimated LP gain/loss based on matches played today (since 00:00 local time).
+                                </span>
+                            </div>
+                        </div>
+                    </th>
+                    <th>Badge</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="color:#c8aa6e; border-bottom:1px solid #333; padding-bottom:10px;">Details</h2>
+
+            <div class="match-header">
+                <span style="text-align:left">Champion</span>
+                <span>VS</span> <span>Role</span>
+                <span>KDA</span>
+                <span>CS (Min)</span>
+                <span>Vision (Pink)</span>
+                <span>Duration</span>
+                <span>Result</span>
+                <span>Date</span>
+            </div>
+
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // URL de ton Backend Azure
+        const apiUrl = "https://func-lol-tracker-backend-001-hefnbhgxfjhgf3bk.francecentral-01.azurewebsites.net/api/GetLoLStats";
+
+        let ddragonVersion = "16.2.1";
+
+        async function fetchStats() {
+            try {
+                // 1. Récupération version DDragon
+                const vResponse = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
+                const versions = await vResponse.json();
+                ddragonVersion = versions[0];
+
+                // 2. Récupération Stats Azure
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error("Erreur de connexion Azure");
+                const data = await response.json();
+                displayData(data);
+            } catch (error) {
+                document.getElementById('loading').innerHTML =
+                    `<p style='color:red; font-weight:bold'>Erreur : ${error.message}</p>`;
+                console.error(error);
+            }
+        }
+
+        function displayData(data) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+
+            const tbody = document.querySelector("#statsTable tbody");
+            tbody.innerHTML = "";
+            const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
+
+            // Tri par Rang
+            const tierValues = { "CHALLENGER": 10, "GRANDMASTER": 9, "MASTER": 8, "DIAMOND": 7, "EMERALD": 6, "PLATINUM": 5, "GOLD": 4, "SILVER": 3, "BRONZE": 2, "IRON": 1, "UNRANKED": 0 };
+            const divValues = { "I": 4, "II": 3, "III": 2, "IV": 1 };
+
+            function getRankScore(rankStr) {
+                if (!rankStr || rankStr === "Unranked") return 0;
+                let parts = rankStr.toUpperCase().split(' ');
+                let tier = parts[0];
+                let div = parts[1] || "I";
+                return (tierValues[tier] || 0) * 100 + (divValues[div] || 0);
+            }
+            players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
+
+            players.forEach(player => {
+                const tr = document.createElement("tr");
+                tr.classList.add("player-row");
+
+                // --- C'est ici que le clic est défini ---
+                tr.onclick = function () { openModal(player); };
+
+                let dailyLpChange = 0;
+                let gamesToday = 0;
+
+                const today = new Date().toLocaleDateString('fr-FR');
+
+                if (player.History) {
+                    player.History.forEach(match => {
+                        // Date du match
+                        const matchDate = new Date(match.Date).toLocaleDateString('fr-FR');
+
+                        // On compare les dates (chaines de caractères)
+                        if (matchDate === today) {
+                            gamesToday++;
+                            // Estimation : +20 LP par win, -20 LP par loose
+                            if (match.Win) dailyLpChange += 20;
+                            else dailyLpChange -= 20;
+                        }
+                    });
+                }
+
+                // Génération du HTML pour la colonne Daily
+                let dailyHtml = "";
+                if (gamesToday === 0) {
+                    // Pas joué aujourd'hui
+                    dailyHtml = `<span class="lp-na">N/A</span>`;
+                } else {
+                    // A joué
+                    if (dailyLpChange > 0) dailyHtml = `<span class="lp-plus">+${dailyLpChange} LP</span>`;
+                    else if (dailyLpChange < 0) dailyHtml = `<span class="lp-minus">${dailyLpChange} LP</span>`;
+                    else dailyHtml = `<span style="color:#888">0 LP</span>`; // Cas rare ou victoires = défaites
+                }
+                let winClass = player.Winrate >= 50 ? "win-high" : "win-low";
+
+                // Badges HTML construction
+                let badgesHtml = "";
+                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 Toxic">`;
+                if (player.StreakType === "Win" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/SummonerDot.png" class="badge-icon badge-fire" title="🔥 On Fire!">`;
+                if (player.StreakType === "Loss" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/AuraofDespair.png" class="badge-icon badge-sad" title="😢 Sad">`;
+                if (player.AvgKDA < 1.5) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/Feast.png" class="badge-icon badge-feed" title="🍔 Feeder">`;
+                if (player.Winrate >= 60) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/UndyingRage.png" class="badge-icon" style="border: 1px solid #ffd700;" title="👑 Smurf">`;
+
+                if (player.TotalPentas > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/666.png" class="badge-icon" style="border: 1px solid #ffd700;" title="🤘 PENTAKILL ! (${player.TotalPentas})">`;
+
+                // 2. QUADRAKILL (Icone Jhin - Le Virtuose du 4)
+                if (player.TotalQuadras > 0) {
+                    badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Jhin.png" class="badge-icon" style="border: 1px solid #ff4c4c;" title="🎭 Perfection ! ${player.TotalQuadras} Quadrakills">`;
+                }
+
+                let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
+                const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
+
+                let streakIcon = "-";
+                if (player.StreakType === "Win" && player.StreakCount >= 1) streakIcon = `<span class="streak-win">🔥 ${player.StreakCount} Wins</span>`;
+                else if (player.StreakType === "Loss" && player.StreakCount >= 1) streakIcon = `<span class="streak-loss">💀 ${player.StreakCount} Loses</span>`;
+
+                const urlName = `${player.name}-${player.Tag}`.replace(/\s+/g, '%20');
+                tr.innerHTML = `
+                <td>
+                    <div class="player-cell">
+                        <img src="${iconUrl}" class="profile-icon">
+                        <div class="player-info">
+                            <div class="name-tag-row">
+                                <span class="player-name">${player.name}</span>
+                                <span class="tag">#${player.Tag}</span>
+                            </div>
+                            <div class="external-links" onclick="event.stopPropagation()"> 
+                                <a href="https://www.op.gg/summoners/euw/${urlName}" target="_blank" class="link-icon op-gg">OP</a>
+                                <a href="https://www.deeplol.gg/summoner/euw/${urlName}" target="_blank" class="link-icon deeplol">DL</a>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td style="color:#a09b8c">${player.Rank}</td>
+                <td>${streakIcon}</td>
+                <td class="${winClass}">${player.Winrate}%</td>
+                <td>${player.AvgKDA || 0}</td>
+                <td class="${pingClass}">${player.AvgPings} pings</td>
+                
+                <td>${dailyHtml}</td>
+
+                <td><div class="badges-flex">${badgesHtml}</div></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openModal(player) {
+            console.log("Ouverture modal pour :", player.name); // Debug dans la console (F12)
+            try {
+                const modal = document.getElementById("myModal");
+                document.getElementById("modalTitle").innerHTML = `History: <span style="color:#fff">${player.name}</span>`;
+                const body = document.getElementById("modalBody");
+                body.innerHTML = "";
+
+                if (!player.History || player.History.length === 0) {
+                    body.innerHTML = "<p>No matches found.</p>";
+                } else {
+                    const ul = document.createElement("ul");
+                    ul.className = "match-history";
+
+                    player.History.forEach((match, index) => {
+                        const li = document.createElement("li");
+                        li.className = "match-container";
+
+                        const isWin = match.Win;
+                        const resultClass = isWin ? 'match-win' : 'match-loss';
+                        const resultText = isWin ? "VICTORY" : "DEFEAT";
+                        const role = match.Role === "UTILITY" ? "SUPPORT" : match.Role;
+
+                        // Sécurité pour les dates (évite le crash si date manquante)
+                        let dateStr = "-";
+                        if (match.Date) {
+                            try {
+                                const dateObj = new Date(match.Date);
+                                dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                            } catch (e) { console.warn("Date error", e); }
+                        }
+
+                        let multiKillHtml = "";
+                        // Gestion des PENTAS
+                        if (match.Pentas > 0) {
+                            const countText = match.Pentas > 1 ? ` <span style="font-size:0.9em">x${match.Pentas}</span>` : "";
+                            multiKillHtml += `<span style='color:#ffd700; font-weight:bold; text-shadow:0 0 5px orange; margin-left:8px;'>PENTA!${countText}</span> `;
+                        }
+
+                        // Gestion des QUADRAS
+                        if (match.Quadras > 0) {
+                            const countText = match.Quadras > 1 ? ` <span style="font-size:0.9em">x${match.Quadras}</span>` : "";
+                            multiKillHtml += `<span style='color:#ff4c4c; font-weight:bold; margin-left:8px;'>QUADRA!${countText}</span>`;
+                        }
+
+                        const pinksText = match.Pinks !== undefined ? `(${match.Pinks} pinks)` : "";
+                        const champImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${match.Champion}.png`;
+
+                        let enemyHtml = "-";
+                        if (match.EnemyChamp) {
+                            const enemyImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${match.EnemyChamp}.png`;
+                            enemyHtml = `<div class="vs-column"><img src="${enemyImg}" class="enemy-icon" title="Versus ${match.EnemyChamp}"></div>`;
+                        }
+
+                        // Sécurité pour les nombres (toLocaleString plante si undefined)
+                        const safeNum = (val) => val ? val.toLocaleString() : "0";
+
+                        const dmg = safeNum(match.DamageDealt);
+                        const dpm = safeNum(match.DPM);
+                        const taken = safeNum(match.DamageTaken);
+                        const heal = safeNum(match.Heal);
+                        const obj = safeNum(match.DmgObj);
+                        const gold = safeNum(match.Gold);
+                        const goldMin = match.GoldMin || 0;
+
+                        li.innerHTML = `
+                            <div class="match-row ${resultClass}" onclick="toggleMatchDetails('details-${index}')">
+                                <div class="champ-flex">
+                                    <img src="${champImg}" class="champ-icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/29.png'">
+                                    <span>${match.Champion} ${multiKillHtml}</span>
+                                </div>
+                                ${enemyHtml}
+                                <div class="stat-detail">${role}</div>
+                                <div style="color:${isWin ? '#2deb90' : '#ff5859'}; font-weight:bold;">${match.KDA}</div>
+                                <div class="stat-detail">${match.CS} (${match.CSMin}/m)</div>
+                                <div class="stat-detail">${match.Vision} ${pinksText}</div>
+                                <div class="stat-detail">${match.Duration || "?"}</div>
+                                <div style="font-weight:bold;">${resultText}</div>
+                                <div class="stat-detail" style="color:#aaa; font-size:0.85em;">${dateStr}</div>
+                            </div>
+                            
+                            <div id="details-${index}" class="match-details">
+                                <div class="stats-grid">
+                                    <div class="stat-box"><div class="stat-label">Damage Dealt (DPM)</div><div class="stat-value dmg-text">${dmg} <span style="font-size:0.6em; color:#888">(${dpm}/m)</span></div></div>
+                                    <div class="stat-box"><div class="stat-label">Damage Taken</div><div class="stat-value" style="color:#aaa">${taken}</div></div>
+                                    <div class="stat-box"><div class="stat-label">Healing</div><div class="stat-value heal-text">${heal}</div></div>
+                                    <div class="stat-box"><div class="stat-label">Obj. Damage</div><div class="stat-value" style="color:#c8aa6e">${obj}</div></div>
+                                    <div class="stat-box"><div class="stat-label">Gold (G/min)</div><div class="stat-value gold-text">${gold} <span style="font-size:0.6em; color:#888">(${goldMin}/m)</span></div></div>
+                                </div>
+                            </div>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    body.appendChild(ul);
+                }
+                modal.style.display = "block";
+            } catch (err) {
+                console.error("Erreur dans openModal:", err);
+                alert("Erreur lors de l'ouverture du détail (voir console F12)");
+            }
+        }
+
+        function toggleMatchDetails(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === "block") el.style.display = "none";
+            else el.style.display = "block";
+        }
+
+        function closeModal() { document.getElementById("myModal").style.display = "none"; }
+        window.onclick = function (e) { if (e.target == document.getElementById("myModal")) closeModal(); }
+
+        fetchStats();
+    </script>
+</body>
+
+</html>
