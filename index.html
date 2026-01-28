@@ -590,7 +590,7 @@
                             <div class="help-icon">
                                 ?
                                 <span class="tooltip-text">
-                                    Estimated LP gain/loss based on matches played today (since 00:00 local time).
+                                    Exact LP gain/loss since the daily midnight snapshot (00:05).
                                 </span>
                             </div>
                         </div>
@@ -676,36 +676,20 @@
                 // --- C'est ici que le clic est défini ---
                 tr.onclick = function () { openModal(player); };
 
-                let dailyLpChange = 0;
-                let gamesToday = 0;
-
-                const today = new Date().toLocaleDateString('fr-FR');
-
-                if (player.History) {
-                    player.History.forEach(match => {
-                        // Date du match
-                        const matchDate = new Date(match.Date).toLocaleDateString('fr-FR');
-
-                        // On compare les dates (chaines de caractères)
-                        if (matchDate === today) {
-                            gamesToday++;
-                            // Estimation : +20 LP par win, -20 LP par loose
-                            if (match.Win) dailyLpChange += 20;
-                            else dailyLpChange -= 20;
-                        }
-                    });
-                }
-
-                // Génération du HTML pour la colonne Daily
+                // --- LOGIQUE DE TREND DEPUIS LE BACKEND ---
+                // On récupère directement la valeur calculée par Azure
+                const trend = player.DailyLp || "0 LP"; 
                 let dailyHtml = "";
-                if (gamesToday === 0) {
-                    // Pas joué aujourd'hui
-                    dailyHtml = `<span class="lp-na">N/A</span>`;
+                
+                if (trend.startsWith("+")) {
+                    dailyHtml = `<span class="lp-plus">${trend}</span>`;
+                } else if (trend.startsWith("-")) {
+                    dailyHtml = `<span class="lp-minus">${trend}</span>`;
+                } else if (trend === "0 LP" || trend === "Even") {
+                    dailyHtml = `<span style="color:#888">0 LP</span>`;
                 } else {
-                    // A joué
-                    if (dailyLpChange > 0) dailyHtml = `<span class="lp-plus">+${dailyLpChange} LP</span>`;
-                    else if (dailyLpChange < 0) dailyHtml = `<span class="lp-minus">${dailyLpChange} LP</span>`;
-                    else dailyHtml = `<span style="color:#888">0 LP</span>`; // Cas rare ou victoires = défaites
+                    // Cas "New" ou données manquantes
+                    dailyHtml = `<span class="lp-na">N/A</span>`;
                 }
                 let winClass = player.Winrate >= 50 ? "win-high" : "win-low";
 
@@ -876,5 +860,6 @@
         fetchStats();
     </script>
 </body>
+
 
 </html>
