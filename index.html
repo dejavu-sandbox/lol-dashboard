@@ -721,6 +721,12 @@
                     });
                 }
 
+                // On remplace "MASTER I" par "MASTER" juste pour le visuel.
+                // Le tri continuera d'utiliser "player.Rank" qui contient le "I".
+                let displayRank = player.Rank
+                    .replace("MASTER I", "MASTER")
+                    .replace("GRANDMASTER I", "GRANDMASTER")
+                    .replace("CHALLENGER I", "CHALLENGER");
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
 
@@ -759,7 +765,7 @@
                         </div>
                     </div>
                 </td>
-                <td style="color:#a09b8c">${player.Rank}</td>
+                <td style="color:#a09b8c">${displayRank}</td>
                 <td>${streakIcon}</td>
                 
                 <td class="win-mid">${player.GlobalWinrate || 0}%<br><span class="sub-stat">${player.GlobalGames || 0} games</span></td>
