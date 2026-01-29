@@ -28,10 +28,9 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1300px; /* Élargi pour les nouvelles colonnes */
             margin: 0 auto;
             display: none;
-            /* Masqué pendant le chargement */
         }
 
         table {
@@ -51,7 +50,6 @@
             font-size: 0.8em;
             border-bottom: 2px solid #c8aa6e;
             position: relative;
-            overflow: visible;
         }
 
         td {
@@ -68,471 +66,139 @@
         }
 
         /* COLORS */
-        .win-high {
-            color: #2deb90;
-            font-weight: bold;
-        }
-
-        .win-low {
-            color: #ff5859;
-            font-weight: bold;
-        }
+        .win-high { color: #2deb90; font-weight: bold; }
+        .win-low { color: #ff5859; font-weight: bold; }
+        .win-mid { color: #f0e6d2; font-weight: bold; } /* Pour le WR Saison */
 
         .streak-win {
-            color: #ff8c00;
-            font-weight: bold;
+            color: #ff8c00; font-weight: bold;
             text-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
-            text-transform: uppercase;
-            font-size: 0.9em;
+            text-transform: uppercase; font-size: 0.9em;
         }
 
         .streak-loss {
-            color: #ff5859;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9em;
-            opacity: 0.8;
+            color: #ff5859; font-weight: bold;
+            text-transform: uppercase; font-size: 0.9em; opacity: 0.8;
         }
 
-        .toxic-ping {
-            color: #ff5859;
-            font-weight: bold;
-        }
+        .toxic-ping { color: #ff5859; font-weight: bold; }
 
-        .player-name {
-            font-weight: bold;
-            font-size: 1.1em;
+        /* --- PLAYER INFO & MAIN CHAMP --- */
+        .player-cell {
+            display: flex; align-items: center; padding-left: 20px;
         }
-
-        .name-tag-row {
-            display: flex;
-            align-items: baseline;
-            /* Aligne le bas du texte */
-            gap: 6px;
-            /* Espace entre le pseudo et le tag */
-        }
-
-        /* On ajuste le tag pour qu'il soit propre à côté du nom */
-        .tag {
-            font-size: 0.8em;
-            color: #666;
-            font-weight: normal;
-            /* Plus de margin-top car il est sur la même ligne */
-            margin: 0;
-        }
-
-        .player-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 4px;
-            /* Espace entre la ligne nom/tag et la ligne des boutons */
-        }
-
         .profile-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 2px solid #c8aa6e;
+            width: 42px; height: 42px;
+            border-radius: 50%; border: 2px solid #c8aa6e;
             margin-right: 15px;
         }
+        .player-info {
+            display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px;
+        }
+        .name-tag-row {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .player-name { font-weight: bold; font-size: 1.1em; }
+        .tag { font-size: 0.8em; color: #666; font-weight: normal; margin: 0; }
+        
+        /* NEW: Main Champ Icon Style */
+        .main-champ-icon {
+            width: 22px; height: 22px;
+            border-radius: 3px;
+            border: 1px solid #444;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+        }
 
-        .player-cell {
-            display: flex;
-            align-items: center;
-            padding-left: 20px;
+        /* --- SUB-STATS (Petites lignes sous les chiffres) --- */
+        .sub-stat {
+            font-size: 0.7em; color: #888; margin-top: 4px; font-weight: normal;
         }
 
         /* --- LOADING SPINNER --- */
-        #loading {
-            margin-top: 50px;
-        }
-
+        #loading { margin-top: 50px; }
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #c8aa6e;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
+            border: 4px solid #f3f3f3; border-top: 4px solid #c8aa6e;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite; margin: 0 auto 20px auto;
         }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- MODAL --- */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(5px);
         }
-
         .modal-content {
-            background-color: #0a0a0c;
-            margin: 2% auto;
-            padding: 20px;
-            border: 2px solid #c8aa6e;
-            width: 95%;
-            max-width: 1000px;
-            border-radius: 10px;
-            max-height: 90vh;
-            overflow-y: auto;
+            background-color: #0a0a0c; margin: 2% auto; padding: 20px;
+            border: 2px solid #c8aa6e; width: 95%; max-width: 1000px;
+            border-radius: 10px; max-height: 90vh; overflow-y: auto;
         }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .match-history { list-style: none; padding: 0; margin-top: 20px; }
+        .match-container { margin-bottom: 8px; border-radius: 5px; overflow: hidden; }
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+        /* --- GRILLE DES MATCHS (MODAL) --- */
+        .match-header, .match-row {
+            display: grid; grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr;
+            align-items: center; padding: 12px; font-size: 0.9em;
         }
-
-        .match-history {
-            list-style: none;
-            padding: 0;
-            margin-top: 20px;
-        }
-
-        .match-container {
-            margin-bottom: 8px;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        /* --- GRILLE DES MATCHS --- */
-        .match-header,
-        .match-row {
-            display: grid;
-            grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr;
-            align-items: center;
-            padding: 12px;
-            font-size: 0.9em;
-        }
-
         .match-header {
-            font-weight: bold;
-            color: #c8aa6e;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            font-size: 0.8em;
-            border-bottom: 1px solid #333;
+            font-weight: bold; color: #c8aa6e; margin-bottom: 10px;
+            text-transform: uppercase; font-size: 0.8em; border-bottom: 1px solid #333;
         }
-
         .match-row {
-            background: #151a21;
-            border-left: 5px solid #555;
-            cursor: pointer;
-            transition: background 0.2s;
+            background: #151a21; border-left: 5px solid #555;
+            cursor: pointer; transition: background 0.2s;
         }
+        .match-row:hover { background-color: #1f2731; transform: translateX(2px); }
+        .match-win { border-left-color: #2deb90; background: linear-gradient(90deg, rgba(45, 235, 144, 0.1) 0%, rgba(21, 26, 33, 0) 100%); }
+        .match-loss { border-left-color: #ff5859; background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%); }
 
-        .match-row:hover {
-            background-color: #1f2731;
-            transform: translateX(2px);
-        }
+        .champ-flex { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: bold; }
+        .champ-icon { width: 36px; height: 36px; border-radius: 4px; border: 1px solid #444; }
+        .vs-column { display: flex; align-items: center; justify-content: center; }
+        .enemy-icon { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #333; transition: 0.2s; }
+        .enemy-icon:hover { border-color: #c8aa6e; transform: scale(1.1); }
 
-        .match-win {
-            border-left-color: #2deb90;
-            background: linear-gradient(90deg, rgba(45, 235, 144, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
-        }
+        .match-details { display: none; background-color: #0f1216; padding: 15px; border-top: 1px solid #333; animation: slideDown 0.2s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .match-loss {
-            border-left-color: #ff5859;
-            background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; text-align: center; }
+        .stat-box { background: #1c2129; padding: 10px; border-radius: 5px; }
+        .stat-label { font-size: 0.75em; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 1.1em; font-weight: bold; color: #f0e6d2; }
+        .gold-text { color: #ffd700; }
+        .dmg-text { color: #ff5859; }
+        .heal-text { color: #2deb90; }
+        .stat-detail { font-size: 0.85em; color: #aaa; }
 
-        .champ-flex {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #fff;
-            font-weight: bold;
-            text-align: left;
-            white-space: nowrap;
-            overflow: hidden;
-        }
+        /* --- BADGES --- */
+        .badges-flex { display: flex; align-items: center; justify-content: center; gap: 6px; height: 100%; }
+        .badge-icon { width: 28px; height: 28px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); transition: transform 0.2s; cursor: help; }
+        .badge-icon:hover { transform: scale(1.2); z-index: 10; }
+        .badge-toxic { border: 1px solid #ff5859; }
+        .badge-fire { border: 1px solid #ff8c00; }
+        .badge-sad { border: 1px solid #888; }
+        .badge-feed { border: 1px solid #a020f0; }
 
-        .champ-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 4px;
-            border: 1px solid #444;
-        }
+        /* --- EXTERNAL LINKS --- */
+        .external-links { display: flex; gap: 6px; margin-top: 3px; }
+        .link-icon { font-size: 0.7em; text-decoration: none; padding: 2px 8px; border-radius: 4px; font-weight: bold; transition: 0.2s; display: inline-block; line-height: normal; }
+        .op-gg { background-color: #5383e8; color: white; }
+        .deeplol { background-color: #1a1f29; color: #00d9ff; border: 1px solid #333; }
+        .link-icon:hover { opacity: 0.9; transform: translateY(-1px); filter: brightness(1.1); }
 
-        .vs-column {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        /* --- TREND --- */
+        .lp-plus { color: #2deb90; font-weight: bold; }
+        .lp-minus { color: #ff5859; font-weight: bold; }
+        .lp-na { color: #444; font-style: italic; }
 
-        .enemy-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #333;
-            transition: 0.2s;
-        }
-
-        .enemy-icon:hover {
-            border-color: #c8aa6e;
-            transform: scale(1.1);
-        }
-
-        .match-details {
-            display: none;
-            background-color: #0f1216;
-            padding: 15px;
-            border-top: 1px solid #333;
-            animation: slideDown 0.2s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            text-align: center;
-        }
-
-        .stat-box {
-            background: #1c2129;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.75em;
-            color: #888;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #f0e6d2;
-        }
-
-        .gold-text {
-            color: #ffd700;
-        }
-
-        .dmg-text {
-            color: #ff5859;
-        }
-
-        .heal-text {
-            color: #2deb90;
-        }
-
-        .stat-detail {
-            font-size: 0.85em;
-            color: #aaa;
-        }
-
-        /* --- BADGES PROPRES --- */
-        .badges-flex {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            height: 100%;
-        }
-
-        .badge-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s;
-            cursor: help;
-        }
-
-        .badge-icon:hover {
-            transform: scale(1.2);
-            z-index: 10;
-        }
-
-        .badge-toxic {
-            border: 1px solid #ff5859;
-        }
-
-        .badge-fire {
-            border: 1px solid #ff8c00;
-        }
-
-        .badge-sad {
-            border: 1px solid #888;
-        }
-
-        .badge-feed {
-            border: 1px solid #a020f0;
-        }
-
-        /* --- LIENS EXTERNES (OP.GG / DeepLoL) --- */
-        .external-links {
-            display: flex;
-            gap: 6px;
-            /* Espace entre les deux boutons */
-            margin-top: 3px;
-            /* Petit espace sous le pseudo */
-        }
-
-        .link-icon {
-            font-size: 0.7em;
-            /* Taille du texte */
-            text-decoration: none;
-            /* Enlève le soulignement moche */
-            padding: 2px 8px;
-            /* Donne du volume au bouton */
-            border-radius: 4px;
-            /* Coins arrondis */
-            font-weight: bold;
-            transition: 0.2s;
-            display: inline-block;
-            /* Important pour que le padding marche */
-            line-height: normal;
-        }
-
-        /* Couleurs spécifiques */
-        .op-gg {
-            background-color: #5383e8;
-            color: white;
-        }
-
-        .deeplol {
-            background-color: #1a1f29;
-            /* Fond sombre pour DeepLoL */
-            color: #00d9ff;
-            /* Texte cyan */
-            border: 1px solid #333;
-            /* Petite bordure subtile */
-        }
-
-        /* Effet au survol */
-        .link-icon:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            /* Petit effet de clic */
-            filter: brightness(1.1);
-        }
-
-        /* Styles pour la colonne Daily LP */
-        .lp-plus {
-            color: #2deb90;
-            font-weight: bold;
-        }
-
-        .lp-minus {
-            color: #ff5859;
-            font-weight: bold;
-        }
-
-        .lp-na {
-            color: #444;
-            font-style: italic;
-        }
-
-        /* --- TOOLTIP (INFO-BULLE) --- */
-        /* --- TOOLTIP CORRECTIF --- */
-        .help-icon {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 16px;
-            height: 16px;
-            background-color: #555;
-            color: #fff;
-            border-radius: 50%;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 6px;
-            cursor: help;
-            position: relative;
-            /* Indispensable pour que la bulle s'accroche ici */
-        }
-
-        .help-icon:hover {
-            background-color: #ffd700;
-            color: #000;
-        }
-
-        /* La bulle de texte (Style Amélioré) */
-        .help-icon .tooltip-text {
-            visibility: hidden;
-            width: 210px;
-            background-color: #121212;
-            /* Fond un peu plus profond */
-
-            /* --- NOUVEAU STYLE DE TEXTE --- */
-            color: #e0e0e0;
-            /* Blanc cassé, moins agressif pour les yeux */
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            /* Police moderne et propre */
-            font-size: 12px;
-            /* Taille lisible */
-            font-weight: 400;
-            /* Poids normal */
-            line-height: 1.5;
-            /* Meilleur espacement entre les lignes */
-            letter-spacing: 0.3px;
-            /* Légère aération des lettres */
-            text-transform: none;
-            /* On s'assure que ce n'est pas en majuscules */
-            text-align: center;
-            /* ----------------------------- */
-
-            border-radius: 6px;
-            padding: 12px;
-
-            /* Positionnement Absolu (Inchangé) */
-            position: absolute;
-            z-index: 9999;
-            bottom: 135%;
-            left: 50%;
-            transform: translateX(-50%);
-
-            /* Style de la boîte */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-            border: 1px solid #ffd700;
-            /* Bordure dorée fine */
-
-            /* Animation */
-            opacity: 0;
-            transition: all 0.2s ease-in-out;
-            pointer-events: none;
-        }
-
-        /* Affichage au survol */
-        .help-icon:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
+        /* --- TOOLTIPS --- */
+        .help-icon { display: inline-flex; justify-content: center; align-items: center; width: 16px; height: 16px; background-color: #555; color: #fff; border-radius: 50%; font-size: 11px; font-weight: bold; margin-left: 6px; cursor: help; position: relative; }
+        .help-icon:hover { background-color: #ffd700; color: #000; }
+        .help-icon .tooltip-text { visibility: hidden; width: 210px; background-color: #121212; color: #e0e0e0; font-size: 12px; font-weight: 400; line-height: 1.5; border-radius: 6px; padding: 12px; position: absolute; z-index: 9999; bottom: 135%; left: 50%; transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); border: 1px solid #ffd700; opacity: 0; transition: all 0.2s ease-in-out; pointer-events: none; }
+        .help-icon:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
 </head>
 
@@ -553,8 +219,8 @@
                     <th style="text-align: left; padding-left: 40px;">Player</th>
                     <th>Rank</th>
                     <th>Streak</th>
-                    <th>Winrate</th>
-                    <th>KDA</th>
+                    <th>WR (Season)</th> <th>WR (Last 20)</th> <th>
+                        KDA & Impact </th>
                     <th>
                         <div style="display:flex; align-items:center; justify-content:center;">
                             Toxicity
@@ -644,14 +310,11 @@
 
             function getRankScore(rankStr) {
                 if (!rankStr || rankStr === "Unranked") return 0;
-
                 let match = rankStr.toUpperCase().match(/^(\w+)\s+([IVX]+)\s+\((\d+)\s+LP\)/);
                 if (!match) return 0;
-
                 let tier = match[1];
                 let div = match[2];
                 let lp = parseInt(match[3]);
-
                 return (tierValues[tier] || 0) * 100 + (divValues[div] || 0) + lp;
             }
             players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
@@ -659,50 +322,51 @@
             players.forEach(player => {
                 const tr = document.createElement("tr");
                 tr.classList.add("player-row");
-
-                // --- C'est ici que le clic est défini ---
                 tr.onclick = function () { openModal(player); };
 
-                // --- LOGIQUE DE TREND DEPUIS LE BACKEND ---
-                // On récupère directement la valeur calculée par Azure
+                // --- 1. DATA PREPARATION ---
+                // Trend
                 const trend = player.DailyLp || "0 LP";
                 let dailyHtml = "";
+                if (trend.startsWith("+")) dailyHtml = `<span class="lp-plus">${trend}</span>`;
+                else if (trend.startsWith("-")) dailyHtml = `<span class="lp-minus">${trend}</span>`;
+                else if (trend === "0 LP" || trend === "Even") dailyHtml = `<span style="color:#888">0 LP</span>`;
+                else dailyHtml = `<span class="lp-na">N/A</span>`;
 
-                if (trend.startsWith("+")) {
-                    dailyHtml = `<span class="lp-plus">${trend}</span>`;
-                } else if (trend.startsWith("-")) {
-                    dailyHtml = `<span class="lp-minus">${trend}</span>`;
-                } else if (trend === "0 LP" || trend === "Even") {
-                    dailyHtml = `<span style="color:#888">0 LP</span>`;
-                } else {
-                    // Cas "New" ou données manquantes
-                    dailyHtml = `<span class="lp-na">N/A</span>`;
-                }
+                // Winrates
                 let winClass = player.Winrate >= 50 ? "win-high" : "win-low";
-
-                // Badges HTML construction
+                
+                // Badges
                 let badgesHtml = "";
-                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 TOXIC: Mad Pinger! (Averaging 6+ 'Missing' or 'Push Forward' pings per game over the last 20 matches)">`;
-                if (player.StreakType === "Win" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/SummonerDot.png" class="badge-icon badge-fire" title="🔥 ON FIRE: Unstoppable! (Achieved by winning 4+ matches in a row)">`;
-                if (player.StreakType === "Loss" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/AuraofDespair.png" class="badge-icon badge-sad" title="😢 SAD: Tough night? (Achieved by losing 4+ matches in a row)">`;
-                if (player.AvgKDA < 1.5) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/Feast.png" class="badge-icon badge-feed" title="🍔 FEEDER: Michelin Star Chef! (Average KDA is below 1.5 over the last 20 matches)">`;
-                if (player.Winrate >= 60) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/UndyingRage.png" class="badge-icon" style="border: 1px solid #ffd700;" title="👑 SMURF: Built Different! (Maintaining a 60% Winrate or higher over the last 20 matches)">`;
-
-                if (player.TotalPentas > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/666.png" class="badge-icon" style="border: 1px solid #ffd700;" title="🤘 PENTAKILL! (Achieved ${player.TotalPentas} Pentakill(s) recently)">`;
-
-                // 2. QUADRAKILL (Icone Jhin - Le Virtuose du 4)
-                if (player.TotalQuadras > 0) {
-                    badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Jhin.png" class="badge-icon" style="border: 1px solid #ff4c4c;" title="🎭 PERFECTION! (Achieved ${player.TotalQuadras} Quadrakill(s) recently)">`;
-                }
+                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 TOXIC: Mad Pinger! (Averaging 6+ 'Missing' or 'Push Forward' pings per game)">`;
+                if (player.StreakType === "Win" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/SummonerDot.png" class="badge-icon badge-fire" title="🔥 ON FIRE: Unstoppable! (4+ Wins)">`;
+                if (player.StreakType === "Loss" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/AuraofDespair.png" class="badge-icon badge-sad" title="😢 SAD: Tough night? (4+ Losses)">`;
+                if (player.AvgKDA < 1.5) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/Feast.png" class="badge-icon badge-feed" title="🍔 FEEDER: Michelin Star Chef! (Avg KDA < 1.5)">`;
+                if (player.Winrate >= 60) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/UndyingRage.png" class="badge-icon" style="border: 1px solid #ffd700;" title="👑 SMURF: Built Different! (Winrate >= 60%)">`;
+                if (player.TotalPentas > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/666.png" class="badge-icon" style="border: 1px solid #ffd700;" title="🤘 PENTAKILL! (${player.TotalPentas})">`;
+                if (player.TotalQuadras > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Jhin.png" class="badge-icon" style="border: 1px solid #ff4c4c;" title="🎭 PERFECTION! (${player.TotalQuadras} Quadras)">`;
 
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
 
+                // Main Champ Icon (Nouveau)
+                let mainChampHtml = "";
+                if(player.MainChamp) {
+                    mainChampHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${player.MainChamp}.png" class="main-champ-icon" title="Main: ${player.MainChamp}">`;
+                }
+
+                // Streak
                 let streakIcon = "-";
                 if (player.StreakType === "Win" && player.StreakCount >= 1) streakIcon = `<span class="streak-win">🔥 ${player.StreakCount} Wins</span>`;
                 else if (player.StreakType === "Loss" && player.StreakCount >= 1) streakIcon = `<span class="streak-loss">💀 ${player.StreakCount} Loses</span>`;
 
                 const urlName = `${player.name}-${player.Tag}`.replace(/\s+/g, '%20');
+
+                // Moyennes Impact (Nouveau)
+                const avgKpColor = player.AvgKP >= 50 ? '#2deb90' : '#aaa';
+                const avgDeathColor = player.AvgDeathShare > 25 ? '#ff5859' : '#888';
+
+                // --- 2. HTML ROW CONSTRUCTION ---
                 tr.innerHTML = `
                 <td>
                     <div class="player-cell">
@@ -710,7 +374,7 @@
                         <div class="player-info">
                             <div class="name-tag-row">
                                 <span class="player-name">${player.name}</span>
-                                <span class="tag">#${player.Tag}</span>
+                                ${mainChampHtml} <span class="tag">#${player.Tag}</span>
                             </div>
                             <div class="external-links" onclick="event.stopPropagation()"> 
                                 <a href="https://www.op.gg/summoners/euw/${urlName}" target="_blank" class="link-icon op-gg">OP</a>
@@ -721,20 +385,30 @@
                 </td>
                 <td style="color:#a09b8c">${player.Rank}</td>
                 <td>${streakIcon}</td>
-                <td class="${winClass}">${player.Winrate}%</td>
-                <td>${player.AvgKDA || 0}</td>
-                <td class="${pingClass}">${player.AvgPings} pings</td>
                 
-                <td>${dailyHtml}</td>
+                <td class="win-mid">${player.GlobalWinrate || 0}%<br><span class="sub-stat">${player.GlobalGames || 0} games</span></td>
+                
+                <td class="${winClass}">${player.Winrate}%</td>
+                
+                <td>
+                    ${player.AvgKDA || 0}
+                    <div class="sub-stat">
+                        <span style="color:${avgKpColor}">${player.AvgKP}% KP</span> | 
+                        <span style="color:${avgDeathColor}">${player.AvgDeathShare}% D</span>
+                    </div>
+                </td>
 
+                <td class="${pingClass}">${player.AvgPings} pings</td>
+                <td>${dailyHtml}</td>
                 <td><div class="badges-flex">${badgesHtml}</div></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // --- MODAL FUNCTIONS (Inchangées et optimisées) ---
         function openModal(player) {
-            console.log("Ouverture modal pour :", player.name); // Debug dans la console (F12)
+            console.log("Opening modal for:", player.name);
             try {
                 const modal = document.getElementById("myModal");
                 document.getElementById("modalTitle").innerHTML = `History: <span style="color:#fff">${player.name}</span>`;
@@ -751,31 +425,24 @@
                         const li = document.createElement("li");
                         li.className = "match-container";
 
-                        // --- 1. LOGIQUE DE BASE ---
                         const isWin = match.Win;
                         const resultClass = isWin ? 'match-win' : 'match-loss';
                         const resultText = isWin ? "VICTORY" : "DEFEAT";
                         const role = match.Role === "UTILITY" ? "SUPPORT" : match.Role;
 
-                        // Sécurité pour les dates
+                        // Date
                         let dateStr = "-";
                         if (match.Date) {
                             try {
                                 const dateObj = new Date(match.Date);
                                 dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-                            } catch (e) { console.warn("Date error", e); }
+                            } catch (e) { }
                         }
 
-                        // Gestion des PENTAS / QUADRAS
+                        // Multikills
                         let multiKillHtml = "";
-                        if (match.Pentas > 0) {
-                            const countText = match.Pentas > 1 ? ` <span style="font-size:0.9em">x${match.Pentas}</span>` : "";
-                            multiKillHtml += `<span style='color:#ffd700; font-weight:bold; text-shadow:0 0 5px orange; margin-left:8px;'>PENTA!${countText}</span> `;
-                        }
-                        if (match.Quadras > 0) {
-                            const countText = match.Quadras > 1 ? ` <span style="font-size:0.9em">x${match.Quadras}</span>` : "";
-                            multiKillHtml += `<span style='color:#ff4c4c; font-weight:bold; margin-left:8px;'>QUADRA!${countText}</span>`;
-                        }
+                        if (match.Pentas > 0) multiKillHtml += `<span style='color:#ffd700; font-weight:bold; margin-left:8px;'>PENTA!${match.Pentas > 1 ? ' x'+match.Pentas : ''}</span> `;
+                        if (match.Quadras > 0) multiKillHtml += `<span style='color:#ff4c4c; font-weight:bold; margin-left:8px;'>QUADRA!${match.Quadras > 1 ? ' x'+match.Quadras : ''}</span>`;
 
                         const pinksText = match.Pinks !== undefined ? `(${match.Pinks} pinks)` : "";
                         const champImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${match.Champion}.png`;
@@ -786,36 +453,20 @@
                             enemyHtml = `<div class="vs-column"><img src="${enemyImg}" class="enemy-icon" title="Versus ${match.EnemyChamp}"></div>`;
                         }
 
-                        // Sécurité pour les nombres
                         const safeNum = (val) => val ? val.toLocaleString() : "0";
-                        const dmg = safeNum(match.DamageDealt);
-                        const dpm = safeNum(match.DPM);
-                        const taken = safeNum(match.DamageTaken);
-                        const heal = safeNum(match.Heal);
-                        const obj = safeNum(match.DmgObj);
-                        const gold = safeNum(match.Gold);
-                        const goldMin = match.GoldMin || 0;
-
-                        // --- 2. LOGIQUE DE COULEUR DYNAMIQUE (KP% & DEATH SHARE) ---
-                        let kpColor = '#aaa'; // Gris par défaut
+                        
+                        // KP Color Logic (Modal)
+                        let kpColor = '#aaa';
                         const currentRole = role ? role.toUpperCase() : "UNKNOWN";
-
-                        // Paliers basés sur la Meta (Jungler/Support vs Laners)
                         if (currentRole === 'SUPPORT' || currentRole === 'JUNGLE') {
-                            if (match.KP > 65) kpColor = '#2deb90';      // Vert
-                            else if (match.KP < 45) kpColor = '#ff5859'; // Rouge
+                            if (match.KP > 65) kpColor = '#2deb90'; else if (match.KP < 45) kpColor = '#ff5859';
                         } else if (currentRole === 'TOP') {
-                            if (match.KP > 55) kpColor = '#2deb90';
-                            else if (match.KP < 30) kpColor = '#ff5859';
-                        } else { // MID et ADC
-                            if (match.KP > 60) kpColor = '#2deb90';
-                            else if (match.KP < 35) kpColor = '#ff5859';
+                            if (match.KP > 55) kpColor = '#2deb90'; else if (match.KP < 30) kpColor = '#ff5859';
+                        } else { 
+                            if (match.KP > 60) kpColor = '#2deb90'; else if (match.KP < 35) kpColor = '#ff5859';
                         }
-
-                        // Death Share : Rouge si impact négatif massif (>30% des morts de l'équipe)
                         const deathColor = match.DeathShare > 30 ? '#ff5859' : '#aaa';
 
-                        // --- 3. GÉNÉRATION DU HTML ---
                         li.innerHTML = `
                             <div class="match-row ${resultClass}" onclick="toggleMatchDetails('details-${index}')">
                                 <div class="champ-flex">
@@ -836,31 +487,27 @@
                                 <div class="stats-grid">
                                     <div class="stat-box">
                                         <div class="stat-label">Damage Dealt (DPM)</div>
-                                        <div class="stat-value dmg-text">${dmg} <span style="font-size:0.65em; color:#888">(${dpm}/m)</span></div>
+                                        <div class="stat-value dmg-text">${safeNum(match.DamageDealt)} <span style="font-size:0.65em; color:#888">(${safeNum(match.DPM)}/m)</span></div>
                                         <div style="font-size:0.75em; color:#aaa; margin-top:4px;">Share: <strong>${match.DmgShare}%</strong></div>
                                     </div>
-
                                     <div class="stat-box">
                                         <div class="stat-label">Kill Participation</div>
                                         <div class="stat-value" style="color:${kpColor}">${match.KP}%</div>
                                         <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Kills: ${match.TeamKills || '?'}</div>
                                     </div>
-
-                                    <div class="stat-box"><div class="stat-label">Damage Taken</div><div class="stat-value" style="color:#aaa">${taken}</div></div>
-                                    <div class="stat-box"><div class="stat-label">Healing</div><div class="stat-value heal-text">${heal}</div></div>
-                                    <div class="stat-box"><div class="stat-label">Obj. Damage</div><div class="stat-value" style="color:#c8aa6e">${obj}</div></div>
-
+                                    <div class="stat-box"><div class="stat-label">Damage Taken</div><div class="stat-value" style="color:#aaa">${safeNum(match.DamageTaken)}</div></div>
+                                    <div class="stat-box"><div class="stat-label">Healing</div><div class="stat-value heal-text">${safeNum(match.Heal)}</div></div>
+                                    <div class="stat-box"><div class="stat-label">Obj. Damage</div><div class="stat-value" style="color:#c8aa6e">${safeNum(match.DmgObj)}</div></div>
+                                    
                                     <div class="stat-box">
                                         <div class="stat-label">Gold (G/min)</div>
-                                        <div class="stat-value gold-text">${gold} <span style="font-size:0.6em; color:#888">(${goldMin}/m)</span></div>
+                                        <div class="stat-value gold-text">${safeNum(match.Gold)} <span style="font-size:0.6em; color:#888">(${match.GoldMin}/m)</span></div>
                                     </div>
-
                                     <div class="stat-box">
                                         <div class="stat-label">Death Share</div>
                                         <div class="stat-value" style="color:${deathColor}">${match.DeathShare}%</div>
                                         <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Deaths: ${match.TeamDeaths || '?'}</div>
                                     </div>
-
                                     <div class="stat-box">
                                         <div class="stat-label">Toxic Pings</div>
                                         <div class="stat-value" style="color:#ff5859">${match.Pings}</div>
@@ -875,14 +522,13 @@
                 modal.style.display = "block";
             } catch (err) {
                 console.error("Erreur dans openModal:", err);
-                alert("Erreur lors de l'ouverture du détail (voir console F12)");
+                alert("Erreur details match");
             }
         }
 
         function toggleMatchDetails(id) {
             const el = document.getElementById(id);
-            if (el.style.display === "block") el.style.display = "none";
-            else el.style.display = "block";
+            el.style.display = (el.style.display === "block") ? "none" : "block";
         }
 
         function closeModal() { document.getElementById("myModal").style.display = "none"; }
@@ -891,6 +537,4 @@
         fetchStats();
     </script>
 </body>
-
-
 </html>
