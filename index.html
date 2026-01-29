@@ -659,15 +659,32 @@
                 // Winrates
                 let winClass = player.Winrate >= 50 ? "win-high" : "win-low";
 
-                // Badges
+                // Badges (from backend)
                 let badgesHtml = "";
-                if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 TOXIC: Mad Pinger! (Averaging 6+ 'Missing' or 'Push Forward' pings per game)">`;
-                if (player.StreakType === "Win" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/SummonerDot.png" class="badge-icon badge-fire" title="🔥 ON FIRE: Unstoppable! (4+ Wins)">`;
-                if (player.StreakType === "Loss" && player.StreakCount >= 4) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/AuraofDespair.png" class="badge-icon badge-sad" title="😢 SAD: Tough night? (4+ Losses)">`;
-                if (player.AvgKDA < 1.5) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/Feast.png" class="badge-icon badge-feed" title="🍔 FEEDER: Michelin Star Chef! (Avg KDA < 1.5)">`;
-                if (player.Winrate >= 60) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/UndyingRage.png" class="badge-icon" style="border: 1px solid #ffd700;" title="👑 SMURF: Built Different! (Winrate >= 60%)">`;
-                if (player.TotalPentas > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/666.png" class="badge-icon" style="border: 1px solid #ffd700;" title="🤘 PENTAKILL! (${player.TotalPentas})">`;
-                if (player.TotalQuadras > 0) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/Jhin.png" class="badge-icon" style="border: 1px solid #ff4c4c;" title="🎭 PERFECTION! (${player.TotalQuadras} Quadras)">`;
+                if (player.Badges && player.Badges.length > 0) {
+                    player.Badges.forEach(badge => {
+                        let imgSrc = "";
+                        let extraClass = "";
+                        let extraStyle = "";
+                        
+                        if (badge.Spell) {
+                            imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${badge.Spell}.png`;
+                        } else if (badge.Icon) {
+                            imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${badge.Icon}.png`;
+                        } else if (badge.Champion) {
+                            imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${badge.Champion}.png`;
+                        }
+                        
+                        if (badge.Type === "toxic") extraClass = "badge-toxic";
+                        else if (badge.Type === "fire") extraClass = "badge-fire";
+                        else if (badge.Type === "sad") extraClass = "badge-sad";
+                        else if (badge.Type === "feed") extraClass = "badge-feed";
+                        else if (badge.Type === "smurf" || badge.Type === "penta") extraStyle = "border: 1px solid #ffd700;";
+                        else if (badge.Type === "quadra") extraStyle = "border: 1px solid #ff4c4c;";
+                        
+                        badgesHtml += `<img src="${imgSrc}" class="badge-icon ${extraClass}" style="${extraStyle}" title="${badge.Title}">`;
+                    });
+                }
 
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
