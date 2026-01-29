@@ -85,10 +85,10 @@
             text-transform: uppercase;
             font-size: 0.9em;
         }
-        
+
         .streak-loss {
             color: #ff5859;
-            font-weight: bold; 
+            font-weight: bold;
             text-transform: uppercase;
             font-size: 0.9em;
             opacity: 0.8;
@@ -457,8 +457,9 @@
             color: #444;
             font-style: italic;
         }
+
         /* --- TOOLTIP (INFO-BULLE) --- */
-/* --- TOOLTIP CORRECTIF --- */
+        /* --- TOOLTIP CORRECTIF --- */
         .help-icon {
             display: inline-flex;
             justify-content: center;
@@ -472,7 +473,8 @@
             font-weight: bold;
             margin-left: 6px;
             cursor: help;
-            position: relative; /* Indispensable pour que la bulle s'accroche ici */
+            position: relative;
+            /* Indispensable pour que la bulle s'accroche ici */
         }
 
         .help-icon:hover {
@@ -484,33 +486,42 @@
         .help-icon .tooltip-text {
             visibility: hidden;
             width: 210px;
-            background-color: #121212; /* Fond un peu plus profond */
-            
+            background-color: #121212;
+            /* Fond un peu plus profond */
+
             /* --- NOUVEAU STYLE DE TEXTE --- */
-            color: #e0e0e0; /* Blanc cassé, moins agressif pour les yeux */
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* Police moderne et propre */
-            font-size: 12px;       /* Taille lisible */
-            font-weight: 400;      /* Poids normal */
-            line-height: 1.5;      /* Meilleur espacement entre les lignes */
-            letter-spacing: 0.3px; /* Légère aération des lettres */
-            text-transform: none;  /* On s'assure que ce n'est pas en majuscules */
+            color: #e0e0e0;
+            /* Blanc cassé, moins agressif pour les yeux */
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            /* Police moderne et propre */
+            font-size: 12px;
+            /* Taille lisible */
+            font-weight: 400;
+            /* Poids normal */
+            line-height: 1.5;
+            /* Meilleur espacement entre les lignes */
+            letter-spacing: 0.3px;
+            /* Légère aération des lettres */
+            text-transform: none;
+            /* On s'assure que ce n'est pas en majuscules */
             text-align: center;
             /* ----------------------------- */
-            
+
             border-radius: 6px;
             padding: 12px;
-            
+
             /* Positionnement Absolu (Inchangé) */
             position: absolute;
             z-index: 9999;
-            bottom: 135%; 
+            bottom: 135%;
             left: 50%;
             transform: translateX(-50%);
-            
+
             /* Style de la boîte */
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-            border: 1px solid #ffd700; /* Bordure dorée fine */
-            
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            border: 1px solid #ffd700;
+            /* Bordure dorée fine */
+
             /* Animation */
             opacity: 0;
             transition: all 0.2s ease-in-out;
@@ -549,7 +560,8 @@
                             Toxicity
                             <div class="help-icon">?
                                 <span class="tooltip-text">
-                                    Average of <strong>"?"</strong> (Missing) and <strong>"Push Forward"</strong> pings per game over the last 20 matches.
+                                    Average of <strong>"?"</strong> (Missing) and <strong>"Push Forward"</strong> pings
+                                    per game over the last 20 matches.
                                 </span>
                             </div>
                         </div>
@@ -632,14 +644,14 @@
 
             function getRankScore(rankStr) {
                 if (!rankStr || rankStr === "Unranked") return 0;
-                
+
                 let match = rankStr.toUpperCase().match(/^(\w+)\s+([IVX]+)\s+\((\d+)\s+LP\)/);
                 if (!match) return 0;
-                
+
                 let tier = match[1];
                 let div = match[2];
                 let lp = parseInt(match[3]);
-                
+
                 return (tierValues[tier] || 0) * 100 + (divValues[div] || 0) + lp;
             }
             players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
@@ -653,9 +665,9 @@
 
                 // --- LOGIQUE DE TREND DEPUIS LE BACKEND ---
                 // On récupère directement la valeur calculée par Azure
-                const trend = player.DailyLp || "0 LP"; 
+                const trend = player.DailyLp || "0 LP";
                 let dailyHtml = "";
-                
+
                 if (trend.startsWith("+")) {
                     dailyHtml = `<span class="lp-plus">${trend}</span>`;
                 } else if (trend.startsWith("-")) {
@@ -809,25 +821,30 @@
                                         <div class="stat-value dmg-text">${dmg} <span style="font-size:0.65em; color:#888">(${dpm}/m)</span></div>
                                         <div style="font-size:0.75em; color:#aaa; margin-top:4px;">Share: <strong>${match.DmgShare}%</strong></div>
                                     </div>
-
                                     <div class="stat-box">
                                         <div class="stat-label">Kill Participation</div>
                                         <div class="stat-value" style="color:#2deb90">${match.KP}%</div>
                                         <div style="font-size:0.75em; color:#aaa; margin-top:4px;">Team Kills: ${match.TeamKills}</div>
                                     </div>
-
                                     <div class="stat-box"><div class="stat-label">Damage Taken</div><div class="stat-value" style="color:#aaa">${taken}</div></div>
                                     <div class="stat-box"><div class="stat-label">Healing</div><div class="stat-value heal-text">${heal}</div></div>
                                     <div class="stat-box"><div class="stat-label">Obj. Damage</div><div class="stat-value" style="color:#c8aa6e">${obj}</div></div>
-                                    
+
                                     <div class="stat-box">
                                         <div class="stat-label">Gold (G/min)</div>
                                         <div class="stat-value gold-text">${gold} <span style="font-size:0.6em; color:#888">(${goldMin}/m)</span></div>
                                     </div>
 
                                     <div class="stat-box">
+                                        <div class="stat-label">Death Share</div>
+                                        <div class="stat-value" style="color:${match.DeathShare > 25 ? '#ff5859' : '#aaa'}">${match.DeathShare}%</div>
+                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Deaths: ${match.TeamDeaths}</div>
+                                    </div>
+
+                                    <div class="stat-box">
                                         <div class="stat-label">Toxic Pings</div>
                                         <div class="stat-value" style="color:#ff5859">${match.Pings}</div>
+                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">? & Push only</div>
                                     </div>
                                 </div>
                             </div>
@@ -858,6 +875,3 @@
 
 
 </html>
-
-
-
