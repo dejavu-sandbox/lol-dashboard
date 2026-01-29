@@ -667,10 +667,15 @@
 
             function getRankScore(rankStr) {
                 if (!rankStr || rankStr === "Unranked") return 0;
-                let parts = rankStr.toUpperCase().split(' ');
-                let tier = parts[0];
-                let div = parts[1] || "I";
-                return (tierValues[tier] || 0) * 100 + (divValues[div] || 0);
+                
+                let match = rankStr.toUpperCase().match(/^(\w+)\s+([IVX]+)\s+\((\d+)\s+LP\)/);
+                if (!match) return 0;
+                
+                let tier = match[1];
+                let div = match[2];
+                let lp = parseInt(match[3]);
+                
+                return (tierValues[tier] || 0) * 100 + (divValues[div] || 0) + lp;
             }
             players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
 
