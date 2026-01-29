@@ -751,12 +751,13 @@
                         const li = document.createElement("li");
                         li.className = "match-container";
 
+                        // --- 1. LOGIQUE DE BASE ---
                         const isWin = match.Win;
                         const resultClass = isWin ? 'match-win' : 'match-loss';
                         const resultText = isWin ? "VICTORY" : "DEFEAT";
                         const role = match.Role === "UTILITY" ? "SUPPORT" : match.Role;
 
-                        // Sécurité pour les dates (évite le crash si date manquante)
+                        // Sécurité pour les dates
                         let dateStr = "-";
                         if (match.Date) {
                             try {
@@ -765,14 +766,12 @@
                             } catch (e) { console.warn("Date error", e); }
                         }
 
+                        // Gestion des PENTAS / QUADRAS
                         let multiKillHtml = "";
-                        // Gestion des PENTAS
                         if (match.Pentas > 0) {
                             const countText = match.Pentas > 1 ? ` <span style="font-size:0.9em">x${match.Pentas}</span>` : "";
                             multiKillHtml += `<span style='color:#ffd700; font-weight:bold; text-shadow:0 0 5px orange; margin-left:8px;'>PENTA!${countText}</span> `;
                         }
-
-                        // Gestion des QUADRAS
                         if (match.Quadras > 0) {
                             const countText = match.Quadras > 1 ? ` <span style="font-size:0.9em">x${match.Quadras}</span>` : "";
                             multiKillHtml += `<span style='color:#ff4c4c; font-weight:bold; margin-left:8px;'>QUADRA!${countText}</span>`;
@@ -787,9 +786,8 @@
                             enemyHtml = `<div class="vs-column"><img src="${enemyImg}" class="enemy-icon" title="Versus ${match.EnemyChamp}"></div>`;
                         }
 
-                        // Sécurité pour les nombres (toLocaleString plante si undefined)
+                        // Sécurité pour les nombres
                         const safeNum = (val) => val ? val.toLocaleString() : "0";
-
                         const dmg = safeNum(match.DamageDealt);
                         const dpm = safeNum(match.DPM);
                         const taken = safeNum(match.DamageTaken);
@@ -798,6 +796,26 @@
                         const gold = safeNum(match.Gold);
                         const goldMin = match.GoldMin || 0;
 
+                        // --- 2. LOGIQUE DE COULEUR DYNAMIQUE (KP% & DEATH SHARE) ---
+                        let kpColor = '#aaa'; // Gris par défaut
+                        const currentRole = role ? role.toUpperCase() : "UNKNOWN";
+
+                        // Paliers basés sur la Meta (Jungler/Support vs Laners)
+                        if (currentRole === 'SUPPORT' || currentRole === 'JUNGLE') {
+                            if (match.KP > 65) kpColor = '#2deb90';      // Vert
+                            else if (match.KP < 45) kpColor = '#ff5859'; // Rouge
+                        } else if (currentRole === 'TOP') {
+                            if (match.KP > 55) kpColor = '#2deb90';
+                            else if (match.KP < 30) kpColor = '#ff5859';
+                        } else { // MID et ADC
+                            if (match.KP > 60) kpColor = '#2deb90';
+                            else if (match.KP < 35) kpColor = '#ff5859';
+                        }
+
+                        // Death Share : Rouge si impact négatif massif (>30% des morts de l'équipe)
+                        const deathColor = match.DeathShare > 30 ? '#ff5859' : '#aaa';
+
+                        // --- 3. GÉNÉRATION DU HTML ---
                         li.innerHTML = `
                             <div class="match-row ${resultClass}" onclick="toggleMatchDetails('details-${index}')">
                                 <div class="champ-flex">
@@ -821,11 +839,13 @@
                                         <div class="stat-value dmg-text">${dmg} <span style="font-size:0.65em; color:#888">(${dpm}/m)</span></div>
                                         <div style="font-size:0.75em; color:#aaa; margin-top:4px;">Share: <strong>${match.DmgShare}%</strong></div>
                                     </div>
+
                                     <div class="stat-box">
                                         <div class="stat-label">Kill Participation</div>
-                                        <div class="stat-value" style="color:#2deb90">${match.KP}%</div>
-                                        <div style="font-size:0.75em; color:#aaa; margin-top:4px;">Team Kills: ${match.TeamKills}</div>
+                                        <div class="stat-value" style="color:${kpColor}">${match.KP}%</div>
+                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Kills: ${match.TeamKills || '?'}</div>
                                     </div>
+
                                     <div class="stat-box"><div class="stat-label">Damage Taken</div><div class="stat-value" style="color:#aaa">${taken}</div></div>
                                     <div class="stat-box"><div class="stat-label">Healing</div><div class="stat-value heal-text">${heal}</div></div>
                                     <div class="stat-box"><div class="stat-label">Obj. Damage</div><div class="stat-value" style="color:#c8aa6e">${obj}</div></div>
@@ -837,13 +857,14 @@
 
                                     <div class="stat-box">
                                         <div class="stat-label">Death Share</div>
-                                        <div class="stat-value" style="color:${match.DeathShare > 25 ? '#ff5859' : '#aaa'}">${match.DeathShare}%</div>
-                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Deaths: ${match.TeamDeaths}</div>
+                                        <div class="stat-value" style="color:${deathColor}">${match.DeathShare}%</div>
+                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Deaths: ${match.TeamDeaths || '?'}</div>
                                     </div>
 
                                     <div class="stat-box">
                                         <div class="stat-label">Toxic Pings</div>
                                         <div class="stat-value" style="color:#ff5859">${match.Pings}</div>
+                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">? & Push Forward</div>
                                     </div>
                                 </div>
                             </div>
