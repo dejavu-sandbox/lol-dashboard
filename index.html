@@ -72,11 +72,6 @@
             font-weight: bold;
         }
 
-        .win-mid {
-            color: #f0e6d2;
-            font-weight: bold;
-        }
-
         .win-low {
             color: #ff5859;
             font-weight: bold;
@@ -222,7 +217,7 @@
         .match-header,
         .match-row {
             display: grid;
-            grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr;
             align-items: center;
             padding: 12px;
             font-size: 0.9em;
@@ -484,38 +479,7 @@
             color: #000;
         }
 
-        /* La bulle de texte */
-        .help-icon .tooltip-text {
-            visibility: hidden;
-            width: 200px;
-            background-color: #1a1a1a;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 10px;
-            
-            /* Positionnement Absolu */
-            position: absolute;
-            z-index: 9999; /* Très haut pour passer au-dessus du tableau */
-            bottom: 125%;  /* Juste au-dessus du ? */
-            left: 50%;
-            transform: translateX(-50%); /* Pour centrer parfaitement */
-            
-            /* Style */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            border: 1px solid #ffd700;
-            font-weight: normal;
-            font-size: 0.85em;
-            line-height: 1.4;
-            
-            /* Animation */
-            opacity: 0;
-            transition: opacity 0.2s;
-            pointer-events: none; /* Pour que la souris ne bloque pas dessus */
-        }
-
-        /* La petite flèche en bas de la bulle */
-/* La bulle de texte (Style Amélioré) */
+        /* La bulle de texte (Style Amélioré) */
         .help-icon .tooltip-text {
             visibility: hidden;
             width: 210px;
