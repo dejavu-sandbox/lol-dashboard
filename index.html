@@ -410,6 +410,37 @@
             border: 1px solid #a020f0;
         }
 
+        .badge-otp {
+            border: 1px solid #8a2be2;
+            box-shadow: 0 0 8px rgba(138, 43, 226, 0.4);
+        }
+
+        .badge-versatile {
+            border: 1px solid #00d9ff;
+        }
+
+        .badge-death_magnet {
+            border: 1px solid #8b0000;
+        }
+
+        .badge-unkillable {
+            border: 1px solid #2deb90;
+            box-shadow: 0 0 6px rgba(45, 235, 144, 0.3);
+        }
+
+        .badge-carry {
+            border: 1px solid #ff4444;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+        }
+
+        .badge-farmer {
+            border: 1px solid #ffd700;
+        }
+
+        .badge-vision {
+            border: 1px solid #00bfff;
+        }
+
         /* --- EXTERNAL LINKS --- */
         .external-links {
             display: flex;
@@ -667,7 +698,9 @@
                         let extraClass = "";
                         let extraStyle = "";
                         
-                        if (badge.Spell) {
+                        if (badge.LocalIcon) {
+                            imgSrc = badge.LocalIcon;
+                        } else if (badge.Spell) {
                             imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${badge.Spell}.png`;
                         } else if (badge.Icon) {
                             imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${badge.Icon}.png`;
@@ -679,6 +712,13 @@
                         else if (badge.Type === "fire") extraClass = "badge-fire";
                         else if (badge.Type === "sad") extraClass = "badge-sad";
                         else if (badge.Type === "feed") extraClass = "badge-feed";
+                        else if (badge.Type === "otp") extraClass = "badge-otp";
+                        else if (badge.Type === "versatile") extraClass = "badge-versatile";
+                        else if (badge.Type === "death_magnet") extraClass = "badge-death_magnet";
+                        else if (badge.Type === "unkillable") extraClass = "badge-unkillable";
+                        else if (badge.Type === "carry") extraClass = "badge-carry";
+                        else if (badge.Type === "farmer") extraClass = "badge-farmer";
+                        else if (badge.Type === "vision") extraClass = "badge-vision";
                         else if (badge.Type === "smurf" || badge.Type === "penta") extraStyle = "border: 1px solid #ffd700;";
                         else if (badge.Type === "quadra") extraStyle = "border: 1px solid #ff4c4c;";
                         
