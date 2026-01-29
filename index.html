@@ -28,7 +28,8 @@
         }
 
         .container {
-            max-width: 1300px; /* Élargi pour les nouvelles colonnes */
+            max-width: 1300px;
+            /* Élargi pour les nouvelles colonnes */
             margin: 0 auto;
             display: none;
         }
@@ -66,139 +67,448 @@
         }
 
         /* COLORS */
-        .win-high { color: #2deb90; font-weight: bold; }
-        .win-low { color: #ff5859; font-weight: bold; }
-        .win-mid { color: #f0e6d2; font-weight: bold; } /* Pour le WR Saison */
+        .win-high {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .win-low {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        .win-mid {
+            color: #f0e6d2;
+            font-weight: bold;
+        }
+
+        /* Pour le WR Saison */
 
         .streak-win {
-            color: #ff8c00; font-weight: bold;
+            color: #ff8c00;
+            font-weight: bold;
             text-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
-            text-transform: uppercase; font-size: 0.9em;
+            text-transform: uppercase;
+            font-size: 0.9em;
         }
 
         .streak-loss {
-            color: #ff5859; font-weight: bold;
-            text-transform: uppercase; font-size: 0.9em; opacity: 0.8;
+            color: #ff5859;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            opacity: 0.8;
         }
 
-        .toxic-ping { color: #ff5859; font-weight: bold; }
+        .toxic-ping {
+            color: #ff5859;
+            font-weight: bold;
+        }
 
         /* --- PLAYER INFO & MAIN CHAMP --- */
         .player-cell {
-            display: flex; align-items: center; padding-left: 20px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
         }
+
         .profile-icon {
-            width: 42px; height: 42px;
-            border-radius: 50%; border: 2px solid #c8aa6e;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #c8aa6e;
             margin-right: 15px;
         }
+
         .player-info {
-            display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 4px;
         }
+
         .name-tag-row {
-            display: flex; align-items: center; gap: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .player-name { font-weight: bold; font-size: 1.1em; }
-        .tag { font-size: 0.8em; color: #666; font-weight: normal; margin: 0; }
-        
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .tag {
+            font-size: 0.8em;
+            color: #666;
+            font-weight: normal;
+            margin: 0;
+        }
+
         /* NEW: Main Champ Icon Style */
         .main-champ-icon {
-            width: 22px; height: 22px;
+            width: 22px;
+            height: 22px;
             border-radius: 3px;
             border: 1px solid #444;
-            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
         }
 
         /* --- SUB-STATS (Petites lignes sous les chiffres) --- */
         .sub-stat {
-            font-size: 0.7em; color: #888; margin-top: 4px; font-weight: normal;
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 4px;
+            font-weight: normal;
         }
 
         /* --- LOADING SPINNER --- */
-        #loading { margin-top: 50px; }
-        .spinner {
-            border: 4px solid #f3f3f3; border-top: 4px solid #c8aa6e;
-            border-radius: 50%; width: 50px; height: 50px;
-            animation: spin 1s linear infinite; margin: 0 auto 20px auto;
+        #loading {
+            margin-top: 50px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #c8aa6e;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
         /* --- MODAL --- */
         .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-            width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(5px);
         }
+
         .modal-content {
-            background-color: #0a0a0c; margin: 2% auto; padding: 20px;
-            border: 2px solid #c8aa6e; width: 95%; max-width: 1000px;
-            border-radius: 10px; max-height: 90vh; overflow-y: auto;
+            background-color: #0a0a0c;
+            margin: 2% auto;
+            padding: 20px;
+            border: 2px solid #c8aa6e;
+            width: 95%;
+            max-width: 1000px;
+            border-radius: 10px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .match-history { list-style: none; padding: 0; margin-top: 20px; }
-        .match-container { margin-bottom: 8px; border-radius: 5px; overflow: hidden; }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .match-history {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .match-container {
+            margin-bottom: 8px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
 
         /* --- GRILLE DES MATCHS (MODAL) --- */
-        .match-header, .match-row {
-            display: grid; grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr;
-            align-items: center; padding: 12px; font-size: 0.9em;
-        }
-        .match-header {
-            font-weight: bold; color: #c8aa6e; margin-bottom: 10px;
-            text-transform: uppercase; font-size: 0.8em; border-bottom: 1px solid #333;
-        }
+        .match-header,
         .match-row {
-            background: #151a21; border-left: 5px solid #555;
-            cursor: pointer; transition: background 0.2s;
+            display: grid;
+            grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr;
+            align-items: center;
+            padding: 12px;
+            font-size: 0.9em;
         }
-        .match-row:hover { background-color: #1f2731; transform: translateX(2px); }
-        .match-win { border-left-color: #2deb90; background: linear-gradient(90deg, rgba(45, 235, 144, 0.1) 0%, rgba(21, 26, 33, 0) 100%); }
-        .match-loss { border-left-color: #ff5859; background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%); }
 
-        .champ-flex { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: bold; }
-        .champ-icon { width: 36px; height: 36px; border-radius: 4px; border: 1px solid #444; }
-        .vs-column { display: flex; align-items: center; justify-content: center; }
-        .enemy-icon { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #333; transition: 0.2s; }
-        .enemy-icon:hover { border-color: #c8aa6e; transform: scale(1.1); }
+        .match-header {
+            font-weight: bold;
+            color: #c8aa6e;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            border-bottom: 1px solid #333;
+        }
 
-        .match-details { display: none; background-color: #0f1216; padding: 15px; border-top: 1px solid #333; animation: slideDown 0.2s ease-out; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .match-row {
+            background: #151a21;
+            border-left: 5px solid #555;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; text-align: center; }
-        .stat-box { background: #1c2129; padding: 10px; border-radius: 5px; }
-        .stat-label { font-size: 0.75em; color: #888; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 1.1em; font-weight: bold; color: #f0e6d2; }
-        .gold-text { color: #ffd700; }
-        .dmg-text { color: #ff5859; }
-        .heal-text { color: #2deb90; }
-        .stat-detail { font-size: 0.85em; color: #aaa; }
+        .match-row:hover {
+            background-color: #1f2731;
+            transform: translateX(2px);
+        }
+
+        .match-win {
+            border-left-color: #2deb90;
+            background: linear-gradient(90deg, rgba(45, 235, 144, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+        }
+
+        .match-loss {
+            border-left-color: #ff5859;
+            background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+        }
+
+        .champ-flex {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .champ-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .vs-column {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .enemy-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            transition: 0.2s;
+        }
+
+        .enemy-icon:hover {
+            border-color: #c8aa6e;
+            transform: scale(1.1);
+        }
+
+        .match-details {
+            display: none;
+            background-color: #0f1216;
+            padding: 15px;
+            border-top: 1px solid #333;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #1c2129;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #f0e6d2;
+        }
+
+        .gold-text {
+            color: #ffd700;
+        }
+
+        .dmg-text {
+            color: #ff5859;
+        }
+
+        .heal-text {
+            color: #2deb90;
+        }
+
+        .stat-detail {
+            font-size: 0.85em;
+            color: #aaa;
+        }
 
         /* --- BADGES --- */
-        .badges-flex { display: flex; align-items: center; justify-content: center; gap: 6px; height: 100%; }
-        .badge-icon { width: 28px; height: 28px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); transition: transform 0.2s; cursor: help; }
-        .badge-icon:hover { transform: scale(1.2); z-index: 10; }
-        .badge-toxic { border: 1px solid #ff5859; }
-        .badge-fire { border: 1px solid #ff8c00; }
-        .badge-sad { border: 1px solid #888; }
-        .badge-feed { border: 1px solid #a020f0; }
+        .badges-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 100%;
+        }
+
+        .badge-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
+            cursor: help;
+        }
+
+        .badge-icon:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .badge-toxic {
+            border: 1px solid #ff5859;
+        }
+
+        .badge-fire {
+            border: 1px solid #ff8c00;
+        }
+
+        .badge-sad {
+            border: 1px solid #888;
+        }
+
+        .badge-feed {
+            border: 1px solid #a020f0;
+        }
 
         /* --- EXTERNAL LINKS --- */
-        .external-links { display: flex; gap: 6px; margin-top: 3px; }
-        .link-icon { font-size: 0.7em; text-decoration: none; padding: 2px 8px; border-radius: 4px; font-weight: bold; transition: 0.2s; display: inline-block; line-height: normal; }
-        .op-gg { background-color: #5383e8; color: white; }
-        .deeplol { background-color: #1a1f29; color: #00d9ff; border: 1px solid #333; }
-        .link-icon:hover { opacity: 0.9; transform: translateY(-1px); filter: brightness(1.1); }
+        .external-links {
+            display: flex;
+            gap: 6px;
+            margin-top: 3px;
+        }
+
+        .link-icon {
+            font-size: 0.7em;
+            text-decoration: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: 0.2s;
+            display: inline-block;
+            line-height: normal;
+        }
+
+        .op-gg {
+            background-color: #5383e8;
+            color: white;
+        }
+
+        .deeplol {
+            background-color: #1a1f29;
+            color: #00d9ff;
+            border: 1px solid #333;
+        }
+
+        .link-icon:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
 
         /* --- TREND --- */
-        .lp-plus { color: #2deb90; font-weight: bold; }
-        .lp-minus { color: #ff5859; font-weight: bold; }
-        .lp-na { color: #444; font-style: italic; }
+        .lp-plus {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .lp-minus {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        .lp-na {
+            color: #444;
+            font-style: italic;
+        }
 
         /* --- TOOLTIPS --- */
-        .help-icon { display: inline-flex; justify-content: center; align-items: center; width: 16px; height: 16px; background-color: #555; color: #fff; border-radius: 50%; font-size: 11px; font-weight: bold; margin-left: 6px; cursor: help; position: relative; }
-        .help-icon:hover { background-color: #ffd700; color: #000; }
-        .help-icon .tooltip-text { visibility: hidden; width: 210px; background-color: #121212; color: #e0e0e0; font-size: 12px; font-weight: 400; line-height: 1.5; border-radius: 6px; padding: 12px; position: absolute; z-index: 9999; bottom: 135%; left: 50%; transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); border: 1px solid #ffd700; opacity: 0; transition: all 0.2s ease-in-out; pointer-events: none; }
-        .help-icon:hover .tooltip-text { visibility: visible; opacity: 1; }
+        .help-icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #555;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 6px;
+            cursor: help;
+            position: relative;
+        }
+
+        .help-icon:hover {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        .help-icon .tooltip-text {
+            visibility: hidden;
+            width: 210px;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+            border-radius: 6px;
+            padding: 12px;
+            position: absolute;
+            z-index: 9999;
+            bottom: 135%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            border: 1px solid #ffd700;
+            opacity: 0;
+            transition: all 0.2s ease-in-out;
+            pointer-events: none;
+        }
+
+        .help-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -219,8 +529,21 @@
                     <th style="text-align: left; padding-left: 40px;">Player</th>
                     <th>Rank</th>
                     <th>Streak</th>
-                    <th>WR (Season)</th> <th>WR (Last 20)</th> <th>
-                        KDA & Impact </th>
+                    <th>WR (Season)</th>
+                    <th>WR (Last 20)</th>
+                    <th>
+                        <div style="display:flex; align-items:center; justify-content:center;">
+                            KDA & Impact
+                            <div class="help-icon">?
+                                <span class="tooltip-text">
+                                    Based on <strong>Last 20 Games</strong>.<br>
+                                    <span style="color:#2deb90">KP</span> = Kill Participation.<br>
+                                    <span style="color:#ff5859">Death%</span> = Share of team's deaths (Lower is
+                                    better).
+                                </span>
+                            </div>
+                        </div>
+                    </th>
                     <th>
                         <div style="display:flex; align-items:center; justify-content:center;">
                             Toxicity
@@ -335,7 +658,7 @@
 
                 // Winrates
                 let winClass = player.Winrate >= 50 ? "win-high" : "win-low";
-                
+
                 // Badges
                 let badgesHtml = "";
                 if (player.AvgPings > 6) badgesHtml += `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/TeemoR.png" class="badge-icon badge-toxic" title="🍄 TOXIC: Mad Pinger! (Averaging 6+ 'Missing' or 'Push Forward' pings per game)">`;
@@ -351,7 +674,7 @@
 
                 // Main Champ Icon (Nouveau)
                 let mainChampHtml = "";
-                if(player.MainChamp) {
+                if (player.MainChamp) {
                     mainChampHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${player.MainChamp}.png" class="main-champ-icon" title="Main: ${player.MainChamp}">`;
                 }
 
@@ -373,8 +696,9 @@
                         <img src="${iconUrl}" class="profile-icon">
                         <div class="player-info">
                             <div class="name-tag-row">
-                                <span class="player-name">${player.name}</span>
-                                ${mainChampHtml} <span class="tag">#${player.Tag}</span>
+                                ${mainChampHtml} 
+                                <span class="player-name" style="margin-left:5px;">${player.name}</span>
+                                <span class="tag">#${player.Tag}</span>
                             </div>
                             <div class="external-links" onclick="event.stopPropagation()"> 
                                 <a href="https://www.op.gg/summoners/euw/${urlName}" target="_blank" class="link-icon op-gg">OP</a>
@@ -394,7 +718,7 @@
                     ${player.AvgKDA || 0}
                     <div class="sub-stat">
                         <span style="color:${avgKpColor}">${player.AvgKP}% KP</span> | 
-                        <span style="color:${avgDeathColor}">${player.AvgDeathShare}% D</span>
+                        <span style="color:${avgDeathColor}">${player.AvgDeathShare}% Death</span>
                     </div>
                 </td>
 
@@ -441,8 +765,8 @@
 
                         // Multikills
                         let multiKillHtml = "";
-                        if (match.Pentas > 0) multiKillHtml += `<span style='color:#ffd700; font-weight:bold; margin-left:8px;'>PENTA!${match.Pentas > 1 ? ' x'+match.Pentas : ''}</span> `;
-                        if (match.Quadras > 0) multiKillHtml += `<span style='color:#ff4c4c; font-weight:bold; margin-left:8px;'>QUADRA!${match.Quadras > 1 ? ' x'+match.Quadras : ''}</span>`;
+                        if (match.Pentas > 0) multiKillHtml += `<span style='color:#ffd700; font-weight:bold; margin-left:8px;'>PENTA!${match.Pentas > 1 ? ' x' + match.Pentas : ''}</span> `;
+                        if (match.Quadras > 0) multiKillHtml += `<span style='color:#ff4c4c; font-weight:bold; margin-left:8px;'>QUADRA!${match.Quadras > 1 ? ' x' + match.Quadras : ''}</span>`;
 
                         const pinksText = match.Pinks !== undefined ? `(${match.Pinks} pinks)` : "";
                         const champImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${match.Champion}.png`;
@@ -454,7 +778,7 @@
                         }
 
                         const safeNum = (val) => val ? val.toLocaleString() : "0";
-                        
+
                         // KP Color Logic (Modal)
                         let kpColor = '#aaa';
                         const currentRole = role ? role.toUpperCase() : "UNKNOWN";
@@ -462,7 +786,7 @@
                             if (match.KP > 65) kpColor = '#2deb90'; else if (match.KP < 45) kpColor = '#ff5859';
                         } else if (currentRole === 'TOP') {
                             if (match.KP > 55) kpColor = '#2deb90'; else if (match.KP < 30) kpColor = '#ff5859';
-                        } else { 
+                        } else {
                             if (match.KP > 60) kpColor = '#2deb90'; else if (match.KP < 35) kpColor = '#ff5859';
                         }
                         const deathColor = match.DeathShare > 30 ? '#ff5859' : '#aaa';
@@ -537,4 +861,5 @@
         fetchStats();
     </script>
 </body>
+
 </html>
