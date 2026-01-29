@@ -655,17 +655,46 @@
             const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
 
             // Tri par Rang
-            const tierValues = { "CHALLENGER": 10, "GRANDMASTER": 9, "MASTER": 8, "DIAMOND": 7, "EMERALD": 6, "PLATINUM": 5, "GOLD": 4, "SILVER": 3, "BRONZE": 2, "IRON": 1, "UNRANKED": 0 };
-            const divValues = { "I": 4, "II": 3, "III": 2, "IV": 1 };
+            const tierValues = {
+                "CHALLENGER": 90000,
+                "GRANDMASTER": 80000,
+                "MASTER": 70000,
+                "DIAMOND": 60000,
+                "EMERALD": 50000,
+                "PLATINUM": 40000,
+                "GOLD": 30000,
+                "SILVER": 20000,
+                "BRONZE": 10000,
+                "IRON": 0,
+                "UNRANKED": -10000
+            };
+            const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
 
             function getRankScore(rankStr) {
-                if (!rankStr || rankStr === "Unranked") return 0;
-                let match = rankStr.toUpperCase().match(/^(\w+)\s+([IVX]+)\s+\((\d+)\s+LP\)/);
+                if (!rankStr || rankStr === "Unranked") return -10000;
+
+                // Regex pour attraper : Tier, Division (Optionnelle), LP
+                // Ex: "DIAMOND I (53 LP)" ou "MASTER (8 LP)"
+                let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
+
                 if (!match) return 0;
-                let tier = match[1];
-                let div = match[2];
-                let lp = parseInt(match[3]);
-                return (tierValues[tier] || 0) * 100 + (divValues[div] || 0) + lp;
+
+                let tier = match[1];       // Ex: DIAMOND
+                let div = match[2] || "";  // Ex: I (ou vide pour Master+)
+                let lp = parseInt(match[3]); // Ex: 53
+
+                // Calcul du Score
+                let score = (tierValues[tier] || 0);
+
+                // Si Master+, pas de division, on ajoute juste les LP
+                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
+                    score += lp;
+                } else {
+                    // Sinon on ajoute le score de division + LP
+                    score += (divValues[div] || 0) + lp;
+                }
+
+                return score;
             }
             players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
 
@@ -693,7 +722,7 @@
                         let imgSrc = "";
                         let extraClass = "";
                         let extraStyle = "";
-                        
+
                         if (badge.LocalIcon) {
                             imgSrc = badge.LocalIcon;
                         } else if (badge.Spell) {
@@ -703,7 +732,7 @@
                         } else if (badge.Champion) {
                             imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${badge.Champion}.png`;
                         }
-                        
+
                         if (badge.Type === "toxic") extraClass = "badge-toxic";
                         else if (badge.Type === "fire") extraClass = "badge-fire";
                         else if (badge.Type === "sad") extraClass = "badge-sad";
@@ -716,7 +745,7 @@
                         else if (badge.Type === "farmer") extraClass = "badge-farmer";
                         else if (badge.Type === "smurf" || badge.Type === "penta") extraStyle = "border: 1px solid #ffd700;";
                         else if (badge.Type === "quadra") extraStyle = "border: 1px solid #ff4c4c;";
-                        
+
                         badgesHtml += `<img src="${imgSrc}" class="badge-icon ${extraClass}" style="${extraStyle}" title="${badge.Title}">`;
                     });
                 }
