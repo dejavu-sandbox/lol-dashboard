@@ -846,12 +846,15 @@
         // Initialize on page load
         window.onload = function() {
             const hasCachedData = loadCachedData();
+            const now = Date.now();
+            const cacheAge = now - lastRefreshTime;
             
-            if (!hasCachedData) {
-                // First visit - fetch initial data
-                fetchStats();
+            // Fetch backend cache if no localStorage OR if cache > 60s old
+            if (!hasCachedData || cacheAge >= MIN_REFRESH_INTERVAL) {
+                // Fetch backend cache (not forcing refresh)
+                fetchStats(false);
             } else {
-                // Has cache - only show cached data
+                // Cache is fresh (< 60s), just show it
                 updateRefreshButton();
             }
         };
