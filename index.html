@@ -796,8 +796,6 @@
             await fetchStats(true);
             
             btn.classList.remove('loading');
-            lastRefreshTime = Date.now();
-            localStorage.setItem(CACHE_TIMESTAMP_KEY, lastRefreshTime.toString());
             updateRefreshButton();
         }
 
@@ -840,8 +838,13 @@
         window.onload = function() {
             const hasCachedData = loadCachedData();
             
-            // Always fetch fresh data in background
-            fetchStats();
+            if (!hasCachedData) {
+                // First visit - fetch initial data
+                fetchStats();
+            } else {
+                // Has cache - only show cached data
+                updateRefreshButton();
+            }
         };
 
         function displayData(data) {
