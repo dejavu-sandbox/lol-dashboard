@@ -777,14 +777,15 @@
             // Update last updated text
             updateLastUpdatedText();
             
-            // Cooldown based on API refresh time (manual refresh), not backend fetch time
-            if (timeSinceApiRefresh < MIN_REFRESH_INTERVAL && lastApiRefreshTime > 0) {
+            // Cooldown only applies if we've done a manual API refresh (lastApiRefreshTime > 0)
+            if (lastApiRefreshTime > 0 && timeSinceApiRefresh < MIN_REFRESH_INTERVAL) {
                 const remainingSeconds = Math.ceil((MIN_REFRESH_INTERVAL - timeSinceApiRefresh) / 1000);
                 btn.disabled = true;
                 textSpan.textContent = `Wait ${remainingSeconds}s`;
                 
                 setTimeout(updateRefreshButton, 1000);
             } else {
+                // Enable button (either no API refresh yet, or cooldown expired)
                 btn.disabled = false;
                 textSpan.textContent = 'Refresh';
                 
