@@ -693,10 +693,12 @@
         const apiUrl = "https://func-lol-tracker-backend-001-hefnbhgxfjhgf3bk.francecentral-01.azurewebsites.net/api/GetLoLStats";
         const CACHE_KEY = "lol_dashboard_cache";
         const CACHE_TIMESTAMP_KEY = "lol_dashboard_cache_timestamp";
+        const API_REFRESH_TIMESTAMP_KEY = "lol_dashboard_api_refresh_timestamp";
         const MIN_REFRESH_INTERVAL = 60000; // 60 seconds
 
         let ddragonVersion = "16.2.1";
-        let lastRefreshTime = 0;
+        let lastRefreshTime = 0; // Last time we fetched from backend (for cooldown)
+        let lastApiRefreshTime = 0; // Last time we forced a real API refresh (for display)
 
         // Format time ago
         function formatTimeAgo(timestamp) {
@@ -731,8 +733,8 @@
         // Update last updated text
         function updateLastUpdatedText() {
             const textElement = document.getElementById('lastUpdatedText');
-            if (lastRefreshTime > 0) {
-                textElement.textContent = `Last updated: ${formatTimeAgo(lastRefreshTime)}`;
+            if (lastApiRefreshTime > 0) {
+                textElement.textContent = `Last updated: ${formatTimeAgo(lastApiRefreshTime)}`;
             }
         }
 
@@ -740,6 +742,7 @@
         function loadCachedData() {
             const cachedData = localStorage.getItem(CACHE_KEY);
             const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+            const apiRefreshTimestamp = localStorage.getItem(API_REFRESH_TIMESTAMP_KEY);
             
             if (cachedData) {
                 try {
@@ -748,6 +751,9 @@
                     
                     if (cachedTimestamp) {
                         lastRefreshTime = parseInt(cachedTimestamp);
+                    }
+                    if (apiRefreshTimestamp) {
+                        lastApiRefreshTime = parseInt(apiRefreshTimestamp);
                         updateRefreshButton();
                     }
                     
@@ -766,15 +772,14 @@
             const btn = document.getElementById('refreshBtn');
             const textSpan = document.getElementById('refreshText');
             const now = Date.now();
-            const timeSinceRefresh = now - lastRefreshTime;
+            const timeSinceApiRefresh = now - lastApiRefreshTime;
             
             // Update last updated text
             updateLastUpdatedText();
             
-            // Only apply cooldown if refresh happened in current session (< 5 minutes ago)
-            // This prevents cooldown from persisting across browser sessions
-            if (timeSinceRefresh < MIN_REFRESH_INTERVAL && timeSinceRefresh < 300000) {
-                const remainingSeconds = Math.ceil((MIN_REFRESH_INTERVAL - timeSinceRefresh) / 1000);
+            // Cooldown based on API refresh time (manual refresh), not backend fetch time
+            if (timeSinceApiRefresh < MIN_REFRESH_INTERVAL && lastApiRefreshTime > 0) {
+                const remainingSeconds = Math.ceil((MIN_REFRESH_INTERVAL - timeSinceApiRefresh) / 1000);
                 btn.disabled = true;
                 textSpan.textContent = `Wait ${remainingSeconds}s`;
                 
@@ -825,11 +830,17 @@
                 if (!response.ok) throw new Error("Azure connection error");
                 const data = await response.json();
                 
-                // Save to cache and update timestamp
+                // Save to cache
                 const now = Date.now();
                 localStorage.setItem(CACHE_KEY, JSON.stringify(data));
                 localStorage.setItem(CACHE_TIMESTAMP_KEY, now.toString());
                 lastRefreshTime = now;
+                
+                // Only update API refresh time if this was a manual refresh
+                if (isManualRefresh) {
+                    localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, now.toString());
+                    lastApiRefreshTime = now;
+                }
                 
                 displayData(data);
                 
