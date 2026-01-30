@@ -536,12 +536,63 @@
             visibility: visible;
             opacity: 1;
         }
+
+        /* --- REFRESH BUTTON --- */
+        .refresh-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #1e2328 0%, #0a0a0c 100%);
+            border: 2px solid #c8aa6e;
+            color: #c8aa6e;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #c8aa6e 0%, #a89968 100%);
+            color: #0a0a0c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(200, 170, 110, 0.4);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .refresh-btn #refreshIcon {
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .refresh-btn:not(:disabled):hover #refreshIcon {
+            transform: rotate(180deg);
+        }
+
+        .refresh-btn.loading #refreshIcon {
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 
 <body>
 
     <h1>🏆 Le Chaudron : LoL Ranked Dashboard 🏆</h1>
+
+    <button id="refreshBtn" class="refresh-btn" onclick="manualRefresh()" disabled>
+        <span id="refreshIcon">↻</span>
+        <span id="refreshText">Refresh</span>
+    </button>
 
     <div id="loading">
         <div class="spinner"></div>
@@ -622,29 +673,116 @@
     </div>
 
     <script>
-        // URL de ton Backend Azure
         const apiUrl = "https://func-lol-tracker-backend-001-hefnbhgxfjhgf3bk.francecentral-01.azurewebsites.net/api/GetLoLStats";
+        const CACHE_KEY = "lol_dashboard_cache";
+        const CACHE_TIMESTAMP_KEY = "lol_dashboard_cache_timestamp";
+        const MIN_REFRESH_INTERVAL = 60000; // 60 seconds
 
         let ddragonVersion = "16.2.1";
+        let lastRefreshTime = 0;
 
-        async function fetchStats() {
+        // Load cached data immediately on page load
+        function loadCachedData() {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+            
+            if (cachedData) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    displayData(data);
+                    
+                    if (cachedTimestamp) {
+                        lastRefreshTime = parseInt(cachedTimestamp);
+                        updateRefreshButton();
+                    }
+                    
+                    // Hide loading spinner
+                    document.getElementById('loading').style.display = 'none';
+                    return true;
+                } catch (e) {
+                    console.error("Error loading cached data:", e);
+                }
+            }
+            return false;
+        }
+
+        // Update refresh button state
+        function updateRefreshButton() {
+            const btn = document.getElementById('refreshBtn');
+            const textSpan = document.getElementById('refreshText');
+            const now = Date.now();
+            const timeSinceRefresh = now - lastRefreshTime;
+            
+            if (timeSinceRefresh < MIN_REFRESH_INTERVAL) {
+                const remainingSeconds = Math.ceil((MIN_REFRESH_INTERVAL - timeSinceRefresh) / 1000);
+                btn.disabled = true;
+                textSpan.textContent = `Wait ${remainingSeconds}s`;
+                
+                setTimeout(updateRefreshButton, 1000);
+            } else {
+                btn.disabled = false;
+                textSpan.textContent = 'Refresh';
+            }
+        }
+
+        // Manual refresh triggered by button
+        async function manualRefresh() {
+            const btn = document.getElementById('refreshBtn');
+            const icon = document.getElementById('refreshIcon');
+            
+            btn.disabled = true;
+            btn.classList.add('loading');
+            
+            await fetchStats(true);
+            
+            btn.classList.remove('loading');
+            lastRefreshTime = Date.now();
+            localStorage.setItem(CACHE_TIMESTAMP_KEY, lastRefreshTime.toString());
+            updateRefreshButton();
+        }
+
+        async function fetchStats(isManualRefresh = false) {
             try {
-                // 1. Récupération version DDragon
+                // Fetch DDragon version
                 const vResponse = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
                 const versions = await vResponse.json();
                 ddragonVersion = versions[0];
 
-                // 2. Récupération Stats Azure
+                // Fetch stats from Azure
                 const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error("Erreur de connexion Azure");
+                if (!response.ok) throw new Error("Azure connection error");
                 const data = await response.json();
+                
+                // Save to cache and update timestamp
+                const now = Date.now();
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIMESTAMP_KEY, now.toString());
+                lastRefreshTime = now;
+                
                 displayData(data);
+                
+                if (!isManualRefresh) {
+                    document.getElementById('loading').style.display = 'none';
+                }
+                
+                // Enable and update refresh button after first load
+                updateRefreshButton();
             } catch (error) {
-                document.getElementById('loading').innerHTML =
-                    `<p style='color:red; font-weight:bold'>Erreur : ${error.message}</p>`;
+                if (!isManualRefresh) {
+                    document.getElementById('loading').innerHTML =
+                        `<p style='color:red; font-weight:bold'>Error: ${error.message}</p>`;
+                }
                 console.error(error);
             }
         }
+
+        // Initialize on page load
+        window.onload = function() {
+            const hasCachedData = loadCachedData();
+            
+            // Always fetch fresh data in background
+            fetchStats();
+        };
 
         function displayData(data) {
             document.getElementById('loading').style.display = 'none';
@@ -944,8 +1082,6 @@
 
         function closeModal() { document.getElementById("myModal").style.display = "none"; }
         window.onclick = function (e) { if (e.target == document.getElementById("myModal")) closeModal(); }
-
-        fetchStats();
     </script>
 </body>
 
