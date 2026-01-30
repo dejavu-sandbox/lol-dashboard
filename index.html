@@ -770,7 +770,9 @@
             // Update last updated text
             updateLastUpdatedText();
             
-            if (timeSinceRefresh < MIN_REFRESH_INTERVAL) {
+            // Only apply cooldown if refresh happened in current session (< 5 minutes ago)
+            // This prevents cooldown from persisting across browser sessions
+            if (timeSinceRefresh < MIN_REFRESH_INTERVAL && timeSinceRefresh < 300000) {
                 const remainingSeconds = Math.ceil((MIN_REFRESH_INTERVAL - timeSinceRefresh) / 1000);
                 btn.disabled = true;
                 textSpan.textContent = `Wait ${remainingSeconds}s`;
@@ -789,12 +791,20 @@
         async function manualRefresh() {
             const btn = document.getElementById('refreshBtn');
             const icon = document.getElementById('refreshIcon');
+            const loading = document.getElementById('loading');
+            const dashboard = document.getElementById('dashboard');
             
+            // Show loading spinner
+            loading.style.display = 'block';
+            dashboard.style.display = 'none';
             btn.disabled = true;
             btn.classList.add('loading');
             
             await fetchStats(true);
             
+            // Hide loading spinner and show dashboard
+            loading.style.display = 'none';
+            dashboard.style.display = 'block';
             btn.classList.remove('loading');
             updateRefreshButton();
         }
@@ -806,8 +816,9 @@
                 const versions = await vResponse.json();
                 ddragonVersion = versions[0];
 
-                // Fetch stats from Azure
-                const response = await fetch(apiUrl);
+                // Fetch stats from Azure (add refresh param if manual)
+                const url = isManualRefresh ? `${apiUrl}?refresh=true` : apiUrl;
+                const response = await fetch(url);
                 if (!response.ok) throw new Error("Azure connection error");
                 const data = await response.json();
                 
