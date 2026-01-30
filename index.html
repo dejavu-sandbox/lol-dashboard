@@ -846,8 +846,8 @@
                     // Manual refresh - use current time
                     localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, now.toString());
                     lastApiRefreshTime = now;
-                } else if (backendLastUpdate && lastApiRefreshTime === 0) {
-                    // First fetch - use backend's LastUpdate timestamp
+                } else if (backendLastUpdate) {
+                    // F5 / Auto fetch - use backend's LastUpdate timestamp
                     localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, backendLastUpdate.toString());
                     lastApiRefreshTime = backendLastUpdate;
                 }
