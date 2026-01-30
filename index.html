@@ -829,7 +829,11 @@
                 const url = isManualRefresh ? `${apiUrl}?refresh=true` : apiUrl;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("Azure connection error");
-                const data = await response.json();
+                const responseData = await response.json();
+                
+                // Extract data and LastUpdate timestamp from response
+                const data = responseData.Data || responseData;  // Handle both formats
+                const backendLastUpdate = responseData.LastUpdate ? new Date(responseData.LastUpdate).getTime() : null;
                 
                 // Save to cache
                 const now = Date.now();
@@ -842,13 +846,10 @@
                     // Manual refresh - use current time
                     localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, now.toString());
                     lastApiRefreshTime = now;
-                } else if (lastApiRefreshTime === 0) {
-                    // First fetch from backend cache - extract backend's LastUpdate time
-                    // Backend cache timestamp is in the response metadata (not available in data)
-                    // Since we can't get exact backend timestamp, use current time as approximation
-                    // This at least shows "recently updated" instead of "Never"
-                    lastApiRefreshTime = now;
-                    localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, now.toString());
+                } else if (backendLastUpdate && lastApiRefreshTime === 0) {
+                    // First fetch - use backend's LastUpdate timestamp
+                    localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, backendLastUpdate.toString());
+                    lastApiRefreshTime = backendLastUpdate;
                 }
                 
                 displayData(data);
