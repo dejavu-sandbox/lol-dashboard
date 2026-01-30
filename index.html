@@ -809,6 +809,11 @@
 
         async function fetchStats(isManualRefresh = false) {
             try {
+                // Only show loading spinner for manual refresh
+                if (isManualRefresh) {
+                    document.getElementById('loading').style.display = 'block';
+                }
+                
                 // Fetch DDragon version
                 const vResponse = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
                 const versions = await vResponse.json();
@@ -828,17 +833,14 @@
                 
                 displayData(data);
                 
-                if (!isManualRefresh) {
-                    document.getElementById('loading').style.display = 'none';
-                }
+                // Hide loading spinner
+                document.getElementById('loading').style.display = 'none';
                 
                 // Enable and update refresh button after first load
                 updateRefreshButton();
             } catch (error) {
-                if (!isManualRefresh) {
-                    document.getElementById('loading').innerHTML =
-                        `<p style='color:red; font-weight:bold'>Error: ${error.message}</p>`;
-                }
+                document.getElementById('loading').innerHTML =
+                    `<p style='color:red; font-weight:bold'>Error: ${error.message}</p>`;
                 console.error(error);
             }
         }
