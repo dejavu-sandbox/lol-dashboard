@@ -708,13 +708,14 @@
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
             
             let parts = [];
             if (days > 0) parts.push(`${days}d`);
             if (hours > 0) parts.push(`${hours}h`);
             if (minutes > 0) parts.push(`${minutes}m`);
-            if (parts.length === 0) parts.push(`${seconds}s`);
+            
+            // If less than 1 minute, show "< 1m ago"
+            const timeAgo = parts.length === 0 ? "< 1m ago" : `${parts.join(' ')} ago`;
             
             const date = new Date(timestamp);
             const dateStr = date.toLocaleString('en-US', { 
@@ -724,7 +725,7 @@
                 minute: '2-digit' 
             });
             
-            return `${dateStr} (${parts.join(' ')} ago)`;
+            return `${dateStr} (${timeAgo})`;
         }
 
         // Update last updated text
@@ -792,19 +793,16 @@
             const btn = document.getElementById('refreshBtn');
             const icon = document.getElementById('refreshIcon');
             const loading = document.getElementById('loading');
-            const dashboard = document.getElementById('dashboard');
             
-            // Show loading spinner
+            // Show loading spinner (keep dashboard visible)
             loading.style.display = 'block';
-            dashboard.style.display = 'none';
             btn.disabled = true;
             btn.classList.add('loading');
             
             await fetchStats(true);
             
-            // Hide loading spinner and show dashboard
+            // Hide loading spinner
             loading.style.display = 'none';
-            dashboard.style.display = 'block';
             btn.classList.remove('loading');
             updateRefreshButton();
         }
