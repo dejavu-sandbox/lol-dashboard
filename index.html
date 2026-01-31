@@ -672,6 +672,10 @@
             border: 1px solid #333;
             border-radius: 8px;
             padding: 20px;
+            /* --- ALIGNEMENT FIX --- */
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .player-card-header {
@@ -688,6 +692,7 @@
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
+            flex: 1; /* Il prend l'espace disponible */
         }
 
         .chart-container {
@@ -738,6 +743,20 @@
             flex-shrink: 0;
         }
 
+        /* Style pour les icônes dans la légende */
+        .legend-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px; /* Carré arrondi pour champions */
+            border: 1px solid #444;
+        }
+        
+        .role-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain; /* Pour les icônes de rôle */
+        }
+
         .chart-title {
             color: #a09b8c;
             font-size: 0.9em;
@@ -752,7 +771,7 @@
             border-left: 3px solid #ff5859;
             padding: 15px;
             border-radius: 5px;
-            margin-top: 20px;
+            margin-top: auto; /* <--- C'EST LA CLÉ MAGIQUE */
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -1565,9 +1584,9 @@
                 
                 playerStatsGrid.appendChild(playerCard);
                 
-                // Créer les graphiques après avoir ajouté au DOM
-                createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData);
-                createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData);
+                // Appel avec le TYPE ('champion' ou 'role')
+                createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData, 'champion');
+                createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData, 'role');
             });
             
             // Afficher la section
@@ -1663,30 +1682,30 @@
             };
         }
         
-        function createPieChart(canvasId, legendId, chartData) {
+        function createPieChart(canvasId, legendId, chartData, type) {
             const ctx = document.getElementById(canvasId);
             const legendContainer = document.getElementById(legendId);
             
             if (!ctx || !legendContainer) return;
             
-            // Palette de couleurs LoL-themed
-            const colors = [
-                'rgba(200, 170, 110, 0.9)',  // Gold
-                'rgba(45, 235, 144, 0.9)',   // Green
-                'rgba(255, 88, 89, 0.9)',    // Red
-                'rgba(140, 200, 255, 0.9)',  // Blue
-                'rgba(255, 140, 0, 0.9)',    // Orange
-                'rgba(160, 155, 140, 0.7)'   // Grey (for "Autres")
+            // Nouvelle palette de couleurs "Hextech / Neon"
+            const chartColors = [
+                '#0ac8b9', // Hextech Cyan (Top 1)
+                '#c8aa6e', // Prestige Gold (Top 2)
+                '#ff5859', // Threat Red (Top 3)
+                '#a020f0', // Void Purple (Top 4)
+                '#ff8c00', // Orange (Top 5)
+                '#5c5b57'  // Grey (Autres)
             ];
             
-            // Créer le graphique (SANS légende interne)
+            // Création du Graphique
             new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: chartData.labels,
                     datasets: [{
                         data: chartData.data,
-                        backgroundColor: colors,
+                        backgroundColor: chartColors,
                         borderColor: '#151a21',
                         borderWidth: 2
                     }]
@@ -1695,20 +1714,19 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false }, // Légende custom HTML
                         tooltip: {
-                            backgroundColor: 'rgba(10, 10, 12, 0.9)',
+                            backgroundColor: 'rgba(10, 10, 12, 0.95)',
                             titleColor: '#c8aa6e',
                             bodyColor: '#f0e6d2',
-                            borderColor: '#c8aa6e',
+                            borderColor: '#333',
                             borderWidth: 1,
+                            padding: 10,
                             callbacks: {
                                 label: function(context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                    return ` ${context.label}: ${context.parsed} games (${percentage}%)`;
                                 }
                             }
                         }
@@ -1716,13 +1734,27 @@
                 }
             });
 
-            // Générer la légende HTML manuellement
+            // Génération de la légende HTML avec Icônes
             legendContainer.innerHTML = chartData.labels.map((label, index) => {
-                const color = colors[index % colors.length];
+                const color = chartColors[index % chartColors.length];
                 const value = chartData.data[index];
+                
+                let iconHtml = '';
+                
+                if (type === 'champion' && label !== 'Autres') {
+                    // Icône de Champion DDragon
+                    iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
+                } else if (type === 'role') {
+                    // Pour les rôles, on garde le carré de couleur
+                    iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
+                } else {
+                    // Fallback (ex: "Autres")
+                    iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
+                }
+                
                 return `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${color};"></div>
+                    <div class="legend-item" title="${label}: ${value} games">
+                        ${iconHtml}
                         <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
                     </div>
                 `;
