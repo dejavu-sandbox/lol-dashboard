@@ -823,9 +823,11 @@
 
         .ping-breakdown {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(2, 1fr); /* Force 2 colonnes fixes */
             gap: 6px;
             margin-top: 10px;
+            max-height: 120px; /* Limite la hauteur pour éviter le décalage */
+            overflow-y: auto; /* Scroll si trop de pings */
         }
 
         .ping-item {
