@@ -675,10 +675,9 @@
             border: 1px solid #333;
             border-radius: 8px;
             padding: 20px;
-            /* --- ALIGNEMENT FIX --- */
+            /* Flux naturel - chaque carte a sa propre hauteur */
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
 
         .player-card-header {
@@ -695,9 +694,7 @@
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
-            flex: 1; /* C'est LUI qui s'étire pour combler le vide */
             align-items: flex-start; /* Aligne les camemberts en haut */
-            min-height: 280px; /* Force une hauteur minimale pour alignement Ping Record */
         }
 
         /* --- ESTHÉTIQUE DES CAMEMBERTS --- */
@@ -779,7 +776,7 @@
             border-left: 3px solid #ff5859;
             padding: 15px;
             border-radius: 5px;
-            margin-top: auto; /* <--- C'EST LA CLÉ MAGIQUE */
+            margin-top: 20px; /* Position fixe pour alignement */
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -826,8 +823,7 @@
             grid-template-columns: repeat(2, 1fr); /* Force 2 colonnes fixes */
             gap: 6px;
             margin-top: 10px;
-            max-height: 120px; /* Limite la hauteur pour éviter le décalage */
-            overflow-y: auto; /* Scroll si trop de pings */
+            /* Pas de limitation de hauteur - le bloc grandit vers le bas */
         }
 
         .ping-item {
