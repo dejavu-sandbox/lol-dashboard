@@ -690,6 +690,12 @@
             padding: 15px;
             border-radius: 5px;
             margin-top: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .personal-worst:hover {
+            background: linear-gradient(90deg, rgba(255, 88, 89, 0.15) 0%, rgba(21, 26, 33, 0) 100%);
         }
 
         .personal-worst-title {
@@ -706,6 +712,23 @@
             color: #f0e6d2;
             font-size: 0.9em;
             line-height: 1.6;
+        }
+
+        .game-info {
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .game-info .result-win {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .game-info .result-loss {
+            color: #ff5859;
+            font-weight: bold;
         }
 
         .ping-breakdown {
@@ -1450,12 +1473,16 @@
                 if (worstPingsGame) {
                     const worstSection = document.createElement('div');
                     worstSection.className = 'personal-worst';
+                    worstSection.onclick = () => openModal(player);
                     worstSection.innerHTML = `
                         <div class="personal-worst-title">
-                            PERSONAL WORST - Ping Record
+                            Ping Record
                         </div>
                         <div class="personal-worst-content">
                             <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings total
+                            <div class="game-info">
+                                ${worstPingsGame.dateStr} - <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span> - ${worstPingsGame.kda} (Click to see details)
+                            </div>
                             <div class="ping-breakdown">
                                 ${worstPingsGame.breakdown.map(ping => 
                                     ping.count > 0 && ping.icon ? `
@@ -1536,6 +1563,15 @@
             
             if (!worst || maxPings === 0) return null;
             
+            // Format date
+            let dateStr = "-";
+            if (worst.Date) {
+                try {
+                    const dateObj = new Date(worst.Date);
+                    dateStr = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                } catch (e) { }
+            }
+            
             const pingTypes = [
                 { name: 'All In', count: worst.AllInPings || 0, icon: null },
                 { name: 'Assist Me', count: worst.AssistMePings || 0, icon: 'img/assistMe.png' },
@@ -1555,6 +1591,9 @@
             return {
                 Champion: worst.Champion,
                 totalPings: maxPings,
+                win: worst.Win,
+                kda: worst.KDA,
+                dateStr: dateStr,
                 breakdown: pingTypes.filter(p => p.count > 0).sort((a, b) => b.count - a.count)
             };
         }
