@@ -697,6 +697,7 @@
             margin-bottom: 20px;
             flex: 1; /* C'est LUI qui s'étire pour combler le vide */
             align-items: flex-start; /* Aligne les camemberts en haut */
+            min-height: 280px; /* Force une hauteur minimale pour alignement Ping Record */
         }
 
         /* --- ESTHÉTIQUE DES CAMEMBERTS --- */
@@ -725,9 +726,10 @@
         .custom-legend {
             display: flex;
             flex-direction: column; /* Liste verticale plus propre */
-            align-items: center; /* Centré */
+            align-items: flex-start; /* Aligné à gauche pour cohérence */
             gap: 4px;
             width: 100%;
+            padding: 0 10px; /* Centré avec padding */
         }
 
         .legend-item {
@@ -737,12 +739,13 @@
             font-size: 0.8em;
             color: #a09b8c; /* Couleur beige LoL */
             white-space: nowrap;
+            width: 100%; /* Prend toute la largeur */
         }
 
         .legend-color {
-            width: 10px;
-            height: 10px;
-            border-radius: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
             flex-shrink: 0;
         }
 
@@ -752,6 +755,8 @@
             height: 18px;
             border-radius: 3px;
             border: 1px solid #444;
+            flex-shrink: 0; /* Empêche la compression */
+            vertical-align: middle;
         }
         
         .role-icon {
@@ -1691,15 +1696,37 @@
             
             if (!ctx || !legendContainer) return;
             
-            // Palette "LoL Client" : Plus sobre, plus classe
-            const chartColors = [
-                '#C8AA6E', // LoL Gold (Texte titre) - Pour le Main Champ
-                '#0AC8B9', // Hextech Cyan - Pour le 2ème
-                '#4A5568', // Steel Grey Blue - Pour le 3ème
-                '#A09B8C', // Beige désaturé - Pour le 4ème
-                '#1E282D', // Dark Blue filler - Pour le 5ème
-                '#3C3C41'  // Dark Grey - Pour "Autres"
+            // Palette fixe par rôle (pour cohérence entre joueurs)
+            const roleColors = {
+                'TOP': '#4A5568',      // Steel Grey Blue
+                'JUNGLE': '#2deb90',   // Vert Jungle
+                'MIDDLE': '#0AC8B9',   // Hextech Cyan
+                'MID': '#0AC8B9',      // Hextech Cyan (alias)
+                'BOTTOM': '#ff5859',   // Rouge ADC
+                'ADC': '#ff5859',      // Rouge ADC (alias)
+                'SUPPORT': '#C8AA6E',  // Gold Support
+                'UTILITY': '#C8AA6E'   // Gold Support (alias)
+            };
+            
+            // Palette pour champions (ordre de popularité)
+            const championColors = [
+                '#C8AA6E', // LoL Gold - Top 1
+                '#0AC8B9', // Hextech Cyan - Top 2
+                '#4A5568', // Steel Grey - Top 3
+                '#A09B8C', // Beige - Top 4
+                '#1E282D', // Dark Blue - Top 5
+                '#3C3C41'  // Dark Grey - Autres
             ];
+            
+            // Choisir la palette selon le type
+            let chartColors;
+            if (type === 'role') {
+                // Pour les rôles, utiliser les couleurs fixes par rôle
+                chartColors = chartData.labels.map(label => roleColors[label.toUpperCase()] || '#3C3C41');
+            } else {
+                // Pour les champions, utiliser la palette par ordre
+                chartColors = championColors;
+            }
             
             // Création du Graphique
             new Chart(ctx, {
