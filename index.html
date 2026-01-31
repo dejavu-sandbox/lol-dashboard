@@ -689,9 +689,10 @@
             border: 1px solid #333;
             border-radius: 8px;
             padding: 20px;
-            /* Flux naturel - chaque carte a sa propre hauteur */
-            display: flex;
-            flex-direction: column;
+            /* Utilise CSS Grid pour aligner Ping Record sur la même ligne */
+            display: grid;
+            grid-template-rows: auto minmax(280px, auto) auto;
+            gap: 0;
         }
 
         .player-card-header {
@@ -718,8 +719,6 @@
             flex-direction: column;
             align-items: center;
             min-width: 0; /* Empêche le débordement flex */
-            height: 280px; /* Hauteur fixe pour aligner tous les Ping Records */
-            flex-shrink: 0; /* Empêche la compression */
         }
 
         .pie-wrapper {
@@ -792,7 +791,7 @@
             border-left: 3px solid #ff5859;
             padding: 15px;
             border-radius: 5px;
-            margin-top: auto; /* Se positionne après les charts de hauteur fixe */
+            margin-top: 20px; /* Espacement avec les charts */
             cursor: pointer;
             transition: background 0.2s;
         }
