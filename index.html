@@ -693,12 +693,49 @@
         .chart-container {
             flex: 1;
             position: relative;
-            height: 250px;
+            min-height: 250px;
             max-width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .chart-container canvas {
-            max-height: 200px !important;
+        .pie-wrapper {
+            position: relative;
+            height: 160px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .pie-wrapper canvas {
+            max-height: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .custom-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 12px;
+            width: 100%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75em;
+            color: #bbb;
+            white-space: nowrap;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0;
         }
 
         .chart-title {
@@ -1478,19 +1515,21 @@
                 // Champions chart
                 const champChartContainer = document.createElement('div');
                 champChartContainer.className = 'chart-container';
-                champChartContainer.innerHTML = '<div class="chart-title">Top Champions</div>';
-                const champCanvas = document.createElement('canvas');
-                champCanvas.id = `champChart-${player.name}`;
-                champChartContainer.appendChild(champCanvas);
+                champChartContainer.innerHTML = `
+                    <div class="chart-title">Top Champions</div>
+                    <div class="pie-wrapper"><canvas id="champChart-${player.name}"></canvas></div>
+                    <div id="legend-champ-${player.name}" class="custom-legend"></div>
+                `;
                 chartsRow.appendChild(champChartContainer);
                 
                 // Roles chart
                 const rolesChartContainer = document.createElement('div');
                 rolesChartContainer.className = 'chart-container';
-                rolesChartContainer.innerHTML = '<div class="chart-title">Preferred Roles</div>';
-                const rolesCanvas = document.createElement('canvas');
-                rolesCanvas.id = `rolesChart-${player.name}`;
-                rolesChartContainer.appendChild(rolesCanvas);
+                rolesChartContainer.innerHTML = `
+                    <div class="chart-title">Preferred Roles</div>
+                    <div class="pie-wrapper"><canvas id="rolesChart-${player.name}"></canvas></div>
+                    <div id="legend-roles-${player.name}" class="custom-legend"></div>
+                `;
                 chartsRow.appendChild(rolesChartContainer);
                 
                 playerCard.appendChild(chartsRow);
@@ -1507,7 +1546,7 @@
                         <div class="personal-worst-content">
                             <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings total
                             <div class="game-info">
-                                ${worstPingsGame.dateStr} - <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span> - ${worstPingsGame.kda} (Click to see details)
+                                ${worstPingsGame.dateStr} - <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span> - ${worstPingsGame.kda}
                             </div>
                             <div class="ping-breakdown">
                                 ${worstPingsGame.breakdown.map(ping => 
@@ -1527,8 +1566,8 @@
                 playerStatsGrid.appendChild(playerCard);
                 
                 // Créer les graphiques après avoir ajouté au DOM
-                createPieChart(champCanvas.id, championsData, 'Champions');
-                createPieChart(rolesCanvas.id, rolesData, 'Rôles');
+                createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData);
+                createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData);
             });
             
             // Afficher la section
@@ -1624,20 +1663,23 @@
             };
         }
         
-        function createPieChart(canvasId, chartData, label) {
+        function createPieChart(canvasId, legendId, chartData) {
             const ctx = document.getElementById(canvasId);
-            if (!ctx) return;
+            const legendContainer = document.getElementById(legendId);
+            
+            if (!ctx || !legendContainer) return;
             
             // Palette de couleurs LoL-themed
             const colors = [
-                'rgba(200, 170, 110, 0.8)',  // Gold
-                'rgba(45, 235, 144, 0.8)',   // Green
-                'rgba(255, 88, 89, 0.8)',    // Red
-                'rgba(140, 200, 255, 0.8)',  // Blue
-                'rgba(255, 140, 0, 0.8)',    // Orange
-                'rgba(160, 155, 140, 0.6)'   // Grey (for "Autres")
+                'rgba(200, 170, 110, 0.9)',  // Gold
+                'rgba(45, 235, 144, 0.9)',   // Green
+                'rgba(255, 88, 89, 0.9)',    // Red
+                'rgba(140, 200, 255, 0.9)',  // Blue
+                'rgba(255, 140, 0, 0.9)',    // Orange
+                'rgba(160, 155, 140, 0.7)'   // Grey (for "Autres")
             ];
             
+            // Créer le graphique (SANS légende interne)
             new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -1645,21 +1687,16 @@
                     datasets: [{
                         data: chartData.data,
                         backgroundColor: colors,
-                        borderColor: '#1e2328',
+                        borderColor: '#151a21',
                         borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#f0e6d2',
-                                font: { size: 11 },
-                                padding: 10
-                            }
+                            display: false
                         },
                         tooltip: {
                             backgroundColor: 'rgba(10, 10, 12, 0.9)',
@@ -1678,6 +1715,18 @@
                     }
                 }
             });
+
+            // Générer la légende HTML manuellement
+            legendContainer.innerHTML = chartData.labels.map((label, index) => {
+                const color = colors[index % colors.length];
+                const value = chartData.data[index];
+                return `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${color};"></div>
+                        <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
