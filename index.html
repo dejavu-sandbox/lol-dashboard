@@ -1015,14 +1015,16 @@
                     .replace("CHALLENGER I", "CHALLENGER");
                 
                 // Extract tier for rank icon
-                let rankTier = "unranked";
+                let rankTier = "Unranked";
                 if (player.Rank && player.Rank !== "Unranked") {
                     const tierMatch = player.Rank.match(/^(\w+)/);
                     if (tierMatch) {
-                        rankTier = tierMatch[1].toLowerCase();
+                        // Capitalize first letter for filename (Rank=Bronze.png format)
+                        const tier = tierMatch[1].toLowerCase();
+                        rankTier = tier.charAt(0).toUpperCase() + tier.slice(1);
                     }
                 }
-                const rankIconUrl = `img/${rankTier}.png`;
+                const rankIconUrl = `img/Rank=${rankTier}.png`;
                 
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
