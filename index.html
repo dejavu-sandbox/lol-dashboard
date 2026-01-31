@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Le Chaudron : LoL Ranked Dashboard</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         /* --- GENERAL --- */
         body {
@@ -613,6 +614,121 @@
             font-size: 13px;
         }
 
+        /* --- VISUAL STATS SECTION --- */
+        .visual-stats-container {
+            max-width: 1400px;
+            margin: 40px auto 0 auto;
+            padding: 20px;
+            background-color: #0a0a0c;
+            border: 2px solid #c8aa6e;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .visual-stats-title {
+            color: #c8aa6e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .player-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .player-card {
+            background: #151a21;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .player-card-header {
+            color: #c8aa6e;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .charts-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            min-height: 200px;
+        }
+
+        .chart-title {
+            color: #a09b8c;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .personal-worst {
+            background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+            border-left: 3px solid #ff5859;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .personal-worst-title {
+            color: #ff5859;
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .personal-worst-content {
+            color: #f0e6d2;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .ping-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .ping-item {
+            background: #0a0a0c;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .ping-type {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .ping-count {
+            color: #ff8c00;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
         .last-updated #lastUpdatedText {
             font-style: italic;
         }
@@ -688,6 +804,14 @@
             <tbody>
             </tbody>
         </table>
+    </div>
+
+    <!-- VISUAL STATS SECTION -->
+    <div class="visual-stats-container" id="visualStats" style="display: none;">
+        <h2 class="visual-stats-title">📊 Statistiques Visuelles - Dernières 20 Games 📊</h2>
+        <div class="player-stats-grid" id="playerStatsGrid">
+            <!-- Les cartes des joueurs seront insérées ici dynamiquement -->
+        </div>
     </div>
 
     <div id="myModal" class="modal">
@@ -1090,6 +1214,9 @@
                 `;
                 tbody.appendChild(tr);
             });
+
+            // Generate visual stats
+            generateVisualStats(data);
         }
 
         // --- MODAL FUNCTIONS (Inchangées et optimisées) ---
@@ -1219,6 +1346,225 @@
 
         function closeModal() { document.getElementById("myModal").style.display = "none"; }
         window.onclick = function (e) { if (e.target == document.getElementById("myModal")) closeModal(); }
+
+        // --- VISUAL STATS GENERATION ---
+        function generateVisualStats(data) {
+            const visualStatsContainer = document.getElementById('visualStats');
+            const playerStatsGrid = document.getElementById('playerStatsGrid');
+            
+            playerStatsGrid.innerHTML = "";
+            
+            const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
+            
+            players.forEach(player => {
+                if (!player.History || player.History.length === 0) return;
+                
+                // Créer la carte du joueur
+                const playerCard = document.createElement('div');
+                playerCard.className = 'player-card';
+                
+                // Header avec nom du joueur
+                const header = document.createElement('div');
+                header.className = 'player-card-header';
+                header.textContent = `${player.name}#${player.Tag}`;
+                playerCard.appendChild(header);
+                
+                // Préparer les données pour les graphiques
+                const championsData = getChampionsData(player.History);
+                const rolesData = getRolesData(player.History);
+                const worstPingsGame = getWorstPingsGame(player.History);
+                
+                // Container pour les deux camemberts
+                const chartsRow = document.createElement('div');
+                chartsRow.className = 'charts-row';
+                
+                // Champions chart
+                const champChartContainer = document.createElement('div');
+                champChartContainer.className = 'chart-container';
+                champChartContainer.innerHTML = '<div class="chart-title">Top Champions</div>';
+                const champCanvas = document.createElement('canvas');
+                champCanvas.id = `champChart-${player.name}`;
+                champChartContainer.appendChild(champCanvas);
+                chartsRow.appendChild(champChartContainer);
+                
+                // Roles chart
+                const rolesChartContainer = document.createElement('div');
+                rolesChartContainer.className = 'chart-container';
+                rolesChartContainer.innerHTML = '<div class="chart-title">Rôles Préférés</div>';
+                const rolesCanvas = document.createElement('canvas');
+                rolesCanvas.id = `rolesChart-${player.name}`;
+                rolesChartContainer.appendChild(rolesCanvas);
+                chartsRow.appendChild(rolesChartContainer);
+                
+                playerCard.appendChild(chartsRow);
+                
+                // Personal Worst section
+                if (worstPingsGame) {
+                    const worstSection = document.createElement('div');
+                    worstSection.className = 'personal-worst';
+                    worstSection.innerHTML = `
+                        <div class="personal-worst-title">
+                            😤 PERSONAL WORST - Record de Pings
+                        </div>
+                        <div class="personal-worst-content">
+                            <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings au total
+                            <div class="ping-breakdown">
+                                ${worstPingsGame.breakdown.map(ping => 
+                                    ping.count > 0 ? `
+                                    <div class="ping-item">
+                                        <div class="ping-type">${ping.name}</div>
+                                        <div class="ping-count">${ping.count}</div>
+                                    </div>` : ''
+                                ).join('')}
+                            </div>
+                        </div>
+                    `;
+                    playerCard.appendChild(worstSection);
+                }
+                
+                playerStatsGrid.appendChild(playerCard);
+                
+                // Créer les graphiques après avoir ajouté au DOM
+                createPieChart(champCanvas.id, championsData, 'Champions');
+                createPieChart(rolesCanvas.id, rolesData, 'Rôles');
+            });
+            
+            // Afficher la section
+            visualStatsContainer.style.display = 'block';
+        }
+        
+        function getChampionsData(history) {
+            const champCounts = {};
+            history.forEach(match => {
+                const champ = match.Champion;
+                champCounts[champ] = (champCounts[champ] || 0) + 1;
+            });
+            
+            // Trier et prendre le top 5
+            const sorted = Object.entries(champCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const labels = sorted.map(([champ]) => champ);
+            const data = sorted.map(([, count]) => count);
+            
+            // Ajouter "Autres" si nécessaire
+            const top5Total = data.reduce((sum, val) => sum + val, 0);
+            if (top5Total < history.length) {
+                labels.push('Autres');
+                data.push(history.length - top5Total);
+            }
+            
+            return { labels, data };
+        }
+        
+        function getRolesData(history) {
+            const roleCounts = {};
+            history.forEach(match => {
+                const role = match.Role === 'UTILITY' ? 'SUPPORT' : match.Role;
+                if (role) {
+                    roleCounts[role] = (roleCounts[role] || 0) + 1;
+                }
+            });
+            
+            const labels = Object.keys(roleCounts);
+            const data = Object.values(roleCounts);
+            
+            return { labels, data };
+        }
+        
+        function getWorstPingsGame(history) {
+            let worst = null;
+            let maxPings = 0;
+            
+            history.forEach(match => {
+                const totalPings = match.Pings || 0;
+                if (totalPings > maxPings) {
+                    maxPings = totalPings;
+                    worst = match;
+                }
+            });
+            
+            if (!worst || maxPings === 0) return null;
+            
+            const pingTypes = [
+                { name: '⚔️ All In', count: worst.AllInPings || 0 },
+                { name: '🤝 Assist Me', count: worst.AssistMePings || 0 },
+                { name: '🎣 Bait', count: worst.BaitPings || 0 },
+                { name: '📍 Basic', count: worst.BasicPings || 0 },
+                { name: '👑 Command', count: worst.CommandPings || 0 },
+                { name: '⚠️ Danger', count: worst.DangerPings || 0 },
+                { name: '❓ Missing', count: worst.EnemyMissingPings || 0 },
+                { name: '👁️ Vision', count: worst.EnemyVisionPings || 0 },
+                { name: '⬅️ Get Back', count: worst.GetBackPings || 0 },
+                { name: '✋ Hold', count: worst.HoldPings || 0 },
+                { name: '🔭 Need Vision', count: worst.NeedVisionPings || 0 },
+                { name: '🏃 On My Way', count: worst.OnMyWayPings || 0 },
+                { name: '➡️ Push', count: worst.PushPings || 0 }
+            ];
+            
+            return {
+                Champion: worst.Champion,
+                totalPings: maxPings,
+                breakdown: pingTypes.filter(p => p.count > 0).sort((a, b) => b.count - a.count)
+            };
+        }
+        
+        function createPieChart(canvasId, chartData, label) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            
+            // Palette de couleurs LoL-themed
+            const colors = [
+                'rgba(200, 170, 110, 0.8)',  // Gold
+                'rgba(45, 235, 144, 0.8)',   // Green
+                'rgba(255, 88, 89, 0.8)',    // Red
+                'rgba(140, 200, 255, 0.8)',  // Blue
+                'rgba(255, 140, 0, 0.8)',    // Orange
+                'rgba(160, 155, 140, 0.6)'   // Grey (for "Autres")
+            ];
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        data: chartData.data,
+                        backgroundColor: colors,
+                        borderColor: '#1e2328',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#f0e6d2',
+                                font: { size: 11 },
+                                padding: 10
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 10, 12, 0.9)',
+                            titleColor: '#c8aa6e',
+                            bodyColor: '#f0e6d2',
+                            borderColor: '#c8aa6e',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 
