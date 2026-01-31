@@ -29,8 +29,7 @@
         }
 
         .container {
-            max-width: 1400px;
-            /* Élargi pour les nouvelles colonnes */
+            max-width: 1500px;
             margin: 0 auto;
             display: none;
         }
@@ -42,6 +41,7 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             border: 1px solid #c8aa6e;
             border-radius: 8px;
+            table-layout: fixed;
         }
 
         th {
@@ -52,19 +52,35 @@
             font-size: 0.8em;
             border-bottom: 2px solid #c8aa6e;
             position: relative;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         td {
             padding: 12px;
             border-bottom: 1px solid #333;
             vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
+        /* --- FIXED COLUMN WIDTHS FOR PERFECT ALIGNMENT --- */
+        table th:nth-child(1), table td:nth-child(1) { width: 280px; text-align: left; padding-left: 20px; }
+        table th:nth-child(2), table td:nth-child(2) { width: 180px; }
+        table th:nth-child(3), table td:nth-child(3) { width: 100px; }
+        table th:nth-child(4), table td:nth-child(4) { width: 100px; }
+        table th:nth-child(5), table td:nth-child(5) { width: 100px; }
+        table th:nth-child(6), table td:nth-child(6) { width: 140px; }
+        table th:nth-child(7), table td:nth-child(7) { width: 100px; }
+        table th:nth-child(8), table td:nth-child(8) { width: 100px; }
+        table th:nth-child(9), table td:nth-child(9) { width: 200px; }
 
         tr.player-row:hover {
             background-color: #1e282d;
             cursor: pointer;
-            transform: scale(1.01);
             transition: 0.1s;
+            filter: brightness(1.1);
         }
 
         /* COLORS */
@@ -110,7 +126,6 @@
         .player-cell {
             display: flex;
             align-items: center;
-            padding-left: 20px;
         }
 
         .profile-icon {
@@ -119,6 +134,7 @@
             border-radius: 50%;
             border: 2px solid #c8aa6e;
             margin-right: 15px;
+            flex-shrink: 0;
         }
 
         .player-info {
@@ -127,17 +143,22 @@
             align-items: flex-start;
             justify-content: center;
             gap: 4px;
+            overflow: hidden;
         }
 
         .name-tag-row {
             display: flex;
             align-items: center;
             gap: 6px;
+            width: 100%;
         }
 
         .player-name {
             font-weight: bold;
             font-size: 1.1em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .tag {
@@ -145,6 +166,7 @@
             color: #666;
             font-weight: normal;
             margin: 0;
+            flex-shrink: 0;
         }
 
         /* NEW: Main Champ Icon Style */
@@ -154,6 +176,7 @@
             border-radius: 3px;
             border: 1px solid #444;
             box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
         }
 
         /* --- SUB-STATS (Petites lignes sous les chiffres) --- */
@@ -169,12 +192,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
         }
 
         .rank-icon {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             object-fit: contain;
         }
 
@@ -400,6 +423,7 @@
             justify-content: center;
             gap: 6px;
             height: 100%;
+            flex-wrap: nowrap;
         }
 
         .badge-icon {
@@ -409,6 +433,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
             transition: transform 0.2s;
             cursor: help;
+            flex-shrink: 0;
         }
 
         .badge-icon:hover {
@@ -612,11 +637,12 @@
         .last-updated {
             color: #888;
             font-size: 13px;
+            font-style: italic;
         }
 
         /* --- VISUAL STATS SECTION --- */
         .visual-stats-container {
-            max-width: 1400px;
+            max-width: 1500px;
             margin: 40px auto 0 auto;
             padding: 20px;
             background-color: #0a0a0c;
