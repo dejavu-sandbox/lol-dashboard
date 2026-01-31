@@ -29,13 +29,20 @@
         }
 
         /* --- HARMONISATION DES CONTENEURS --- */
-        .container, 
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0;        /* Pas de padding - le tableau a ses propres bordures */
+            display: block;
+            box-sizing: border-box;
+        }
+        
         .visual-stats-container {
-            max-width: 1400px; /* Exactement la même largeur pour les deux */
-            margin: 40px auto; /* Centré automatiquement */
-            padding: 20px;     /* Padding interne identique */
-            display: block;    /* S'assure qu'ils se comportent pareil */
-            box-sizing: border-box; /* Crucial pour que le padding ne fausse pas la largeur */
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 20px;
+            display: block;
+            box-sizing: border-box;
         }
 
         .visual-stats-container {
@@ -712,6 +719,7 @@
             flex-direction: column;
             align-items: center;
             min-width: 0; /* Empêche le débordement flex */
+            min-height: 280px; /* Force l'alignement du Ping Record */
         }
 
         .pie-wrapper {
