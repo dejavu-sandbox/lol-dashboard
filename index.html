@@ -667,7 +667,12 @@
         .chart-container {
             flex: 1;
             position: relative;
-            min-height: 200px;
+            height: 250px;
+            max-width: 50%;
+        }
+
+        .chart-container canvas {
+            max-height: 200px !important;
         }
 
         .chart-title {
@@ -705,17 +710,27 @@
 
         .ping-breakdown {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 6px;
             margin-top: 10px;
         }
 
         .ping-item {
             background: #0a0a0c;
-            padding: 8px;
+            padding: 6px 8px;
             border-radius: 4px;
             text-align: center;
             font-size: 0.85em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ping-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
         }
 
         .ping-type {
@@ -808,9 +823,9 @@
 
     <!-- VISUAL STATS SECTION -->
     <div class="visual-stats-container" id="visualStats" style="display: none;">
-        <h2 class="visual-stats-title">📊 Statistiques Visuelles - Dernières 20 Games 📊</h2>
+        <h2 class="visual-stats-title">Visual Statistics - Last 20 Games</h2>
         <div class="player-stats-grid" id="playerStatsGrid">
-            <!-- Les cartes des joueurs seront insérées ici dynamiquement -->
+            <!-- Player cards will be inserted here dynamically -->
         </div>
     </div>
 
@@ -1356,6 +1371,39 @@
             
             const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
             
+            // Sort players by rank (same logic as main table)
+            const tierValues = {
+                "CHALLENGER": 90000,
+                "GRANDMASTER": 80000,
+                "MASTER": 70000,
+                "DIAMOND": 60000,
+                "EMERALD": 50000,
+                "PLATINUM": 40000,
+                "GOLD": 30000,
+                "SILVER": 20000,
+                "BRONZE": 10000,
+                "IRON": 0,
+                "UNRANKED": -10000
+            };
+            const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
+
+            function getRankScore(rankStr) {
+                if (!rankStr || rankStr === "Unranked") return -10000;
+                let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
+                if (!match) return 0;
+                let tier = match[1];
+                let div = match[2] || "";
+                let lp = parseInt(match[3]);
+                let score = (tierValues[tier] || 0);
+                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
+                    score += lp;
+                } else {
+                    score += (divValues[div] || 0) + lp;
+                }
+                return score;
+            }
+            players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
+            
             players.forEach(player => {
                 if (!player.History || player.History.length === 0) return;
                 
@@ -1390,7 +1438,7 @@
                 // Roles chart
                 const rolesChartContainer = document.createElement('div');
                 rolesChartContainer.className = 'chart-container';
-                rolesChartContainer.innerHTML = '<div class="chart-title">Rôles Préférés</div>';
+                rolesChartContainer.innerHTML = '<div class="chart-title">Preferred Roles</div>';
                 const rolesCanvas = document.createElement('canvas');
                 rolesCanvas.id = `rolesChart-${player.name}`;
                 rolesChartContainer.appendChild(rolesCanvas);
@@ -1404,14 +1452,15 @@
                     worstSection.className = 'personal-worst';
                     worstSection.innerHTML = `
                         <div class="personal-worst-title">
-                            😤 PERSONAL WORST - Record de Pings
+                            PERSONAL WORST - Ping Record
                         </div>
                         <div class="personal-worst-content">
-                            <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings au total
+                            <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings total
                             <div class="ping-breakdown">
                                 ${worstPingsGame.breakdown.map(ping => 
-                                    ping.count > 0 ? `
+                                    ping.count > 0 && ping.icon ? `
                                     <div class="ping-item">
+                                        <img src="${ping.icon}" class="ping-icon" alt="${ping.name}">
                                         <div class="ping-type">${ping.name}</div>
                                         <div class="ping-count">${ping.count}</div>
                                     </div>` : ''
@@ -1488,19 +1537,19 @@
             if (!worst || maxPings === 0) return null;
             
             const pingTypes = [
-                { name: '⚔️ All In', count: worst.AllInPings || 0 },
-                { name: '🤝 Assist Me', count: worst.AssistMePings || 0 },
-                { name: '🎣 Bait', count: worst.BaitPings || 0 },
-                { name: '📍 Basic', count: worst.BasicPings || 0 },
-                { name: '👑 Command', count: worst.CommandPings || 0 },
-                { name: '⚠️ Danger', count: worst.DangerPings || 0 },
-                { name: '❓ Missing', count: worst.EnemyMissingPings || 0 },
-                { name: '👁️ Vision', count: worst.EnemyVisionPings || 0 },
-                { name: '⬅️ Get Back', count: worst.GetBackPings || 0 },
-                { name: '✋ Hold', count: worst.HoldPings || 0 },
-                { name: '🔭 Need Vision', count: worst.NeedVisionPings || 0 },
-                { name: '🏃 On My Way', count: worst.OnMyWayPings || 0 },
-                { name: '➡️ Push', count: worst.PushPings || 0 }
+                { name: 'All In', count: worst.AllInPings || 0, icon: null },
+                { name: 'Assist Me', count: worst.AssistMePings || 0, icon: 'img/assistMe.png' },
+                { name: 'Bait', count: worst.BaitPings || 0, icon: null },
+                { name: 'Basic', count: worst.BasicPings || 0, icon: null },
+                { name: 'Command', count: worst.CommandPings || 0, icon: null },
+                { name: 'Danger', count: worst.DangerPings || 0, icon: null },
+                { name: 'Missing', count: worst.EnemyMissingPings || 0, icon: 'img/ennemyMissing.png' },
+                { name: 'Vision', count: worst.EnemyVisionPings || 0, icon: 'img/areaIsWarded.png' },
+                { name: 'Get Back', count: worst.GetBackPings || 0, icon: null },
+                { name: 'Hold', count: worst.HoldPings || 0, icon: null },
+                { name: 'Need Vision', count: worst.NeedVisionPings || 0, icon: 'img/needVision.png' },
+                { name: 'On My Way', count: worst.OnMyWayPings || 0, icon: 'img/onMyWay.png' },
+                { name: 'Push', count: worst.PushPings || 0, icon: 'img/pushForward.png' }
             ];
             
             return {
