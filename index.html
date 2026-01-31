@@ -709,7 +709,6 @@
             gap: 15px;
             margin-bottom: 20px;
             align-items: flex-start; /* Aligne les camemberts en haut */
-            min-height: 300px; /* Force tous les Ping Record à commencer au même niveau */
         }
 
         /* --- ESTHÉTIQUE DES CAMEMBERTS --- */
@@ -719,7 +718,8 @@
             flex-direction: column;
             align-items: center;
             min-width: 0; /* Empêche le débordement flex */
-            min-height: 280px; /* Force l'alignement du Ping Record */
+            height: 280px; /* Hauteur fixe pour aligner tous les Ping Records */
+            flex-shrink: 0; /* Empêche la compression */
         }
 
         .pie-wrapper {
@@ -792,7 +792,7 @@
             border-left: 3px solid #ff5859;
             padding: 15px;
             border-radius: 5px;
-            margin-top: 20px; /* Position fixe pour alignement */
+            margin-top: auto; /* Se positionne après les charts de hauteur fixe */
             cursor: pointer;
             transition: background 0.2s;
         }
