@@ -8,6 +8,11 @@
     <link rel="icon" type="image/png" href="img/favicon.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
+        /* --- RESET GLOBAL CRUCIAL --- */
+        * {
+            box-sizing: border-box; /* Empêche le padding de casser les largeurs */
+        }
+
         /* --- GENERAL --- */
         body {
             background-color: #091428;
@@ -28,18 +33,23 @@
             padding-bottom: 10px;
         }
 
-        /* --- CONTENEURS UNIFIÉS (POUR UN ALIGNEMENT PARFAIT) --- */
-        .container, 
-        .visual-stats-container {
-            max-width: 1400px; /* Largeur fixe identique pour les deux */
-            margin: 40px auto; /* Centré horizontalement */
-            padding: 0;        /* Reset du padding */
-            display: block;    /* S'assure qu'ils prennent la largeur */
-            box-sizing: border-box; /* Inclut les bordures dans la largeur */
+        /* --- CONTENEUR UNIQUE ET PROPRE --- */
+        /* S'applique aux DEUX tableaux pour garantir l'alignement */
+        .main-box {
+            width: 1450px;          /* Largeur fixe unifiée */
+            max-width: 95vw;        /* Sécurité responsive */
+            margin: 40px auto;      /* Centrage horizontal parfait */
             background-color: #0a0a0c;
             border: 2px solid #c8aa6e;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: block;
+            overflow: hidden;       /* Garde les coins arrondis propres */
+        }
+
+        /* Padding spécifique pour le 2ème tableau qui contient des grilles */
+        #visualStats {
+            padding: 25px;
         }
 
         /* --- TABLEAU PRINCIPAL --- */
@@ -48,7 +58,7 @@
             border-collapse: collapse;
             background-color: transparent;
             border: none;
-            table-layout: fixed; /* Force le respect des largeurs de colonnes */
+            table-layout: fixed; /* Force le respect des largeurs */
         }
 
         th {
@@ -72,7 +82,7 @@
             text-overflow: ellipsis;
         }
 
-        /* Largeurs de colonnes fixes pour un alignement robuste */
+        /* Largeurs fixes pour alignement */
         table th:nth-child(1), table td:nth-child(1) { width: 280px; text-align: left; padding-left: 20px; } /* Player */
         table th:nth-child(2), table td:nth-child(2) { width: 180px; } /* Rank */
         table th:nth-child(3), table td:nth-child(3) { width: 100px; } /* Streak */
@@ -81,7 +91,7 @@
         table th:nth-child(6), table td:nth-child(6) { width: 140px; } /* KDA */
         table th:nth-child(7), table td:nth-child(7) { width: 100px; } /* Toxicity */
         table th:nth-child(8), table td:nth-child(8) { width: 100px; } /* Trend */
-        table th:nth-child(9), table td:nth-child(9) { width: 200px; } /* Badges */
+        table th:nth-child(9), table td:nth-child(9) { width: 200px; } /* Badge */
 
         tr.player-row:hover {
             background-color: #1e282d;
@@ -90,23 +100,21 @@
             filter: brightness(1.1);
         }
 
-        /* --- VISUAL STATS (2ème TABLEAU) --- */
+        /* --- VISUAL STATS (TITRE & GRILLE) --- */
         .visual-stats-title {
             color: #c8aa6e;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 30px;
+            margin: 0 0 30px 0;
             font-size: 1.5em;
             text-align: center;
-            padding-top: 20px;
         }
 
         .player-stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 colonnes égales */
+            grid-template-columns: repeat(4, 1fr); /* 4 colonnes strictes */
             gap: 20px;
-            padding: 0 20px 20px 20px; /* Padding interne */
-            align-items: stretch; /* Hauteur égale pour toutes les cartes */
+            align-items: stretch;
         }
 
         .player-card {
@@ -134,7 +142,7 @@
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
-            flex: 1; /* Prend l'espace disponible */
+            flex: 1; /* Prend l'espace disponible verticalement */
             align-items: flex-start;
         }
 
@@ -169,10 +177,11 @@
             max-width: 100% !important;
         }
 
+        /* Légende personnalisée alignée */
         .custom-legend {
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Aligné à gauche */
+            align-items: flex-start; /* Aligné gauche */
             gap: 4px;
             width: 100%;
             padding: 0 5px;
@@ -197,13 +206,13 @@
         
         .legend-icon { border: 1px solid #444; }
 
-        /* --- PING RECORD (Tout en bas) --- */
+        /* --- PING RECORD (ALIGNEMENT BAS) --- */
         .personal-worst {
             background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
             border-left: 3px solid #ff5859;
             padding: 15px;
             border-radius: 5px;
-            margin-top: auto; /* Pousse le bloc en bas de la carte */
+            margin-top: auto; /* Pousse ce bloc tout en bas */
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -242,15 +251,15 @@
 
         .ping-count { color: #ff8c00; font-weight: bold; }
 
-        /* --- ELEMENTS UI DIVERS --- */
+        /* --- STYLES DIVERS --- */
         .win-high { color: #2deb90; font-weight: bold; }
         .win-low { color: #ff5859; font-weight: bold; }
         .win-mid { color: #f0e6d2; font-weight: bold; }
-        
         .streak-win { color: #ff8c00; font-weight: bold; text-shadow: 0 0 8px rgba(255, 140, 0, 0.4); text-transform: uppercase; font-size: 0.9em; }
         .streak-loss { color: #ff5859; font-weight: bold; text-transform: uppercase; font-size: 0.9em; opacity: 0.8; }
         .toxic-ping { color: #ff5859; font-weight: bold; }
 
+        /* Player Info */
         .player-cell { display: flex; align-items: center; }
         .profile-icon { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #c8aa6e; margin-right: 15px; flex-shrink: 0; }
         .player-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; overflow: hidden; }
@@ -260,7 +269,7 @@
         .main-champ-icon { width: 22px; height: 22px; border-radius: 3px; border: 1px solid #444; box-shadow: 0 0 4px rgba(0, 0, 0, 0.5); flex-shrink: 0; }
         .sub-stat { font-size: 0.7em; color: #888; margin-top: 4px; font-weight: normal; }
 
-        /* Rank Display */
+        /* Rank */
         .rank-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .rank-icon { width: 40px; height: 40px; object-fit: contain; }
         .rank-text { font-size: 0.9em; color: #a09b8c; text-align: center; line-height: 1.2; }
@@ -289,7 +298,7 @@
         .refresh-btn.loading #refreshIcon { animation: spin 1s linear infinite; }
         .last-updated { color: #888; font-size: 13px; font-style: italic; }
 
-        /* External Links */
+        /* Links */
         .external-links { display: flex; gap: 6px; margin-top: 3px; }
         .link-icon { font-size: 0.7em; text-decoration: none; padding: 2px 8px; border-radius: 4px; font-weight: bold; transition: 0.2s; display: inline-block; }
         .op-gg { background-color: #5383e8; color: white; }
@@ -301,16 +310,40 @@
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #c8aa6e; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Modal & Autres */
+        /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
         .modal-content { background-color: #0a0a0c; margin: 2% auto; padding: 20px; border: 2px solid #c8aa6e; width: 95%; max-width: 1000px; border-radius: 10px; max-height: 90vh; overflow-y: auto; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .match-history { list-style: none; padding: 0; margin-top: 20px; }
+        .match-container { margin-bottom: 8px; border-radius: 5px; overflow: hidden; }
         
+        .match-header, .match-row { display: grid; grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr; align-items: center; padding: 12px; font-size: 0.9em; }
+        .match-header { font-weight: bold; color: #c8aa6e; margin-bottom: 10px; text-transform: uppercase; font-size: 0.8em; border-bottom: 1px solid #333; }
+        .match-row { background: #151a21; border-left: 5px solid #555; cursor: pointer; transition: background 0.2s; }
+        .match-row:hover { background-color: #1f2731; transform: translateX(2px); }
+        .match-win { border-left-color: #2deb90; background: linear-gradient(90deg, rgba(45, 235, 144, 0.1) 0%, rgba(21, 26, 33, 0) 100%); }
+        .match-loss { border-left-color: #ff5859; background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%); }
+        
+        .champ-flex { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: bold; }
+        .champ-icon { width: 36px; height: 36px; border-radius: 4px; border: 1px solid #444; }
+        .vs-column { display: flex; align-items: center; justify-content: center; }
+        .enemy-icon { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #333; transition: 0.2s; }
+        .match-details { display: none; background-color: #0f1216; padding: 15px; border-top: 1px solid #333; animation: slideDown 0.2s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; text-align: center; }
+        .stat-box { background: #1c2129; padding: 10px; border-radius: 5px; }
+        .stat-label { font-size: 0.75em; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 1.1em; font-weight: bold; color: #f0e6d2; }
+        .gold-text { color: #ffd700; }
+        .dmg-text { color: #ff5859; }
+        .heal-text { color: #2deb90; }
+        .stat-detail { font-size: 0.85em; color: #aaa; }
+
         .lp-plus { color: #2deb90; font-weight: bold; }
         .lp-minus { color: #ff5859; font-weight: bold; }
         .lp-na { color: #444; font-style: italic; }
 
-        /* Tooltip */
         .help-icon { display: inline-flex; justify-content: center; align-items: center; width: 16px; height: 16px; background-color: #555; color: #fff; border-radius: 50%; font-size: 11px; font-weight: bold; margin-left: 6px; cursor: help; position: relative; }
         .help-icon .tooltip-text { visibility: hidden; width: 210px; background-color: #121212; color: #e0e0e0; font-size: 12px; font-weight: 400; padding: 12px; position: absolute; z-index: 9999; bottom: 135%; left: 50%; transform: translateX(-50%); border: 1px solid #ffd700; opacity: 0; transition: all 0.2s ease-in-out; pointer-events: none; }
         .help-icon:hover .tooltip-text { visibility: visible; opacity: 1; }
@@ -327,7 +360,7 @@
         <p style="color:#666; font-size:0.8em;">(Manual refresh may take ~30s, please wait!)</p>
     </div>
 
-    <div class="container" id="dashboard">
+    <div class="main-box" id="dashboard">
         <div class="refresh-controls">
             <button id="refreshBtn" class="refresh-btn" onclick="manualRefresh()" disabled>
                 <span id="refreshIcon">↻</span>
@@ -375,7 +408,7 @@
         </table>
     </div>
 
-    <div class="visual-stats-container" id="visualStats" style="display: none;">
+    <div class="main-box" id="visualStats" style="display: none;">
         <h2 class="visual-stats-title">Visual Statistics - Last 20 Games</h2>
         <div class="player-stats-grid" id="playerStatsGrid">
             </div>
@@ -661,7 +694,21 @@
             playerStatsGrid.innerHTML = "";
             
             const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
-            // Reuse sort logic if needed, or assume sorted from displayData
+            
+            // Re-apply sort just in case
+            const tierValues = { "CHALLENGER": 90000, "GRANDMASTER": 80000, "MASTER": 70000, "DIAMOND": 60000, "EMERALD": 50000, "PLATINUM": 40000, "GOLD": 30000, "SILVER": 20000, "BRONZE": 10000, "IRON": 0, "UNRANKED": -10000 };
+            const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
+            function getRankScore(rankStr) {
+                if (!rankStr || rankStr === "Unranked") return -10000;
+                let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
+                if (!match) return 0;
+                let tier = match[1]; let div = match[2] || ""; let lp = parseInt(match[3]);
+                let score = (tierValues[tier] || 0);
+                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") score += lp;
+                else score += (divValues[div] || 0) + lp;
+                return score;
+            }
+            players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
             
             players.forEach(player => {
                 if (!player.History || player.History.length === 0) return;
@@ -794,62 +841,107 @@
             const legendContainer = document.getElementById(legendId);
             if (!ctx || !legendContainer) return;
 
-            // Nouvelle Palette "Prestige"
-            const chartColors = ['#C8AA6E', '#0AC8B9', '#4A5568', '#A09B8C', '#1E282D', '#3C3C41'];
+            const championIcons = {};
+            const imagePromises = [];
+            
+            if (type === 'champion') {
+                chartData.labels.forEach(champName => {
+                    if (champName !== 'Autres') {
+                        const img = new Image();
+                        img.src = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champName}.png`;
+                        championIcons[champName] = img;
+                        const promise = new Promise((resolve) => {
+                            img.onload = () => resolve();
+                            img.onerror = () => resolve();
+                        });
+                        imagePromises.push(promise);
+                    }
+                });
+            }
+            
+            if (imagePromises.length > 0) {
+                Promise.all(imagePromises).then(() => createChartAfterImagesLoaded());
+            } else {
+                createChartAfterImagesLoaded();
+            }
+            
+            function createChartAfterImagesLoaded() {
+                const roleColors = { 'TOP': '#4A5568', 'JUNGLE': '#2deb90', 'MIDDLE': '#7B2CBF', 'MID': '#7B2CBF', 'BOTTOM': '#ff5859', 'ADC': '#ff5859', 'SUPPORT': '#C8AA6E', 'UTILITY': '#C8AA6E' };
+                const championColors = ['#C8AA6E', '#0AC8B9', '#4A5568', '#A09B8C', '#1E282D', '#3C3C41'];
+                
+                let chartColors;
+                if (type === 'role') chartColors = chartData.labels.map(label => roleColors[label.toUpperCase()] || '#3C3C41');
+                else chartColors = championColors;
+                
+                const championIconPlugin = {
+                    id: 'championIconBackground',
+                    beforeDraw: (chart) => {
+                        if (type !== 'champion') return;
+                        const ctx = chart.ctx;
+                        const meta = chart.getDatasetMeta(0);
+                        meta.data.forEach((element, index) => {
+                            const label = chart.data.labels[index];
+                            if (label === 'Autres' || !championIcons[label]) return;
+                            const img = championIcons[label];
+                            const { x, y, startAngle, endAngle, outerRadius } = element;
+                            const midAngle = (startAngle + endAngle) / 2;
+                            const iconDistance = outerRadius * 0.6;
+                            const iconX = x + Math.cos(midAngle) * iconDistance;
+                            const iconY = y + Math.sin(midAngle) * iconDistance;
+                            const iconSize = 40;
+                            ctx.save();
+                            ctx.globalAlpha = 0.3;
+                            ctx.drawImage(img, iconX - iconSize / 2, iconY - iconSize / 2, iconSize, iconSize);
+                            ctx.restore();
+                        });
+                    }
+                };
 
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        data: chartData.data,
-                        backgroundColor: chartColors,
-                        borderColor: '#151a21',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(10, 10, 12, 0.95)',
-                            titleColor: '#c8aa6e',
-                            bodyColor: '#f0e6d2',
-                            borderColor: '#333',
-                            borderWidth: 1,
-                            padding: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return ` ${context.label}: ${context.parsed} games (${percentage}%)`;
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            data: chartData.data,
+                            backgroundColor: chartColors,
+                            borderColor: '#151a21',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(10, 10, 12, 0.95)',
+                                titleColor: '#c8aa6e',
+                                bodyColor: '#f0e6d2',
+                                borderColor: '#333',
+                                borderWidth: 1,
+                                padding: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                        return ` ${context.label}: ${context.parsed} games (${percentage}%)`;
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            });
+                    },
+                    plugins: [championIconPlugin]
+                });
 
-            legendContainer.innerHTML = chartData.labels.map((label, index) => {
-                const color = chartColors[index % chartColors.length];
-                const value = chartData.data[index];
-                
-                let iconHtml = '';
-                if (type === 'champion' && label !== 'Autres') {
-                    iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
-                } else {
-                    iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
-                }
-                
-                return `
-                    <div class="legend-item" title="${label}: ${value} games">
-                        ${iconHtml}
-                        <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
-                    </div>
-                `;
-            }).join('');
+                legendContainer.innerHTML = chartData.labels.map((label, index) => {
+                    const color = Array.isArray(chartColors) ? chartColors[index % chartColors.length] : chartColors;
+                    const value = chartData.data[index];
+                    let iconHtml = '';
+                    if (type === 'champion' && label !== 'Autres') iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
+                    else iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
+                    return `<div class="legend-item" title="${label}: ${value} games">${iconHtml}<span>${label}: ${value}</span></div>`;
+                }).join('');
+            }
         }
 
         // --- MODAL ---
@@ -868,10 +960,11 @@
                     player.History.forEach((match, index) => {
                         const li = document.createElement("li");
                         li.className = "match-container";
-                        // ... (Logique HTML match-row existante conservée si besoin, simplifiée ici pour la démo)
-                        // Note: J'ai enlevé la logique complexe du modal pour alléger, remets ton bloc existant si tu veux le détail complet
-                        // Pour la démo je mets un placeholder simple
-                        li.textContent = `${match.Champion} - ${match.Win ? 'WIN' : 'LOSS'} (${match.KDA})`;
+                        const isWin = match.Win;
+                        const resultClass = isWin ? 'match-win' : 'match-loss';
+                        const resultText = isWin ? "VICTORY" : "DEFEAT";
+                        // Simple modal content for now
+                        li.innerHTML = `<div class="match-row ${resultClass}"><span>${match.Champion}</span><span>${resultText}</span><span>${match.KDA}</span></div>`; 
                         ul.appendChild(li);
                     });
                     body.appendChild(ul);
