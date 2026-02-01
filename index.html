@@ -1878,6 +1878,8 @@
                 legendContainer.innerHTML = chartData.labels.map((label, index) => {
                     const color = Array.isArray(chartColors) ? chartColors[index % chartColors.length] : chartColors;
                     const value = chartData.data[index];
+                    const total = chartData.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
                     
                     let iconHtml = '';
                     if (type === 'champion' && label !== 'Autres') {
@@ -1887,9 +1889,9 @@
                     }
                     
                     return `
-                        <div class="legend-item" title="${label}: ${value} games">
+                        <div class="legend-item" title="${label}: ${value} games (${percentage}%)">
                             ${iconHtml}
-                            <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
+                            <span>${label} <span style="color:#666; font-size:0.9em">(${value} - ${percentage}%)</span></span>
                         </div>
                     `;
                 }).join('');
