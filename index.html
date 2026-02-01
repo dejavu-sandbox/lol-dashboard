@@ -1578,10 +1578,16 @@
                 const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
 
-                // Header avec nom du joueur
+                // Header avec nom du joueur et icône
                 const header = document.createElement('div');
                 header.className = 'player-card-header';
-                header.textContent = `${player.name}#${player.Tag}`;
+                const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
+                header.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <img src="${iconUrl}" style="width:32px; height:32px; border-radius:50%; border:2px solid #c8aa6e;">
+                        <span>${player.name}#${player.Tag}</span>
+                    </div>
+                `;
                 playerCard.appendChild(header);
 
                 // Préparer les données pour les graphiques
@@ -1804,8 +1810,8 @@
                             const label = data.labels[index];
                             const percentage = (value / total) * 100;
 
-                            // Condition : Ne pas afficher si < 10% ou si c'est "Autres"
-                            if (percentage < 10 || label === 'Autres' || !championIcons[label]) return;
+                            // Condition : Ne pas afficher si < 15% ou si c'est "Autres"
+                            if (percentage < 15 || label === 'Autres' || !championIcons[label]) return;
 
                             const { x, y, startAngle, endAngle, outerRadius } = element;
                             const angle = startAngle + (endAngle - startAngle) / 2;
