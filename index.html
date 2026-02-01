@@ -818,6 +818,12 @@
             vertical-align: middle;
         }
 
+        /* Bordure plus visible pour les icônes de rôle dans la légende */
+        .role-legend-icon {
+            border: 2px solid #000;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
         .role-icon {
             width: 16px;
             height: 16px;
@@ -2084,7 +2090,7 @@
                             'UTILITY': 'supportRole'
                         };
                         const iconName = roleMap[label.toUpperCase()] || label;
-                        iconHtml = `<img src="img/${iconName}.png" class="legend-icon" alt="${label}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                        iconHtml = `<img src="img/${iconName}.png" class="legend-icon role-legend-icon" alt="${label}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
                                     <div class="legend-color" style="background-color: ${color}; display: none;"></div>`;
                     } else {
                         iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
