@@ -28,28 +28,33 @@
             padding-bottom: 10px;
         }
 
-        /* --- HARMONISATION DES CONTENEURS --- */
+        /* --- CORRECTION ALIGNEMENT --- */
+        /* Application de la règle box-sizing globale pour éviter les débordements */
+        * {
+            box-sizing: border-box;
+        }
+
         .container {
             max-width: 1400px;
             margin: 40px auto;
             padding: 0;
             display: block;
-            box-sizing: border-box;
+            /* Pas de style visuel ici car c'est le <table> qui a les bordures */
         }
 
         .visual-stats-container {
+            /* 1. Géométrie STRICTEMENT identique au container du haut */
             max-width: 1400px;
-            margin: 40px auto;
-            padding: 0;
+            margin: 40px auto; /* Centre le bloc */
             display: block;
-            box-sizing: border-box;
-        }
-
-        .visual-stats-container {
+            
+            /* 2. Style visuel */
             background-color: #0a0a0c;
             border: 2px solid #c8aa6e;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            
+            /* 3. Padding interne (inclus dans la largeur grâce au box-sizing: border-box plus haut) */
             padding: 20px;
         }
 
@@ -968,7 +973,7 @@
                             <div class="help-icon">?
                                 <span class="tooltip-text">
                                     Average of <strong>"?"</strong> (Missing) and <strong>"Push Forward"</strong> pings
-                                    per game over the last 20 matches.
+                                    per game.
                                 </span>
                             </div>
                         </div>
@@ -992,12 +997,10 @@
         </table>
     </div>
 
-    <!-- VISUAL STATS SECTION -->
     <div class="visual-stats-container" id="visualStats" style="display: none;">
         <h2 class="visual-stats-title">Visual Statistics - Last 20 Games</h2>
         <div class="player-stats-grid" id="playerStatsGrid">
-            <!-- Player cards will be inserted here dynamically -->
-        </div>
+            </div>
     </div>
 
     <div id="myModal" class="modal">
@@ -1339,6 +1342,12 @@
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
 
+                // Main Champ Icon (Nouveau)
+                let mainChampHtml = "";
+                if (player.MainChamp) {
+                    mainChampHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${player.MainChamp}.png" class="main-champ-icon" title="Main: ${player.MainChamp}">`;
+                }
+
                 // Streak
                 let streakIcon = "-";
                 if (player.StreakType === "Win" && player.StreakCount >= 1) streakIcon = `<span class="streak-win">🔥 ${player.StreakCount} Wins</span>`;
@@ -1359,6 +1368,7 @@
                             <div class="name-tag-row">
                                 <span class="player-name" style="margin-left:5px;">${player.name}</span>
                                 <span class="tag">#${player.Tag}</span>
+                                ${mainChampHtml} 
                             </div>
                             <div class="external-links" onclick="event.stopPropagation()"> 
                                 <a href="https://www.op.gg/summoners/euw/${urlName}" target="_blank" class="link-icon op-gg">OP</a>
@@ -1575,17 +1585,10 @@
                 const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
 
-                // Header avec nom du joueur et icône
+                // Header avec nom du joueur
                 const header = document.createElement('div');
                 header.className = 'player-card-header';
-                const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
-                
-                header.innerHTML = `
-                    <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <img src="${iconUrl}" style="width:32px; height:32px; border-radius:50%; border:2px solid #c8aa6e;">
-                        <span>${player.name}#${player.Tag}</span>
-                    </div>
-                `;
+                header.textContent = `${player.name}#${player.Tag}`;
                 playerCard.appendChild(header);
 
                 // Préparer les données pour les graphiques
@@ -1808,8 +1811,8 @@
                             const label = data.labels[index];
                             const percentage = (value / total) * 100;
 
-                            // Condition : Ne pas afficher si < 15% ou si c'est "Autres"
-                            if (percentage < 15 || label === 'Autres' || !championIcons[label]) return;
+                            // Condition : Ne pas afficher si < 10% ou si c'est "Autres"
+                            if (percentage < 10 || label === 'Autres' || !championIcons[label]) return;
 
                             const { x, y, startAngle, endAngle, outerRadius } = element;
                             const angle = startAngle + (endAngle - startAngle) / 2;
@@ -1869,15 +1872,13 @@
                             }
                         }
                     },
-                    plugins: [iconPlugin] // <--- C'EST ICI QUE TU AVAIS L'ERREUR (championIconPlugin)
+                    plugins: [iconPlugin] 
                 });
 
                 // Légende HTML
                 legendContainer.innerHTML = chartData.labels.map((label, index) => {
                     const color = Array.isArray(chartColors) ? chartColors[index % chartColors.length] : chartColors;
                     const value = chartData.data[index];
-                    const total = chartData.data.reduce((a, b) => a + b, 0);
-                    const percentage = ((value / total) * 100).toFixed(1);
                     
                     let iconHtml = '';
                     if (type === 'champion' && label !== 'Autres') {
@@ -1887,15 +1888,15 @@
                     }
                     
                     return `
-                        <div class="legend-item" title="${label}: ${value} games (${percentage}%)">
+                        <div class="legend-item" title="${label}: ${value} games">
                             ${iconHtml}
-                            <span>${label} <span style="color:#666; font-size:0.9em">(${value} - ${percentage}%)</span></span>
+                            <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
                         </div>
                     `;
                 }).join('');
             }
-        }   
-        </script>
+        }
+    </script>
 </body>
 
 </html>
