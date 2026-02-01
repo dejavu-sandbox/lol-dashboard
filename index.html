@@ -55,7 +55,7 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             
             /* 3. Padding interne (inclus dans la largeur grâce au box-sizing: border-box plus haut) */
-            padding: 20px;
+            padding: 15px;
         }
 
         .visual-stats-title {
@@ -1891,7 +1891,7 @@
                     return `
                         <div class="legend-item" title="${label}: ${value} games (${percentage}%)">
                             ${iconHtml}
-                            <span>${label} <span style="color:#666; font-size:0.9em">(${value} - ${percentage}%)</span></span>
+                            <span>${label}: ${value} <span style="color:#666; font-size:0.9em">(${percentage}%)</span></span>
                         </div>
                     `;
                 }).join('');
