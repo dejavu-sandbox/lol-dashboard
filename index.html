@@ -32,15 +32,15 @@
         .container {
             max-width: 1400px;
             margin: 40px auto;
-            padding: 0;   /* Pas de padding pour alignement parfait */
+            padding: 0;
             display: block;
             box-sizing: border-box;
         }
         
         .visual-stats-container {
             max-width: 1400px;
-            margin: 40px auto;
-            padding: 0;   /* Pas de padding pour alignement parfait */
+            margin: 40px auto;   /* Même centrage que le premier */
+            padding: 0;
             display: block;
             box-sizing: border-box;
         }
@@ -1711,15 +1711,31 @@
             
             // Pré-charger les icônes des champions si type = 'champion'
             const championIcons = {};
+            const imagePromises = [];
+            
             if (type === 'champion') {
                 chartData.labels.forEach(champName => {
                     if (champName !== 'Autres') {
                         const img = new Image();
                         img.src = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champName}.png`;
                         championIcons[champName] = img;
+                        
+                        // Créer une promesse pour chaque image
+                        const promise = new Promise((resolve) => {
+                            img.onload = () => resolve();
+                            img.onerror = () => resolve(); // Résoudre même en cas d'erreur
+                        });
+                        imagePromises.push(promise);
                     }
                 });
             }
+            
+            // Attendre que toutes les images soient chargées avant de créer le chart
+            Promise.all(imagePromises).then(() => {
+                createChartAfterImagesLoaded();
+            });
+            
+            function createChartAfterImagesLoaded() {
             
             // Palette fixe par rôle (pour cohérence entre joueurs)
             const roleColors = {
