@@ -820,7 +820,7 @@
 
         /* Bordure plus visible pour les icônes de rôle dans la légende */
         .role-legend-icon {
-            border: 2px solid #000;
+            border: 1px solid #000;
             background-color: rgba(0, 0, 0, 0.3);
         }
 
@@ -2007,7 +2007,7 @@
                                 // Ajouter une bordure noire pour les icônes de rôle
                                 if (type === 'role') {
                                     ctx.strokeStyle = '#000';
-                                    ctx.lineWidth = 2;
+                                    ctx.lineWidth = 1;
                                     ctx.strokeRect(imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
                                 }
                                 
@@ -2016,7 +2016,7 @@
                                 // Redessiner la bordure par-dessus l'image pour plus de visibilité
                                 if (type === 'role') {
                                     ctx.strokeStyle = '#000';
-                                    ctx.lineWidth = 2;
+                                    ctx.lineWidth = 1;
                                     ctx.strokeRect(imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
                                 }
                                 
