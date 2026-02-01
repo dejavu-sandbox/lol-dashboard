@@ -1709,6 +1709,18 @@
             
             if (!ctx || !legendContainer) return;
             
+            // Pré-charger les icônes des champions si type = 'champion'
+            const championIcons = {};
+            if (type === 'champion') {
+                chartData.labels.forEach(champName => {
+                    if (champName !== 'Autres') {
+                        const img = new Image();
+                        img.src = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${champName}.png`;
+                        championIcons[champName] = img;
+                    }
+                });
+            }
+            
             // Palette fixe par rôle (pour cohérence entre joueurs)
             const roleColors = {
                 'TOP': '#4A5568',      // Steel Grey Blue
@@ -1740,6 +1752,42 @@
                 // Pour les champions, utiliser la palette par ordre
                 chartColors = championColors;
             }
+            
+            // Plugin pour dessiner les icônes en arrière-plan des segments
+            const championIconPlugin = {
+                id: 'championIconBackground',
+                beforeDraw: (chart) => {
+                    if (type !== 'champion') return;
+                    
+                    const ctx = chart.ctx;
+                    const meta = chart.getDatasetMeta(0);
+                    
+                    meta.data.forEach((element, index) => {
+                        const label = chart.data.labels[index];
+                        if (label === 'Autres' || !championIcons[label]) return;
+                        
+                        const img = championIcons[label];
+                        if (!img.complete) return; // Attendre le chargement
+                        
+                        // Calculer le centre du segment
+                        const { x, y, startAngle, endAngle, outerRadius } = element;
+                        const midAngle = (startAngle + endAngle) / 2;
+                        
+                        // Position de l'icône (60% du rayon)
+                        const iconDistance = outerRadius * 0.6;
+                        const iconX = x + Math.cos(midAngle) * iconDistance;
+                        const iconY = y + Math.sin(midAngle) * iconDistance;
+                        
+                        // Taille de l'icône (petit pour ne pas masquer le texte)
+                        const iconSize = 40;
+                        
+                        ctx.save();
+                        ctx.globalAlpha = 0.3; // Transparence pour effet d'arrière-plan
+                        ctx.drawImage(img, iconX - iconSize / 2, iconY - iconSize / 2, iconSize, iconSize);
+                        ctx.restore();
+                    });
+                }
+            };
             
             // Création du Graphique
             new Chart(ctx, {
@@ -1774,7 +1822,8 @@
                             }
                         }
                     }
-                }
+                },
+                plugins: [championIconPlugin]
             });
 
             // Génération de la légende HTML avec Icônes
