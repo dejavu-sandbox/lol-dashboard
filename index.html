@@ -40,10 +40,9 @@
         .visual-stats-container {
             max-width: 1400px;
             margin: 40px auto;
-            padding: 20px; /* Padding interne pour le contenu */
+            padding: 0;
             display: block;
             box-sizing: border-box;
-            width: 100%; /* Force à prendre 1400px comme le premier tableau */
         }
 
         .visual-stats-container {
@@ -51,6 +50,21 @@
             border: 2px solid #c8aa6e;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Padding interne seulement pour le contenu de visual stats */
+        .visual-stats-container .visual-stats-title,
+        .visual-stats-container .player-stats-grid {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
+        .visual-stats-container .visual-stats-title {
+            padding-top: 20px;
+        }
+        
+        .visual-stats-container .player-stats-grid {
+            padding-bottom: 20px;
         }
 
         table {
