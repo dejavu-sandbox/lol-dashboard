@@ -1709,99 +1709,157 @@
             
             if (!ctx || !legendContainer) return;
             
-            // Palette fixe par rôle (pour cohérence entre joueurs)
-            const roleColors = {
-                'TOP': '#4A5568',      // Steel Grey Blue
-                'JUNGLE': '#2deb90',   // Vert Jungle
-                'MIDDLE': '#7B2CBF',   // Mauve foncé (Dark Lux)
-                'MID': '#7B2CBF',      // Mauve foncé (Dark Lux) (alias)
-                'BOTTOM': '#ff5859',   // Rouge ADC
-                'ADC': '#ff5859',      // Rouge ADC (alias)
-                'SUPPORT': '#C8AA6E',  // Gold Support
-                'UTILITY': '#C8AA6E'   // Gold Support (alias)
+            // 1. Préparation des couleurs
+            const roleColors = { 
+                'TOP': '#4A5568', 'JUNGLE': '#2deb90', 'MIDDLE': '#7B2CBF', 'MID': '#7B2CBF', 
+                'BOTTOM': '#ff5859', 'ADC': '#ff5859', 'SUPPORT': '#C8AA6E', 'UTILITY': '#C8AA6E' 
             };
+            const championColors = ['#C8AA6E', '#0AC8B9', '#4A5568', '#A09B8C', '#1E282D', '#3C3C41'];
             
-            // Palette pour champions (ordre de popularité)
-            const championColors = [
-                '#C8AA6E', // LoL Gold - Top 1
-                '#0AC8B9', // Hextech Cyan - Top 2
-                '#4A5568', // Steel Grey - Top 3
-                '#A09B8C', // Beige - Top 4
-                '#1E282D', // Dark Blue - Top 5
-                '#3C3C41'  // Dark Grey - Autres
-            ];
-            
-            // Choisir la palette selon le type
             let chartColors;
             if (type === 'role') {
-                // Pour les rôles, utiliser les couleurs fixes par rôle
                 chartColors = chartData.labels.map(label => roleColors[label.toUpperCase()] || '#3C3C41');
             } else {
-                // Pour les champions, utiliser la palette par ordre
                 chartColors = championColors;
             }
-            
-            // Création du Graphique
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        data: chartData.data,
-                        backgroundColor: chartColors,
-                        borderColor: '#151a21',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }, // Légende custom HTML
-                        tooltip: {
-                            backgroundColor: 'rgba(10, 10, 12, 0.95)',
-                            titleColor: '#c8aa6e',
-                            bodyColor: '#f0e6d2',
-                            borderColor: '#333',
-                            borderWidth: 1,
-                            padding: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return ` ${context.label}: ${context.parsed} games (${percentage}%)`;
+
+            // 2. Gestion des Images pour les Champions
+            const championIcons = {};
+            const imagePromises = [];
+
+            // Si c'est un graph de champions, on précharge les images
+            if (type === 'champion') {
+                chartData.labels.forEach(label => {
+                    if (label !== 'Autres') {
+                        const img = new Image();
+                        // On stocke l'URL DDragon
+                        img.src = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png`;
+                        championIcons[label] = img;
+
+                        // On crée une promesse pour savoir quand l'image est chargée
+                        const p = new Promise((resolve) => {
+                            img.onload = resolve;
+                            img.onerror = resolve; // On résout même en erreur pour ne pas bloquer
+                        });
+                        imagePromises.push(p);
+                    }
+                });
+            }
+
+            // 3. Une fois les images chargées (ou immédiatement si pas d'images), on crée le graph
+            Promise.all(imagePromises).then(() => {
+                renderChart();
+            });
+
+            function renderChart() {
+                // PLUGIN : Dessiner les icônes sur le camembert
+                const iconPlugin = {
+                    id: 'sliceIcons',
+                    afterDatasetDraw(chart) {
+                        // On ne dessine que pour les champions
+                        if (type !== 'champion') return;
+
+                        const { ctx, data } = chart;
+                        const meta = chart.getDatasetMeta(0);
+                        
+                        // Calcul du total pour les pourcentages
+                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+
+                        meta.data.forEach((element, index) => {
+                            const value = data.datasets[0].data[index];
+                            const label = data.labels[index];
+                            const percentage = (value / total) * 100;
+
+                            // Condition : Ne pas afficher si < 10% ou si c'est "Autres"
+                            if (percentage < 10 || label === 'Autres' || !championIcons[label]) return;
+
+                            const { x, y, startAngle, endAngle, outerRadius } = element;
+                            
+                            // Calculs trigonométriques pour trouver le centre de la part
+                            // On se place à 65% du rayon (mid-radius)
+                            const angle = startAngle + (endAngle - startAngle) / 2;
+                            const radiusOffset = outerRadius * 0.65;
+                            const imgX = x + Math.cos(angle) * radiusOffset;
+                            const imgY = y + Math.sin(angle) * radiusOffset;
+
+                            // Taille de l'icône (adaptée à la taille du chart)
+                            const iconSize = 24; 
+
+                            // Dessin de l'image
+                            try {
+                                ctx.save();
+                                // Petite ombre pour lisibilité
+                                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                                ctx.shadowBlur = 4;
+                                // On dessine l'image centrée sur X/Y
+                                ctx.drawImage(championIcons[label], imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
+                                ctx.restore();
+                            } catch (e) {
+                                // Ignorer les erreurs de dessin
+                            }
+                        });
+                    }
+                };
+
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            data: chartData.data,
+                            backgroundColor: chartColors,
+                            borderColor: '#151a21', // Bordure sombre pour séparer les parts
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: 0
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(10, 10, 12, 0.95)',
+                                titleColor: '#c8aa6e',
+                                bodyColor: '#f0e6d2',
+                                borderColor: '#333',
+                                borderWidth: 1,
+                                padding: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                        return ` ${context.label}: ${context.parsed} games (${percentage}%)`;
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            });
+                    },
+                    plugins: [iconPlugin] // On active notre plugin ici
+                });
 
-            // Génération de la légende HTML avec Icônes
-            legendContainer.innerHTML = chartData.labels.map((label, index) => {
-                const color = chartColors[index % chartColors.length];
-                const value = chartData.data[index];
-                
-                let iconHtml = '';
-                
-                if (type === 'champion' && label !== 'Autres') {
-                    // Icône de Champion DDragon
-                    iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
-                } else if (type === 'role') {
-                    // Pour les rôles, on garde le carré de couleur
-                    iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
-                } else {
-                    // Fallback (ex: "Autres")
-                    iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
-                }
-                
-                return `
-                    <div class="legend-item" title="${label}: ${value} games">
-                        ${iconHtml}
-                        <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
-                    </div>
-                `;
-            }).join('');
+                // Génération de la légende HTML
+                legendContainer.innerHTML = chartData.labels.map((label, index) => {
+                    const color = Array.isArray(chartColors) ? chartColors[index % chartColors.length] : chartColors;
+                    const value = chartData.data[index];
+                    
+                    let iconHtml = '';
+                    if (type === 'champion' && label !== 'Autres') {
+                        iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
+                    } else {
+                        iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
+                    }
+                    
+                    return `
+                        <div class="legend-item" title="${label}: ${value} games">
+                            ${iconHtml}
+                            <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
     </script>
 </body>
