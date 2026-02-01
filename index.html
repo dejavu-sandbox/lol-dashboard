@@ -50,7 +50,26 @@
             border: 2px solid #c8aa6e;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            padding: 20px;
+        }
+
+        .visual-stats-title {
+            color: #c8aa6e;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+            text-align: center;
+            padding: 20px 20px 0 20px;
+        }
+
+        /* --- STRUCTURE DES CARTES --- */
+        .player-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 0;
+            padding: 0 20px 20px 20px;
+            align-items: stretch;
         }
 
         table {
@@ -711,6 +730,7 @@
             margin-bottom: 30px;
             font-size: 1.5em;
             text-align: center;
+            padding: 20px 20px 0 20px;
         }
 
         /* --- STRUCTURE DES CARTES --- */
@@ -719,7 +739,8 @@
             grid-template-columns: repeat(4, 1fr);
             /* Force 4 colonnes égales */
             gap: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 0;
+            padding: 0 20px 20px 20px;
             align-items: stretch;
             /* Force toutes les cartes à avoir la même hauteur */
         }
