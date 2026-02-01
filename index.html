@@ -1342,12 +1342,6 @@
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
 
-                // Main Champ Icon (Nouveau)
-                let mainChampHtml = "";
-                if (player.MainChamp) {
-                    mainChampHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${player.MainChamp}.png" class="main-champ-icon" title="Main: ${player.MainChamp}">`;
-                }
-
                 // Streak
                 let streakIcon = "-";
                 if (player.StreakType === "Win" && player.StreakCount >= 1) streakIcon = `<span class="streak-win">🔥 ${player.StreakCount} Wins</span>`;
