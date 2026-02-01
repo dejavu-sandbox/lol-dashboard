@@ -8,9 +8,6 @@
     <link rel="icon" type="image/png" href="img/favicon.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        /* --- RESET --- */
-        * { box-sizing: border-box; }
-
         /* --- GENERAL --- */
         body {
             background-color: #091428;
@@ -31,25 +28,38 @@
             padding-bottom: 10px;
         }
 
-        /* --- CONTENEUR UNIQUE (Alignement Parfait) --- */
-        .main-box {
-            width: 1400px;          /* Largeur fixe standard */
-            max-width: 95vw;        /* Sécurité pour ne pas déborder de l'écran */
-            margin: 40px auto;      /* Centré */
+        /* --- HARMONISATION DES CONTENEURS --- */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0;        /* Pas de padding - le tableau a ses propres bordures */
+            display: block;
+            box-sizing: border-box;
+        }
+        
+        .visual-stats-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 20px;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .visual-stats-container {
             background-color: #0a0a0c;
             border: 2px solid #c8aa6e;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            display: block;
         }
 
-        #visualStats { padding: 25px; }
-
-        /* --- TABLEAU PRINCIPAL --- */
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed; /* Respect strict des largeurs */
+            background-color: #0a0a0c;
+            border: 2px solid #c8aa6e;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            table-layout: fixed;
         }
 
         th {
@@ -59,8 +69,9 @@
             text-transform: uppercase;
             font-size: 0.8em;
             border-bottom: 2px solid #c8aa6e;
-            white-space: nowrap;
+            position: relative;
             overflow: hidden;
+            white-space: nowrap;
         }
 
         td {
@@ -72,92 +83,651 @@
             text-overflow: ellipsis;
         }
 
-        /* Largeurs Colonnes */
-        table th:nth-child(1), table td:nth-child(1) { width: 260px; text-align: left; padding-left: 20px; } /* Player */
-        table th:nth-child(2), table td:nth-child(2) { width: 160px; } /* Rank */
-        table th:nth-child(3), table td:nth-child(3) { width: 90px; }  /* Streak */
-        table th:nth-child(4), table td:nth-child(4) { width: 100px; } /* WR S */
-        table th:nth-child(5), table td:nth-child(5) { width: 100px; } /* WR 20 */
-        table th:nth-child(6), table td:nth-child(6) { width: 140px; } /* KDA */
-        table th:nth-child(7), table td:nth-child(7) { width: 100px; } /* Tox */
-        table th:nth-child(8), table td:nth-child(8) { width: 100px; } /* Trend */
-        table th:nth-child(9), table td:nth-child(9) { width: 180px; } /* Badge */
+        /* --- FIXED COLUMN WIDTHS FOR PERFECT ALIGNMENT --- */
+        table th:nth-child(1), table td:nth-child(1) { width: 280px; text-align: left; padding-left: 20px; }
+        table th:nth-child(2), table td:nth-child(2) { width: 180px; }
+        table th:nth-child(3), table td:nth-child(3) { width: 100px; }
+        table th:nth-child(4), table td:nth-child(4) { width: 100px; }
+        table th:nth-child(5), table td:nth-child(5) { width: 100px; }
+        table th:nth-child(6), table td:nth-child(6) { width: 140px; }
+        table th:nth-child(7), table td:nth-child(7) { width: 100px; }
+        table th:nth-child(8), table td:nth-child(8) { width: 100px; }
+        table th:nth-child(9), table td:nth-child(9) { width: 200px; }
 
         tr.player-row:hover {
             background-color: #1e282d;
             cursor: pointer;
-            filter: brightness(1.1);
             transition: 0.1s;
+            filter: brightness(1.1);
         }
 
-        /* --- VISUAL STATS (GRID) --- */
+        /* COLORS */
+        .win-high {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .win-low {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        .win-mid {
+            color: #f0e6d2;
+            font-weight: bold;
+        }
+
+        /* Pour le WR Saison */
+
+        .streak-win {
+            color: #ff8c00;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .streak-loss {
+            color: #ff5859;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .toxic-ping {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        /* --- PLAYER INFO & MAIN CHAMP --- */
+        .player-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #c8aa6e;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 4px;
+            overflow: hidden;
+        }
+
+        .name-tag-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tag {
+            font-size: 0.8em;
+            color: #666;
+            font-weight: normal;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        /* NEW: Main Champ Icon Style */
+        .main-champ-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 3px;
+            border: 1px solid #444;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
+        }
+
+        /* --- SUB-STATS (Petites lignes sous les chiffres) --- */
+        .sub-stat {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+
+        /* --- RANK DISPLAY --- */
+        .rank-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rank-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .rank-text {
+            font-size: 0.9em;
+            color: #a09b8c;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* --- LOADING SPINNER --- */
+        #loading {
+            margin-top: 50px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #c8aa6e;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #0a0a0c;
+            margin: 2% auto;
+            padding: 20px;
+            border: 2px solid #c8aa6e;
+            width: 95%;
+            max-width: 1000px;
+            border-radius: 10px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .match-history {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .match-container {
+            margin-bottom: 8px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        /* --- GRILLE DES MATCHS (MODAL) --- */
+        .match-header,
+        .match-row {
+            display: grid;
+            grid-template-columns: 2.8fr 0.5fr 0.9fr 1fr 1fr 1fr 1fr 1fr 1fr;
+            align-items: center;
+            padding: 12px;
+            font-size: 0.9em;
+        }
+
+        .match-header {
+            font-weight: bold;
+            color: #c8aa6e;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            border-bottom: 1px solid #333;
+        }
+
+        .match-row {
+            background: #151a21;
+            border-left: 5px solid #555;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .match-row:hover {
+            background-color: #1f2731;
+            transform: translateX(2px);
+        }
+
+        .match-win {
+            border-left-color: #2deb90;
+            background: linear-gradient(90deg, rgba(45, 235, 144, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+        }
+
+        .match-loss {
+            border-left-color: #ff5859;
+            background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+        }
+
+        .champ-flex {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .champ-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .vs-column {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .enemy-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            transition: 0.2s;
+        }
+
+        .enemy-icon:hover {
+            border-color: #c8aa6e;
+            transform: scale(1.1);
+        }
+
+        .match-details {
+            display: none;
+            background-color: #0f1216;
+            padding: 15px;
+            border-top: 1px solid #333;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #1c2129;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #f0e6d2;
+        }
+
+        .gold-text {
+            color: #ffd700;
+        }
+
+        .dmg-text {
+            color: #ff5859;
+        }
+
+        .heal-text {
+            color: #2deb90;
+        }
+
+        .stat-detail {
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        /* --- BADGES --- */
+        .badges-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 100%;
+            flex-wrap: nowrap;
+        }
+
+        .badge-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
+            cursor: help;
+            flex-shrink: 0;
+        }
+
+        .badge-icon:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .badge-toxic {
+            border: 1px solid #ff5859;
+        }
+
+        .badge-fire {
+            border: 1px solid #ff8c00;
+        }
+
+        .badge-sad {
+            border: 1px solid #888;
+        }
+
+        .badge-feed {
+            border: 1px solid #a020f0;
+        }
+
+        .badge-otp {
+            border: 1px solid #8a2be2;
+            box-shadow: 0 0 8px rgba(138, 43, 226, 0.4);
+        }
+
+        .badge-versatile {
+            border: 1px solid #00d9ff;
+        }
+
+        .badge-death_magnet {
+            border: 1px solid #8b0000;
+        }
+
+        .badge-unkillable {
+            border: 1px solid #2deb90;
+            box-shadow: 0 0 6px rgba(45, 235, 144, 0.3);
+        }
+
+        .badge-carry {
+            border: 1px solid #ff4444;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+        }
+
+        .badge-farmer {
+            border: 1px solid #ffd700;
+        }
+
+        /* --- EXTERNAL LINKS --- */
+        .external-links {
+            display: flex;
+            gap: 6px;
+            margin-top: 3px;
+        }
+
+        .link-icon {
+            font-size: 0.7em;
+            text-decoration: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: 0.2s;
+            display: inline-block;
+            line-height: normal;
+        }
+
+        .op-gg {
+            background-color: #5383e8;
+            color: white;
+        }
+
+        .deeplol {
+            background-color: #1a1f29;
+            color: #00d9ff;
+            border: 1px solid #333;
+        }
+
+        .link-icon:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
+
+        /* --- TREND --- */
+        .lp-plus {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .lp-minus {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
+        .lp-na {
+            color: #444;
+            font-style: italic;
+        }
+
+        /* --- TOOLTIPS --- */
+        .help-icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 16px;
+            height: 16px;
+            background-color: #555;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 6px;
+            cursor: help;
+            position: relative;
+        }
+
+        .help-icon:hover {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        .help-icon .tooltip-text {
+            visibility: hidden;
+            width: 210px;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+            border-radius: 6px;
+            padding: 12px;
+            position: absolute;
+            z-index: 9999;
+            bottom: 135%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            border: 1px solid #ffd700;
+            opacity: 0;
+            transition: all 0.2s ease-in-out;
+            pointer-events: none;
+        }
+
+        .help-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* --- REFRESH BUTTON --- */
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #1e2328 0%, #0a0a0c 100%);
+            border: 2px solid #c8aa6e;
+            color: #c8aa6e;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .refresh-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #c8aa6e 0%, #a89968 100%);
+            color: #0a0a0c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(200, 170, 110, 0.4);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .refresh-btn #refreshIcon {
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .refresh-btn:not(:disabled):hover #refreshIcon {
+            transform: rotate(180deg);
+        }
+
+        .refresh-btn.loading #refreshIcon {
+            animation: spin 1s linear infinite;
+        }
+
+        .last-updated {
+            color: #888;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        /* --- VISUAL STATS SECTION --- */
+        .visual-stats-container {
+            background-color: #0a0a0c;
+            border: 2px solid #c8aa6e;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
         .visual-stats-title {
             color: #c8aa6e;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin: 0 0 30px 0;
+            margin-bottom: 30px;
             font-size: 1.5em;
             text-align: center;
         }
 
+        /* --- STRUCTURE DES CARTES --- */
         .player-stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 Cartes côte à côte */
+            grid-template-columns: repeat(4, 1fr); /* Force 4 colonnes égales */
             gap: 20px;
-            align-items: stretch;
+            margin-bottom: 40px;
+            align-items: stretch; /* Force toutes les cartes à avoir la même hauteur */
         }
 
         .player-card {
             background: #151a21;
             border: 1px solid #333;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
 
         .player-card-header {
             color: #c8aa6e;
-            font-size: 1.1em;
+            font-size: 1.2em;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: center;
             border-bottom: 1px solid #333;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
         }
 
-        /* --- GRAPHIQUES --- */
         .charts-row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex: 1; 
+            gap: 15px;
+            margin-bottom: 0;
+            align-items: flex-start;
         }
 
+        /* --- ESTHÉTIQUE DES CAMEMBERTS --- */
         .chart-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 0;
-        }
-
-        .chart-title {
-            color: #a09b8c;
-            font-size: 0.8em;
-            text-align: center;
-            margin-bottom: 8px;
-            text-transform: uppercase;
+            min-width: 0; /* Empêche le débordement flex */
+            height: 350px; /* Hauteur fixe: 140px canvas + 30px titre + 144px légende (6 lignes) + marges */
+            flex-shrink: 0;
         }
 
         .pie-wrapper {
             position: relative;
-            height: 120px; /* Taille fixe contrôlée */
+            height: 140px; /* Un peu plus petit pour l'élégance */
             width: 100%;
             display: flex;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .pie-wrapper canvas {
@@ -167,161 +737,142 @@
 
         .custom-legend {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
+            flex-direction: column; /* Liste verticale plus propre */
+            align-items: flex-start; /* Aligné à gauche pour cohérence */
+            gap: 4px;
             width: 100%;
+            padding: 0 10px; /* Centré avec padding */
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 0.75em;
-            color: #bbb;
+            gap: 6px;
+            font-size: 0.8em;
+            color: #a09b8c; /* Couleur beige LoL */
             white-space: nowrap;
+            width: 100%; /* Prend toute la largeur */
         }
 
-        .legend-color, .legend-icon {
-            width: 14px;
-            height: 14px;
-            border-radius: 2px;
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
             flex-shrink: 0;
         }
-        .legend-icon { border: 1px solid #555; }
 
-        /* --- PING RECORD (CORRIGÉ) --- */
+        /* Style pour les icônes dans la légende */
+        .legend-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
+            border: 1px solid #444;
+            flex-shrink: 0; /* Empêche la compression */
+            vertical-align: middle;
+        }
+        
+        .role-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain; /* Pour les icônes de rôle */
+        }
+
+        .chart-title {
+            color: #a09b8c;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .personal-worst {
-            background: linear-gradient(90deg, rgba(255, 88, 89, 0.05) 0%, rgba(21, 26, 33, 0) 100%);
+            background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
             border-left: 3px solid #ff5859;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: auto; /* Pousse en bas */
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px; /* Espace après la zone charts */
             cursor: pointer;
             transition: background 0.2s;
         }
 
         .personal-worst:hover {
-            background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
+            background: linear-gradient(90deg, rgba(255, 88, 89, 0.15) 0%, rgba(21, 26, 33, 0) 100%);
         }
 
         .personal-worst-title {
             color: #ff5859;
             font-weight: bold;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-            text-transform: uppercase;
+            font-size: 1em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .personal-worst-content {
-            color: #ddd;
-            font-size: 0.85em;
-            line-height: 1.4;
+            color: #f0e6d2;
+            font-size: 0.9em;
+            line-height: 1.6;
         }
 
-        /* GRILLE PINGS COMPACTE */
+        .game-info {
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .game-info .result-win {
+            color: #2deb90;
+            font-weight: bold;
+        }
+
+        .game-info .result-loss {
+            color: #ff5859;
+            font-weight: bold;
+        }
+
         .ping-breakdown {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 par ligne = compact */
-            gap: 5px;
-            margin-top: 8px;
+            grid-template-columns: repeat(2, 1fr); /* Force 2 colonnes fixes */
+            gap: 6px;
+            margin-top: 10px;
+            /* Pas de limitation de hauteur - le bloc grandit vers le bas */
         }
 
         .ping-item {
             background: #0a0a0c;
-            padding: 4px;
-            border-radius: 3px;
+            padding: 6px 8px;
+            border-radius: 4px;
             text-align: center;
+            font-size: 0.85em;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 4px;
         }
 
-        /* TAILLE STRICTE POUR LES ICONES PING */
-        .ping-item img.ping-icon {
-            width: 24px !important;
-            height: 24px !important;
+        .ping-icon {
+            width: 20px;
+            height: 20px;
             object-fit: contain;
-            display: block;
-            margin-bottom: 2px;
+        }
+
+        .ping-type {
+            color: #888;
+            font-size: 0.8em;
         }
 
         .ping-count {
             color: #ff8c00;
             font-weight: bold;
-            font-size: 0.9em;
+            font-size: 1.1em;
         }
 
-        /* --- UI ELEMENTS --- */
-        .win-high { color: #2deb90; font-weight: bold; }
-        .win-low { color: #ff5859; font-weight: bold; }
-        .win-mid { color: #f0e6d2; font-weight: bold; }
-        .streak-win { color: #ff8c00; font-weight: bold; text-shadow: 0 0 8px rgba(255, 140, 0, 0.4); font-size: 0.9em; }
-        .streak-loss { color: #ff5859; font-weight: bold; font-size: 0.9em; opacity: 0.8; }
-        .toxic-ping { color: #ff5859; font-weight: bold; }
-
-        /* Player Cell */
-        .player-cell { display: flex; align-items: center; }
-        .profile-icon { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #c8aa6e; margin-right: 10px; flex-shrink: 0; }
-        .player-info { display: flex; flex-direction: column; align-items: flex-start; overflow: hidden; }
-        .name-tag-row { display: flex; align-items: center; gap: 5px; width: 100%; }
-        .player-name { font-weight: bold; font-size: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tag { font-size: 0.75em; color: #666; margin: 0; }
-        .main-champ-icon { width: 20px; height: 20px; border-radius: 3px; border: 1px solid #444; flex-shrink: 0; }
-        .sub-stat { font-size: 0.7em; color: #888; margin-top: 2px; }
-
-        /* Rank */
-        .rank-container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .rank-icon { width: 36px; height: 36px; object-fit: contain; }
-        .rank-text { font-size: 0.85em; color: #a09b8c; }
-
-        /* Badges */
-        .badges-flex { display: flex; align-items: center; justify-content: center; gap: 4px; height: 100%; flex-wrap: nowrap; }
-        .badge-icon { width: 32px; height: 32px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); cursor: help; flex-shrink: 0; }
-        .badge-icon:hover { transform: scale(1.2); z-index: 10; transition: 0.2s; }
-        .badge-toxic { border: 1px solid #ff5859; }
-        .badge-fire { border: 1px solid #ff8c00; }
-        .badge-sad { border: 1px solid #888; }
-        .badge-feed { border: 1px solid #a020f0; }
-        .badge-otp { border: 1px solid #8a2be2; }
-        .badge-versatile { border: 1px solid #00d9ff; }
-        .badge-death_magnet { border: 1px solid #8b0000; }
-        .badge-unkillable { border: 1px solid #2deb90; }
-        .badge-carry { border: 1px solid #ff4444; }
-        .badge-farmer { border: 1px solid #ffd700; }
-
-        /* Refresh */
-        .refresh-controls { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; padding: 0 5px; }
-        .refresh-btn { background: linear-gradient(135deg, #1e2328 0%, #0a0a0c 100%); border: 2px solid #c8aa6e; color: #c8aa6e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
-        .refresh-btn:hover:not(:disabled) { background: linear-gradient(135deg, #c8aa6e 0%, #a89968 100%); color: #0a0a0c; }
-        .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .last-updated { color: #888; font-size: 12px; font-style: italic; }
-
-        /* Links */
-        .external-links { display: flex; gap: 4px; margin-top: 2px; }
-        .link-icon { font-size: 0.65em; text-decoration: none; padding: 1px 6px; border-radius: 3px; font-weight: bold; transition: 0.2s; }
-        .op-gg { background-color: #5383e8; color: white; }
-        .deeplol { background-color: #1a1f29; color: #00d9ff; border: 1px solid #333; }
-        .link-icon:hover { opacity: 0.8; }
-
-        /* Loader */
-        #loading { margin-top: 50px; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #c8aa6e; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #0a0a0c; margin: 2% auto; padding: 20px; border: 2px solid #c8aa6e; width: 95%; max-width: 1000px; border-radius: 10px; max-height: 90vh; overflow-y: auto; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        
-        .lp-plus { color: #2deb90; font-weight: bold; }
-        .lp-minus { color: #ff5859; font-weight: bold; }
-        .lp-na { color: #444; font-style: italic; }
-
-        .help-icon { display: inline-flex; justify-content: center; align-items: center; width: 14px; height: 14px; background-color: #555; color: #fff; border-radius: 50%; font-size: 10px; font-weight: bold; margin-left: 4px; cursor: help; position: relative; }
-        .help-icon .tooltip-text { visibility: hidden; width: 200px; background-color: #121212; color: #eee; font-size: 11px; padding: 10px; position: absolute; z-index: 9999; bottom: 135%; left: 50%; transform: translateX(-50%); border: 1px solid #ffd700; opacity: 0; transition: all 0.2s; pointer-events: none; }
-        .help-icon:hover .tooltip-text { visibility: visible; opacity: 1; }
+        .last-updated #lastUpdatedText {
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -335,10 +886,10 @@
         <p style="color:#666; font-size:0.8em;">(Manual refresh may take ~30s, please wait!)</p>
     </div>
 
-    <div class="main-box" id="dashboard">
+    <div class="container" id="dashboard">
         <div class="refresh-controls">
             <button id="refreshBtn" class="refresh-btn" onclick="manualRefresh()" disabled>
-                <span>↻</span>
+                <span id="refreshIcon">↻</span>
                 <span id="refreshText">Refresh</span>
             </button>
             <div class="last-updated">
@@ -360,7 +911,8 @@
                                 <span class="tooltip-text">
                                     Based on <strong>Last 20 Games</strong>.<br>
                                     <span style="color:#2deb90">KP</span> = Kill Participation.<br>
-                                    <span style="color:#ff5859">Death%</span> = Share of team's deaths.
+                                    <span style="color:#ff5859">Death%</span> = Share of team's deaths (Lower is
+                                    better).
                                 </span>
                             </div>
                         </div>
@@ -370,28 +922,55 @@
                             Toxicity
                             <div class="help-icon">?
                                 <span class="tooltip-text">
-                                    Average of <strong>"?"</strong> and <strong>"Push"</strong> pings.
+                                    Average of <strong>"?"</strong> (Missing) and <strong>"Push Forward"</strong> pings
+                                    per game over the last 20 matches.
                                 </span>
                             </div>
                         </div>
                     </th>
-                    <th>Trend</th>
+                    <th>
+                        <div style="display:flex; align-items:center; justify-content:center;">
+                            Trend
+                            <div class="help-icon">
+                                ?
+                                <span class="tooltip-text">
+                                    Exact LP gain/loss since the daily midnight snapshot (00:05).
+                                </span>
+                            </div>
+                        </div>
+                    </th>
                     <th>Badge</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            </tbody>
         </table>
     </div>
 
-    <div class="main-box" id="visualStats" style="display: none;">
+    <!-- VISUAL STATS SECTION -->
+    <div class="visual-stats-container" id="visualStats" style="display: none;">
         <h2 class="visual-stats-title">Visual Statistics - Last 20 Games</h2>
-        <div class="player-stats-grid" id="playerStatsGrid"></div>
+        <div class="player-stats-grid" id="playerStatsGrid">
+            <!-- Player cards will be inserted here dynamically -->
+        </div>
     </div>
 
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle" style="color:#c8aa6e; border-bottom:1px solid #333; padding-bottom:10px;">Details</h2>
+
+            <div class="match-header">
+                <span style="text-align:left">Champion</span>
+                <span>VS</span> <span>Role</span>
+                <span>KDA</span>
+                <span>CS (Min)</span>
+                <span>Vision (Pink)</span>
+                <span>Duration</span>
+                <span>Result</span>
+                <span>Date</span>
+            </div>
+
             <div id="modalBody"></div>
         </div>
     </div>
@@ -401,21 +980,43 @@
         const CACHE_KEY = "lol_dashboard_cache";
         const CACHE_TIMESTAMP_KEY = "lol_dashboard_cache_timestamp";
         const API_REFRESH_TIMESTAMP_KEY = "lol_dashboard_api_refresh_timestamp";
-        const MIN_REFRESH_INTERVAL = 60000;
+        const MIN_REFRESH_INTERVAL = 60000; // 60 seconds
 
         let ddragonVersion = "16.2.1";
-        let lastRefreshTime = 0;
-        let lastApiRefreshTime = 0;
+        let lastRefreshTime = 0; // Last time we fetched from backend (for cooldown)
+        let lastApiRefreshTime = 0; // Last time we forced a real API refresh (for display)
 
+        // Format time ago
         function formatTimeAgo(timestamp) {
             if (!timestamp) return "Never";
+            
             const now = Date.now();
             const diff = now - timestamp;
-            const minutes = Math.floor(diff / 60000);
-            if (minutes < 1) return "< 1m ago";
-            return `${minutes}m ago`;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            let parts = [];
+            if (days > 0) parts.push(`${days}d`);
+            if (hours > 0) parts.push(`${hours}h`);
+            if (minutes > 0) parts.push(`${minutes}m`);
+            
+            // If less than 1 minute, show "< 1m ago"
+            const timeAgo = parts.length === 0 ? "< 1m ago" : `${parts.join(' ')} ago`;
+            
+            const date = new Date(timestamp);
+            const dateStr = date.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            return `${dateStr} (${timeAgo})`;
         }
 
+        // Update last updated text
         function updateLastUpdatedText() {
             const textElement = document.getElementById('lastUpdatedText');
             if (lastApiRefreshTime > 0) {
@@ -423,97 +1024,146 @@
             }
         }
 
+        // Load cached data immediately on page load
         function loadCachedData() {
             const cachedData = localStorage.getItem(CACHE_KEY);
             const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
             const apiRefreshTimestamp = localStorage.getItem(API_REFRESH_TIMESTAMP_KEY);
+            
             if (cachedData) {
                 try {
                     const data = JSON.parse(cachedData);
                     displayData(data);
-                    if (cachedTimestamp) lastRefreshTime = parseInt(cachedTimestamp);
+                    
+                    if (cachedTimestamp) {
+                        lastRefreshTime = parseInt(cachedTimestamp);
+                    }
                     if (apiRefreshTimestamp) {
                         lastApiRefreshTime = parseInt(apiRefreshTimestamp);
                         updateRefreshButton();
                     }
+                    
+                    // Hide loading spinner
                     document.getElementById('loading').style.display = 'none';
                     return true;
-                } catch (e) { console.error("Cache error", e); }
+                } catch (e) {
+                    console.error("Error loading cached data:", e);
+                }
             }
             return false;
         }
 
+        // Update refresh button state
         function updateRefreshButton() {
             const btn = document.getElementById('refreshBtn');
             const textSpan = document.getElementById('refreshText');
             const now = Date.now();
             const timeSinceApiRefresh = now - lastApiRefreshTime;
+            
+            // Update last updated text
             updateLastUpdatedText();
+            
+            // Cooldown only applies if we've done a manual API refresh (lastApiRefreshTime > 0)
             if (lastApiRefreshTime > 0 && timeSinceApiRefresh < MIN_REFRESH_INTERVAL) {
                 const remainingSeconds = Math.ceil((MIN_REFRESH_INTERVAL - timeSinceApiRefresh) / 1000);
                 btn.disabled = true;
                 textSpan.textContent = `Wait ${remainingSeconds}s`;
+                
                 setTimeout(updateRefreshButton, 1000);
             } else {
+                // Enable button (either no API refresh yet, or cooldown expired)
                 btn.disabled = false;
                 textSpan.textContent = 'Refresh';
+                
+                // Continue updating time ago every 10 seconds
                 setTimeout(updateRefreshButton, 10000);
             }
         }
 
+        // Manual refresh triggered by button
         async function manualRefresh() {
             const btn = document.getElementById('refreshBtn');
+            const icon = document.getElementById('refreshIcon');
             const loading = document.getElementById('loading');
+            
+            // Show loading spinner (keep dashboard visible)
             loading.style.display = 'block';
             btn.disabled = true;
+            btn.classList.add('loading');
+            
             await fetchStats(true);
+            
+            // Hide loading spinner
             loading.style.display = 'none';
-            btn.disabled = false;
+            btn.classList.remove('loading');
             updateRefreshButton();
         }
 
         async function fetchStats(isManualRefresh = false) {
             try {
-                if (isManualRefresh) document.getElementById('loading').style.display = 'block';
+                // Only show loading spinner for manual refresh
+                if (isManualRefresh) {
+                    document.getElementById('loading').style.display = 'block';
+                }
+                
+                // Fetch DDragon version
                 const vResponse = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
                 const versions = await vResponse.json();
                 ddragonVersion = versions[0];
 
+                // Fetch stats from Azure (add refresh param if manual)
                 const url = isManualRefresh ? `${apiUrl}?refresh=true` : apiUrl;
                 const response = await fetch(url);
-                if (!response.ok) throw new Error("Azure error");
+                if (!response.ok) throw new Error("Azure connection error");
                 const responseData = await response.json();
-                const data = responseData.Data || responseData;
-                const backendLastUpdate = responseData.LastUpdate ? new Date(responseData.LastUpdate).getTime() : null;
-                const now = Date.now();
                 
+                // Extract data and LastUpdate timestamp from response
+                const data = responseData.Data || responseData;  // Handle both formats
+                const backendLastUpdate = responseData.LastUpdate ? new Date(responseData.LastUpdate).getTime() : null;
+                
+                // Save to cache
+                const now = Date.now();
                 localStorage.setItem(CACHE_KEY, JSON.stringify(data));
                 localStorage.setItem(CACHE_TIMESTAMP_KEY, now.toString());
                 lastRefreshTime = now;
                 
+                // Update API refresh time
                 if (isManualRefresh) {
+                    // Manual refresh - use current time
                     localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, now.toString());
                     lastApiRefreshTime = now;
                 } else if (backendLastUpdate) {
+                    // F5 / Auto fetch - use backend's LastUpdate timestamp
                     localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, backendLastUpdate.toString());
                     lastApiRefreshTime = backendLastUpdate;
                 }
                 
                 displayData(data);
+                
+                // Hide loading spinner
                 document.getElementById('loading').style.display = 'none';
+                
+                // Enable and update refresh button after first load
                 updateRefreshButton();
             } catch (error) {
+                document.getElementById('loading').innerHTML =
+                    `<p style='color:red; font-weight:bold'>Error: ${error.message}</p>`;
                 console.error(error);
-                document.getElementById('loading').innerHTML = `<p style='color:red;'>Error: ${error.message}</p>`;
             }
         }
 
+        // Initialize on page load
         window.onload = function() {
             const hasCachedData = loadCachedData();
             const now = Date.now();
-            if (!hasCachedData || (now - lastRefreshTime >= MIN_REFRESH_INTERVAL)) {
+            const cacheAge = now - lastRefreshTime;
+            
+            // Fetch backend cache if no localStorage OR if cache > 60s old
+            if (!hasCachedData || cacheAge >= MIN_REFRESH_INTERVAL) {
+                // Fetch backend cache (not forcing refresh)
                 fetchStats(false);
             } else {
+                // Cache is fresh (< 60s), just show it
                 updateRefreshButton();
             }
         };
@@ -521,23 +1171,51 @@
         function displayData(data) {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('visualStats').style.display = 'block';
 
             const tbody = document.querySelector("#statsTable tbody");
             tbody.innerHTML = "";
             const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
 
-            const tierValues = { "CHALLENGER": 90000, "GRANDMASTER": 80000, "MASTER": 70000, "DIAMOND": 60000, "EMERALD": 50000, "PLATINUM": 40000, "GOLD": 30000, "SILVER": 20000, "BRONZE": 10000, "IRON": 0, "UNRANKED": -10000 };
+            // Tri par Rang
+            const tierValues = {
+                "CHALLENGER": 90000,
+                "GRANDMASTER": 80000,
+                "MASTER": 70000,
+                "DIAMOND": 60000,
+                "EMERALD": 50000,
+                "PLATINUM": 40000,
+                "GOLD": 30000,
+                "SILVER": 20000,
+                "BRONZE": 10000,
+                "IRON": 0,
+                "UNRANKED": -10000
+            };
             const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
 
             function getRankScore(rankStr) {
                 if (!rankStr || rankStr === "Unranked") return -10000;
+
+                // Regex pour attraper : Tier, Division (Optionnelle), LP
+                // Ex: "DIAMOND I (53 LP)" ou "MASTER (8 LP)"
                 let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
+
                 if (!match) return 0;
-                let tier = match[1]; let div = match[2] || ""; let lp = parseInt(match[3]);
+
+                let tier = match[1];       // Ex: DIAMOND
+                let div = match[2] || "";  // Ex: I (ou vide pour Master+)
+                let lp = parseInt(match[3]); // Ex: 53
+
+                // Calcul du Score
                 let score = (tierValues[tier] || 0);
-                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") score += lp;
-                else score += (divValues[div] || 0) + lp;
+
+                // Si Master+, pas de division, on ajoute juste les LP
+                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
+                    score += lp;
+                } else {
+                    // Sinon on ajoute le score de division + LP
+                    score += (divValues[div] || 0) + lp;
+                }
+
                 return score;
             }
             players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
@@ -547,22 +1225,35 @@
                 tr.classList.add("player-row");
                 tr.onclick = function () { openModal(player); };
 
+                // --- 1. DATA PREPARATION ---
+                // Trend
                 const trend = player.DailyLp || "0 LP";
-                let dailyHtml = trend.startsWith("+") ? `<span class="lp-plus">${trend}</span>` : 
-                                trend.startsWith("-") ? `<span class="lp-minus">${trend}</span>` : 
-                                `<span style="color:#888">0 LP</span>`;
+                let dailyHtml = "";
+                if (trend.startsWith("+")) dailyHtml = `<span class="lp-plus">${trend}</span>`;
+                else if (trend.startsWith("-")) dailyHtml = `<span class="lp-minus">${trend}</span>`;
+                else if (trend === "0 LP" || trend === "Even") dailyHtml = `<span style="color:#888">0 LP</span>`;
+                else dailyHtml = `<span class="lp-na">N/A</span>`;
 
+                // Winrates
                 let winClass = player.Winrate >= 50 ? "win-high" : "win-low";
+
+                // Badges (from backend)
                 let badgesHtml = "";
                 if (player.Badges && player.Badges.length > 0) {
                     player.Badges.forEach(badge => {
                         let imgSrc = "";
                         let extraClass = "";
                         let extraStyle = "";
-                        if (badge.LocalIcon) imgSrc = badge.LocalIcon;
-                        else if (badge.Spell) imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${badge.Spell}.png`;
-                        else if (badge.Icon) imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${badge.Icon}.png`;
-                        else if (badge.Champion) imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${badge.Champion}.png`;
+
+                        if (badge.LocalIcon) {
+                            imgSrc = badge.LocalIcon;
+                        } else if (badge.Spell) {
+                            imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${badge.Spell}.png`;
+                        } else if (badge.Icon) {
+                            imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${badge.Icon}.png`;
+                        } else if (badge.Champion) {
+                            imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${badge.Champion}.png`;
+                        }
 
                         if (badge.Type === "toxic") extraClass = "badge-toxic";
                         else if (badge.Type === "fire") extraClass = "badge-fire";
@@ -581,39 +1272,83 @@
                     });
                 }
 
-                let displayRank = player.Rank.replace("MASTER I", "MASTER").replace("GRANDMASTER I", "GRANDMASTER").replace("CHALLENGER I", "CHALLENGER");
+                // On remplace "MASTER I" par "MASTER" juste pour le visuel.
+                // Le tri continuera d'utiliser "player.Rank" qui contient le "I".
+                let displayRank = player.Rank
+                    .replace("MASTER I", "MASTER")
+                    .replace("GRANDMASTER I", "GRANDMASTER")
+                    .replace("CHALLENGER I", "CHALLENGER");
+                
+                // Extract tier for rank icon
                 let rankTier = "Unranked";
-                const tierMatch = player.Rank.match(/^(\w+)/);
-                if (tierMatch) rankTier = tierMatch[1].charAt(0).toUpperCase() + tierMatch[1].slice(1).toLowerCase();
+                if (player.Rank && player.Rank !== "Unranked") {
+                    const tierMatch = player.Rank.match(/^(\w+)/);
+                    if (tierMatch) {
+                        // Capitalize first letter for filename (Rank=Bronze.png format)
+                        const tier = tierMatch[1].toLowerCase();
+                        rankTier = tier.charAt(0).toUpperCase() + tier.slice(1);
+                    }
+                }
                 const rankIconUrl = `img/Rank=${rankTier}.png`;
-
+                
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
-                let mainChampHtml = player.MainChamp ? `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${player.MainChamp}.png" class="main-champ-icon" title="Main: ${player.MainChamp}">` : "";
 
+                // Main Champ Icon (Nouveau)
+                let mainChampHtml = "";
+                if (player.MainChamp) {
+                    mainChampHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${player.MainChamp}.png" class="main-champ-icon" title="Main: ${player.MainChamp}">`;
+                }
+
+                // Streak
                 let streakIcon = "-";
                 if (player.StreakType === "Win" && player.StreakCount >= 1) streakIcon = `<span class="streak-win">🔥 ${player.StreakCount} Wins</span>`;
                 else if (player.StreakType === "Loss" && player.StreakCount >= 1) streakIcon = `<span class="streak-loss">💀 ${player.StreakCount} Loses</span>`;
 
                 const urlName = `${player.name}-${player.Tag}`.replace(/\s+/g, '%20');
+
+                // Moyennes Impact (Nouveau)
                 const avgKpColor = player.AvgKP >= 50 ? '#2deb90' : '#aaa';
                 const avgDeathColor = player.AvgDeathShare > 25 ? '#ff5859' : '#888';
 
+                // --- 2. HTML ROW CONSTRUCTION ---
                 tr.innerHTML = `
                 <td>
                     <div class="player-cell">
                         <img src="${iconUrl}" class="profile-icon">
                         <div class="player-info">
-                            <div class="name-tag-row"><span class="player-name" style="margin-left:5px;">${player.name}</span><span class="tag">#${player.Tag}</span>${mainChampHtml}</div>
-                            <div class="external-links" onclick="event.stopPropagation()"><a href="https://www.op.gg/summoners/euw/${urlName}" target="_blank" class="link-icon op-gg">OP</a><a href="https://www.deeplol.gg/summoner/euw/${urlName}" target="_blank" class="link-icon deeplol">DL</a></div>
+                            <div class="name-tag-row">
+                                <span class="player-name" style="margin-left:5px;">${player.name}</span>
+                                <span class="tag">#${player.Tag}</span>
+                                ${mainChampHtml} 
+                            </div>
+                            <div class="external-links" onclick="event.stopPropagation()"> 
+                                <a href="https://www.op.gg/summoners/euw/${urlName}" target="_blank" class="link-icon op-gg">OP</a>
+                                <a href="https://www.deeplol.gg/summoner/euw/${urlName}" target="_blank" class="link-icon deeplol">DL</a>
+                            </div>
                         </div>
                     </div>
                 </td>
-                <td><div class="rank-container"><img src="${rankIconUrl}" class="rank-icon"><div class="rank-text">${displayRank}</div></div></td>
+                <td>
+                    <div class="rank-container">
+                        <img src="${rankIconUrl}" class="rank-icon" alt="${rankTier}">
+                        <div class="rank-text">${displayRank}</div>
+                    </div>
+                </td>
                 <td>${streakIcon}</td>
+                
                 <td class="win-mid">${player.GlobalWinrate || 0}%<br><span class="sub-stat">${player.GlobalGames || 0} games</span></td>
+                
                 <td class="${winClass}">${player.Winrate}%</td>
-                <td>${player.AvgKDA || 0}<div class="sub-stat"><span style="color:${avgKpColor}">${player.AvgKP}% KP</span> | <span style="color:${avgDeathColor}">${player.AvgDeathShare}% Death</span></div></td>
+                
+                <td>
+                    ${player.AvgKDA || 0}
+                    <div class="sub-stat">
+                        <span style="color:${avgKpColor}">${player.AvgKP}% KP</span> | 
+                        <span style="color:${avgDeathColor}">${player.AvgDeathShare}% Death</span>
+                    </div>
+                </td>
+
                 <td class="${pingClass}">${player.AvgPings} pings</td>
                 <td>${dailyHtml}</td>
                 <td><div class="badges-flex">${badgesHtml}</div></td>
@@ -621,157 +1356,454 @@
                 tbody.appendChild(tr);
             });
 
+            // Generate visual stats
             generateVisualStats(data);
         }
 
-        function generateVisualStats(data) {
-            const playerStatsGrid = document.getElementById('playerStatsGrid');
-            playerStatsGrid.innerHTML = "";
-            const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
-            // Tri (copie de la logique pour garder l'ordre)
-            const tierValues = { "CHALLENGER": 90000, "GRANDMASTER": 80000, "MASTER": 70000, "DIAMOND": 60000, "EMERALD": 50000, "PLATINUM": 40000, "GOLD": 30000, "SILVER": 20000, "BRONZE": 10000, "IRON": 0, "UNRANKED": -10000 };
-            const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
-            function getRankScore(rankStr) {
-                if (!rankStr || rankStr === "Unranked") return -10000;
-                let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
-                if (!match) return 0;
-                let tier = match[1]; let div = match[2] || ""; let lp = parseInt(match[3]);
-                let score = (tierValues[tier] || 0);
-                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") score += lp;
-                else score += (divValues[div] || 0) + lp;
-                return score;
-            }
-            players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
-
-            players.forEach(player => {
-                if (!player.History || player.History.length === 0) return;
-                
-                const playerCard = document.createElement('div');
-                playerCard.className = 'player-card';
-                const header = document.createElement('div');
-                header.className = 'player-card-header';
-                header.textContent = `${player.name}#${player.Tag}`;
-                playerCard.appendChild(header);
-                
-                const championsData = getChampionsData(player.History);
-                const rolesData = getRolesData(player.History);
-                const worstPingsGame = getWorstPingsGame(player.History);
-                
-                const chartsRow = document.createElement('div');
-                chartsRow.className = 'charts-row';
-                
-                const champChartContainer = document.createElement('div');
-                champChartContainer.className = 'chart-container';
-                champChartContainer.innerHTML = `<div class="chart-title">Top Champions</div><div class="pie-wrapper"><canvas id="champChart-${player.name}"></canvas></div><div id="legend-champ-${player.name}" class="custom-legend"></div>`;
-                chartsRow.appendChild(champChartContainer);
-                
-                const rolesChartContainer = document.createElement('div');
-                rolesChartContainer.className = 'chart-container';
-                rolesChartContainer.innerHTML = `<div class="chart-title">Preferred Roles</div><div class="pie-wrapper"><canvas id="rolesChart-${player.name}"></canvas></div><div id="legend-roles-${player.name}" class="custom-legend"></div>`;
-                chartsRow.appendChild(rolesChartContainer);
-                playerCard.appendChild(chartsRow);
-                
-                if (worstPingsGame) {
-                    const worstSection = document.createElement('div');
-                    worstSection.className = 'personal-worst';
-                    worstSection.onclick = () => openModal(player);
-                    worstSection.innerHTML = `
-                        <div class="personal-worst-title">Ping Record</div>
-                        <div class="personal-worst-content">
-                            <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings
-                            <div class="game-info">${worstPingsGame.dateStr} - <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span></div>
-                            <div class="ping-breakdown">
-                                ${worstPingsGame.breakdown.map(ping => ping.count > 0 && ping.icon ? `
-                                    <div class="ping-item"><img src="${ping.icon}" class="ping-icon" alt="${ping.name}"><div class="ping-count">${ping.count}</div></div>` : '').join('')}
-                            </div>
-                        </div>
-                    `;
-                    playerCard.appendChild(worstSection);
-                }
-                playerStatsGrid.appendChild(playerCard);
-                createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData, 'champion');
-                createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData, 'role');
-            });
-        }
-
-        function getChampionsData(history) {
-            const champCounts = {};
-            history.forEach(match => { champCounts[match.Champion] = (champCounts[match.Champion] || 0) + 1; });
-            const sorted = Object.entries(champCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-            const labels = sorted.map(([champ]) => champ);
-            const data = sorted.map(([, count]) => count);
-            const top5Total = data.reduce((sum, val) => sum + val, 0);
-            if (top5Total < history.length) { labels.push('Autres'); data.push(history.length - top5Total); }
-            return { labels, data };
-        }
-
-        function getRolesData(history) {
-            const roleCounts = {};
-            history.forEach(match => {
-                const role = match.Role === 'UTILITY' ? 'SUPPORT' : match.Role;
-                if (role) roleCounts[role] = (roleCounts[role] || 0) + 1;
-            });
-            return { labels: Object.keys(roleCounts), data: Object.values(roleCounts) };
-        }
-
-        function getWorstPingsGame(history) {
-            let worst = null; let maxPings = 0;
-            history.forEach(match => { const totalPings = match.Pings || 0; if (totalPings > maxPings) { maxPings = totalPings; worst = match; } });
-            if (!worst || maxPings === 0) return null;
-            let dateStr = "-";
-            if (worst.Date) { try { dateStr = new Date(worst.Date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' }); } catch (e) {} }
-            const pingTypes = [
-                { name: 'Missing', count: worst.EnemyMissingPings || 0, icon: 'img/ennemyMissing.png' },
-                { name: 'Vision', count: worst.EnemyVisionPings || 0, icon: 'img/areaIsWarded.png' },
-                { name: 'Need Vision', count: worst.NeedVisionPings || 0, icon: 'img/needVision.png' },
-                { name: 'On My Way', count: worst.OnMyWayPings || 0, icon: 'img/onMyWay.png' },
-                { name: 'Push', count: worst.PushPings || 0, icon: 'img/pushForward.png' },
-                { name: 'Assist Me', count: worst.AssistMePings || 0, icon: 'img/assistMe.png' }
-            ];
-            return { Champion: worst.Champion, totalPings: maxPings, win: worst.Win, kda: worst.KDA, dateStr: dateStr, breakdown: pingTypes.filter(p => p.count > 0).sort((a, b) => b.count - a.count) };
-        }
-
-        function createPieChart(canvasId, legendId, chartData, type) {
-            const ctx = document.getElementById(canvasId);
-            const legendContainer = document.getElementById(legendId);
-            if (!ctx || !legendContainer) return;
-            const chartColors = ['#C8AA6E', '#0AC8B9', '#4A5568', '#A09B8C', '#1E282D', '#3C3C41'];
-            new Chart(ctx, {
-                type: 'pie',
-                data: { labels: chartData.labels, datasets: [{ data: chartData.data, backgroundColor: chartColors, borderColor: '#151a21', borderWidth: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(10, 10, 12, 0.95)', titleColor: '#c8aa6e', bodyColor: '#f0e6d2', borderColor: '#333', borderWidth: 1 } } }
-            });
-            legendContainer.innerHTML = chartData.labels.map((label, index) => {
-                const color = chartColors[index % chartColors.length];
-                const value = chartData.data[index];
-                let iconHtml = type === 'champion' && label !== 'Autres' ? `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">` : `<div class="legend-color" style="background-color: ${color};"></div>`;
-                return `<div class="legend-item" title="${label}: ${value} games">${iconHtml}<span>${label}: ${value}</span></div>`;
-            }).join('');
-        }
-
+        // --- MODAL FUNCTIONS (Inchangées et optimisées) ---
         function openModal(player) {
+            console.log("Opening modal for:", player.name);
             try {
                 const modal = document.getElementById("myModal");
                 document.getElementById("modalTitle").innerHTML = `History: <span style="color:#fff">${player.name}</span>`;
                 const body = document.getElementById("modalBody");
                 body.innerHTML = "";
+
                 if (!player.History || player.History.length === 0) {
                     body.innerHTML = "<p>No matches found.</p>";
                 } else {
-                    const ul = document.createElement("ul"); ul.className = "match-history";
+                    const ul = document.createElement("ul");
+                    ul.className = "match-history";
+
                     player.History.forEach((match, index) => {
-                        const li = document.createElement("li"); li.className = "match-container";
-                        const resultClass = match.Win ? 'match-win' : 'match-loss';
-                        li.innerHTML = `<div class="match-row ${resultClass}"><span>${match.Champion}</span><span>${match.Win?'WIN':'LOSS'}</span><span>${match.KDA}</span></div>`; 
+                        const li = document.createElement("li");
+                        li.className = "match-container";
+
+                        const isWin = match.Win;
+                        const resultClass = isWin ? 'match-win' : 'match-loss';
+                        const resultText = isWin ? "VICTORY" : "DEFEAT";
+                        const role = match.Role === "UTILITY" ? "SUPPORT" : match.Role;
+
+                        // Date
+                        let dateStr = "-";
+                        if (match.Date) {
+                            try {
+                                const dateObj = new Date(match.Date);
+                                dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                            } catch (e) { }
+                        }
+
+                        // Multikills
+                        let multiKillHtml = "";
+                        if (match.Pentas > 0) multiKillHtml += `<span style='color:#ffd700; font-weight:bold; margin-left:8px;'>PENTA!${match.Pentas > 1 ? ' x' + match.Pentas : ''}</span> `;
+                        if (match.Quadras > 0) multiKillHtml += `<span style='color:#ff4c4c; font-weight:bold; margin-left:8px;'>QUADRA!${match.Quadras > 1 ? ' x' + match.Quadras : ''}</span>`;
+
+                        const pinksText = match.Pinks !== undefined ? `(${match.Pinks} pinks)` : "";
+                        const champImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${match.Champion}.png`;
+
+                        let enemyHtml = "-";
+                        if (match.EnemyChamp) {
+                            const enemyImg = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${match.EnemyChamp}.png`;
+                            enemyHtml = `<div class="vs-column"><img src="${enemyImg}" class="enemy-icon" title="Versus ${match.EnemyChamp}"></div>`;
+                        }
+
+                        const safeNum = (val) => val ? val.toLocaleString() : "0";
+
+                        // KP Color Logic (Modal)
+                        let kpColor = '#aaa';
+                        const currentRole = role ? role.toUpperCase() : "UNKNOWN";
+                        if (currentRole === 'SUPPORT' || currentRole === 'JUNGLE') {
+                            if (match.KP > 65) kpColor = '#2deb90'; else if (match.KP < 45) kpColor = '#ff5859';
+                        } else if (currentRole === 'TOP') {
+                            if (match.KP > 55) kpColor = '#2deb90'; else if (match.KP < 30) kpColor = '#ff5859';
+                        } else {
+                            if (match.KP > 60) kpColor = '#2deb90'; else if (match.KP < 35) kpColor = '#ff5859';
+                        }
+                        const deathColor = match.DeathShare > 30 ? '#ff5859' : '#aaa';
+
+                        li.innerHTML = `
+                            <div class="match-row ${resultClass}" onclick="toggleMatchDetails('details-${index}')">
+                                <div class="champ-flex">
+                                    <img src="${champImg}" class="champ-icon" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/29.png'">
+                                    <span>${match.Champion} ${multiKillHtml}</span>
+                                </div>
+                                ${enemyHtml}
+                                <div class="stat-detail">${role}</div>
+                                <div style="color:${isWin ? '#2deb90' : '#ff5859'}; font-weight:bold;">${match.KDA}</div>
+                                <div class="stat-detail">${match.CS} (${match.CSMin}/m)</div>
+                                <div class="stat-detail">${match.Vision} ${pinksText}</div>
+                                <div class="stat-detail">${match.Duration || "?"}</div>
+                                <div style="font-weight:bold;">${resultText}</div>
+                                <div class="stat-detail" style="color:#aaa; font-size:0.85em;">${dateStr}</div>
+                            </div>
+                            
+                            <div id="details-${index}" class="match-details">
+                                <div class="stats-grid">
+                                    <div class="stat-box">
+                                        <div class="stat-label">Damage Dealt (DPM)</div>
+                                        <div class="stat-value dmg-text">${safeNum(match.DamageDealt)} <span style="font-size:0.65em; color:#888">(${safeNum(match.DPM)}/m)</span></div>
+                                        <div style="font-size:0.75em; color:#aaa; margin-top:4px;">Share: <strong>${match.DmgShare}%</strong></div>
+                                    </div>
+                                    <div class="stat-box">
+                                        <div class="stat-label">Kill Participation</div>
+                                        <div class="stat-value" style="color:${kpColor}">${match.KP}%</div>
+                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Kills: ${match.TeamKills || '?'}</div>
+                                    </div>
+                                    <div class="stat-box"><div class="stat-label">Damage Taken</div><div class="stat-value" style="color:#aaa">${safeNum(match.DamageTaken)}</div></div>
+                                    <div class="stat-box"><div class="stat-label">Healing</div><div class="stat-value heal-text">${safeNum(match.Heal)}</div></div>
+                                    <div class="stat-box"><div class="stat-label">Obj. Damage</div><div class="stat-value" style="color:#c8aa6e">${safeNum(match.DmgObj)}</div></div>
+                                    
+                                    <div class="stat-box">
+                                        <div class="stat-label">Gold (G/min)</div>
+                                        <div class="stat-value gold-text">${safeNum(match.Gold)} <span style="font-size:0.6em; color:#888">(${match.GoldMin}/m)</span></div>
+                                    </div>
+                                    <div class="stat-box">
+                                        <div class="stat-label">Death Share</div>
+                                        <div class="stat-value" style="color:${deathColor}">${match.DeathShare}%</div>
+                                        <div style="font-size:0.75em; color:#888; margin-top:4px;">Team Deaths: ${match.TeamDeaths || '?'}</div>
+                                    </div>
+                                    <div class="stat-box">
+                                        <div class="stat-label">Toxic Pings</div>
+                                        <div class="stat-value" style="color:#ff5859">${match.Pings}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                         ul.appendChild(li);
                     });
                     body.appendChild(ul);
                 }
                 modal.style.display = "block";
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error("Erreur dans openModal:", err);
+                alert("Erreur details match");
+            }
         }
+
+        function toggleMatchDetails(id) {
+            const el = document.getElementById(id);
+            el.style.display = (el.style.display === "block") ? "none" : "block";
+        }
+
         function closeModal() { document.getElementById("myModal").style.display = "none"; }
-        window.onclick = function(e) { if (e.target == document.getElementById("myModal")) closeModal(); }
+        window.onclick = function (e) { if (e.target == document.getElementById("myModal")) closeModal(); }
+
+        // --- VISUAL STATS GENERATION ---
+        function generateVisualStats(data) {
+            const visualStatsContainer = document.getElementById('visualStats');
+            const playerStatsGrid = document.getElementById('playerStatsGrid');
+            
+            playerStatsGrid.innerHTML = "";
+            
+            const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
+            
+            // Sort players by rank (same logic as main table)
+            const tierValues = {
+                "CHALLENGER": 90000,
+                "GRANDMASTER": 80000,
+                "MASTER": 70000,
+                "DIAMOND": 60000,
+                "EMERALD": 50000,
+                "PLATINUM": 40000,
+                "GOLD": 30000,
+                "SILVER": 20000,
+                "BRONZE": 10000,
+                "IRON": 0,
+                "UNRANKED": -10000
+            };
+            const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
+
+            function getRankScore(rankStr) {
+                if (!rankStr || rankStr === "Unranked") return -10000;
+                let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
+                if (!match) return 0;
+                let tier = match[1];
+                let div = match[2] || "";
+                let lp = parseInt(match[3]);
+                let score = (tierValues[tier] || 0);
+                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
+                    score += lp;
+                } else {
+                    score += (divValues[div] || 0) + lp;
+                }
+                return score;
+            }
+            players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
+            
+            players.forEach(player => {
+                if (!player.History || player.History.length === 0) return;
+                
+                // Créer la carte du joueur
+                const playerCard = document.createElement('div');
+                playerCard.className = 'player-card';
+                
+                // Header avec nom du joueur
+                const header = document.createElement('div');
+                header.className = 'player-card-header';
+                header.textContent = `${player.name}#${player.Tag}`;
+                playerCard.appendChild(header);
+                
+                // Préparer les données pour les graphiques
+                const championsData = getChampionsData(player.History);
+                const rolesData = getRolesData(player.History);
+                const worstPingsGame = getWorstPingsGame(player.History);
+                
+                // Container pour les deux camemberts
+                const chartsRow = document.createElement('div');
+                chartsRow.className = 'charts-row';
+                
+                // Champions chart
+                const champChartContainer = document.createElement('div');
+                champChartContainer.className = 'chart-container';
+                champChartContainer.innerHTML = `
+                    <div class="chart-title">Top Champions</div>
+                    <div class="pie-wrapper"><canvas id="champChart-${player.name}"></canvas></div>
+                    <div id="legend-champ-${player.name}" class="custom-legend"></div>
+                `;
+                chartsRow.appendChild(champChartContainer);
+                
+                // Roles chart
+                const rolesChartContainer = document.createElement('div');
+                rolesChartContainer.className = 'chart-container';
+                rolesChartContainer.innerHTML = `
+                    <div class="chart-title">Preferred Roles</div>
+                    <div class="pie-wrapper"><canvas id="rolesChart-${player.name}"></canvas></div>
+                    <div id="legend-roles-${player.name}" class="custom-legend"></div>
+                `;
+                chartsRow.appendChild(rolesChartContainer);
+                
+                playerCard.appendChild(chartsRow);
+                
+                // Personal Worst section
+                if (worstPingsGame) {
+                    const worstSection = document.createElement('div');
+                    worstSection.className = 'personal-worst';
+                    worstSection.onclick = () => openModal(player);
+                    worstSection.innerHTML = `
+                        <div class="personal-worst-title">
+                            Ping Record
+                        </div>
+                        <div class="personal-worst-content">
+                            <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings total
+                            <div class="game-info">
+                                ${worstPingsGame.dateStr} - <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span> - ${worstPingsGame.kda}
+                            </div>
+                            <div class="ping-breakdown">
+                                ${worstPingsGame.breakdown.map(ping => 
+                                    ping.count > 0 && ping.icon ? `
+                                    <div class="ping-item">
+                                        <img src="${ping.icon}" class="ping-icon" alt="${ping.name}">
+                                        <div class="ping-type">${ping.name}</div>
+                                        <div class="ping-count">${ping.count}</div>
+                                    </div>` : ''
+                                ).join('')}
+                            </div>
+                        </div>
+                    `;
+                    playerCard.appendChild(worstSection);
+                }
+                
+                playerStatsGrid.appendChild(playerCard);
+                
+                // Appel avec le TYPE ('champion' ou 'role')
+                createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData, 'champion');
+                createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData, 'role');
+            });
+            
+            // Afficher la section
+            visualStatsContainer.style.display = 'block';
+        }
+        
+        function getChampionsData(history) {
+            const champCounts = {};
+            history.forEach(match => {
+                const champ = match.Champion;
+                champCounts[champ] = (champCounts[champ] || 0) + 1;
+            });
+            
+            // Trier et prendre le top 5
+            const sorted = Object.entries(champCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const labels = sorted.map(([champ]) => champ);
+            const data = sorted.map(([, count]) => count);
+            
+            // Ajouter "Autres" si nécessaire
+            const top5Total = data.reduce((sum, val) => sum + val, 0);
+            if (top5Total < history.length) {
+                labels.push('Autres');
+                data.push(history.length - top5Total);
+            }
+            
+            return { labels, data };
+        }
+        
+        function getRolesData(history) {
+            const roleCounts = {};
+            history.forEach(match => {
+                const role = match.Role === 'UTILITY' ? 'SUPPORT' : match.Role;
+                if (role) {
+                    roleCounts[role] = (roleCounts[role] || 0) + 1;
+                }
+            });
+            
+            const labels = Object.keys(roleCounts);
+            const data = Object.values(roleCounts);
+            
+            return { labels, data };
+        }
+        
+        function getWorstPingsGame(history) {
+            let worst = null;
+            let maxPings = 0;
+            
+            history.forEach(match => {
+                const totalPings = match.Pings || 0;
+                if (totalPings > maxPings) {
+                    maxPings = totalPings;
+                    worst = match;
+                }
+            });
+            
+            if (!worst || maxPings === 0) return null;
+            
+            // Format date
+            let dateStr = "-";
+            if (worst.Date) {
+                try {
+                    const dateObj = new Date(worst.Date);
+                    dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                } catch (e) { }
+            }
+            
+            const pingTypes = [
+                { name: 'All In', count: worst.AllInPings || 0, icon: null },
+                { name: 'Assist Me', count: worst.AssistMePings || 0, icon: 'img/assistMe.png' },
+                { name: 'Bait', count: worst.BaitPings || 0, icon: null },
+                { name: 'Basic', count: worst.BasicPings || 0, icon: null },
+                { name: 'Command', count: worst.CommandPings || 0, icon: null },
+                { name: 'Danger', count: worst.DangerPings || 0, icon: null },
+                { name: 'Missing', count: worst.EnemyMissingPings || 0, icon: 'img/ennemyMissing.png' },
+                { name: 'Vision', count: worst.EnemyVisionPings || 0, icon: 'img/areaIsWarded.png' },
+                { name: 'Get Back', count: worst.GetBackPings || 0, icon: null },
+                { name: 'Hold', count: worst.HoldPings || 0, icon: null },
+                { name: 'Need Vision', count: worst.NeedVisionPings || 0, icon: 'img/needVision.png' },
+                { name: 'On My Way', count: worst.OnMyWayPings || 0, icon: 'img/onMyWay.png' },
+                { name: 'Push', count: worst.PushPings || 0, icon: 'img/pushForward.png' }
+            ];
+            
+            return {
+                Champion: worst.Champion,
+                totalPings: maxPings,
+                win: worst.Win,
+                kda: worst.KDA,
+                dateStr: dateStr,
+                breakdown: pingTypes.filter(p => p.count > 0).sort((a, b) => b.count - a.count)
+            };
+        }
+        
+        function createPieChart(canvasId, legendId, chartData, type) {
+            const ctx = document.getElementById(canvasId);
+            const legendContainer = document.getElementById(legendId);
+            
+            if (!ctx || !legendContainer) return;
+            
+            // Palette fixe par rôle (pour cohérence entre joueurs)
+            const roleColors = {
+                'TOP': '#4A5568',      // Steel Grey Blue
+                'JUNGLE': '#2deb90',   // Vert Jungle
+                'MIDDLE': '#7B2CBF',   // Mauve foncé (Dark Lux)
+                'MID': '#7B2CBF',      // Mauve foncé (Dark Lux) (alias)
+                'BOTTOM': '#ff5859',   // Rouge ADC
+                'ADC': '#ff5859',      // Rouge ADC (alias)
+                'SUPPORT': '#C8AA6E',  // Gold Support
+                'UTILITY': '#C8AA6E'   // Gold Support (alias)
+            };
+            
+            // Palette pour champions (ordre de popularité)
+            const championColors = [
+                '#C8AA6E', // LoL Gold - Top 1
+                '#0AC8B9', // Hextech Cyan - Top 2
+                '#4A5568', // Steel Grey - Top 3
+                '#A09B8C', // Beige - Top 4
+                '#1E282D', // Dark Blue - Top 5
+                '#3C3C41'  // Dark Grey - Autres
+            ];
+            
+            // Choisir la palette selon le type
+            let chartColors;
+            if (type === 'role') {
+                // Pour les rôles, utiliser les couleurs fixes par rôle
+                chartColors = chartData.labels.map(label => roleColors[label.toUpperCase()] || '#3C3C41');
+            } else {
+                // Pour les champions, utiliser la palette par ordre
+                chartColors = championColors;
+            }
+            
+            // Création du Graphique
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        data: chartData.data,
+                        backgroundColor: chartColors,
+                        borderColor: '#151a21',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }, // Légende custom HTML
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 10, 12, 0.95)',
+                            titleColor: '#c8aa6e',
+                            bodyColor: '#f0e6d2',
+                            borderColor: '#333',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return ` ${context.label}: ${context.parsed} games (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Génération de la légende HTML avec Icônes
+            legendContainer.innerHTML = chartData.labels.map((label, index) => {
+                const color = chartColors[index % chartColors.length];
+                const value = chartData.data[index];
+                
+                let iconHtml = '';
+                
+                if (type === 'champion' && label !== 'Autres') {
+                    // Icône de Champion DDragon
+                    iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
+                } else if (type === 'role') {
+                    // Pour les rôles, on garde le carré de couleur
+                    iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
+                } else {
+                    // Fallback (ex: "Autres")
+                    iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
+                }
+                
+                return `
+                    <div class="legend-item" title="${label}: ${value} games">
+                        ${iconHtml}
+                        <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
+                    </div>
+                `;
+            }).join('');
+        }
     </script>
 </body>
+
 </html>
