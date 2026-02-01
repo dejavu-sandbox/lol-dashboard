@@ -39,6 +39,7 @@
             margin: 40px auto;
             padding: 0;
             display: block;
+            overflow: visible; /* Permet aux tooltips de déborder */
             /* Pas de style visuel ici car c'est le <table> qui a les bordures */
         }
 
@@ -84,6 +85,7 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             table-layout: fixed;
+            overflow: visible; /* Permet aux tooltips de déborder */
         }
 
         th {
@@ -94,7 +96,7 @@
             font-size: 0.8em;
             border-bottom: 2px solid #c8aa6e;
             position: relative;
-            overflow: hidden;
+            overflow: visible; /* Permet aux tooltips de déborder */
             white-space: nowrap;
         }
 
@@ -646,16 +648,14 @@
             line-height: 1.5;
             border-radius: 6px;
             padding: 12px;
-            position: absolute;
-            z-index: 9999;
-            bottom: 135%;
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed; /* Fixed au lieu d'absolute pour éviter le clipping */
+            z-index: 99999; /* Très élevé pour passer au-dessus de tout */
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
             border: 1px solid #ffd700;
             opacity: 0;
             transition: all 0.2s ease-in-out;
             pointer-events: none;
+            white-space: normal; /* Permet le retour à la ligne */
         }
 
         .help-icon:hover .tooltip-text {
@@ -663,7 +663,44 @@
             opacity: 1;
         }
 
-        /* --- REFRESH BUTTON --- */
+        /* Script pour positionner dynamiquement les tooltips */
+    </style>
+    <script>
+        // Positionner les tooltips dynamiquement pour éviter le clipping
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.help-icon').forEach(icon => {
+                icon.addEventListener('mouseenter', function(e) {
+                    const tooltip = this.querySelector('.tooltip-text');
+                    if (tooltip) {
+                        const rect = this.getBoundingClientRect();
+                        const tooltipWidth = 210;
+                        const tooltipHeight = tooltip.offsetHeight || 80;
+                        
+                        // Position au-dessus de l'icône, centrée
+                        let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+                        let top = rect.top - tooltipHeight - 10;
+                        
+                        // Ajuster si la tooltip sort de l'écran à gauche
+                        if (left < 10) left = 10;
+                        
+                        // Ajuster si la tooltip sort de l'écran à droite
+                        if (left + tooltipWidth > window.innerWidth - 10) {
+                            left = window.innerWidth - tooltipWidth - 10;
+                        }
+                        
+                        // Si pas assez de place en haut, afficher en bas
+                        if (top < 10) {
+                            top = rect.bottom + 10;
+                        }
+                        
+                        tooltip.style.left = left + 'px';
+                        tooltip.style.top = top + 'px';
+                    }
+                });
+            });
+        });
+    </script>
+</head>
         .refresh-controls {
             display: flex;
             align-items: center;
