@@ -1997,7 +1997,23 @@
                                 ctx.save();
                                 ctx.shadowColor = 'rgba(0,0,0,0.5)';
                                 ctx.shadowBlur = 4;
+                                
+                                // Ajouter une bordure noire pour les icônes de rôle
+                                if (type === 'role') {
+                                    ctx.strokeStyle = '#000';
+                                    ctx.lineWidth = 2;
+                                    ctx.strokeRect(imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
+                                }
+                                
                                 ctx.drawImage(icons[label], imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
+                                
+                                // Redessiner la bordure par-dessus l'image pour plus de visibilité
+                                if (type === 'role') {
+                                    ctx.strokeStyle = '#000';
+                                    ctx.lineWidth = 2;
+                                    ctx.strokeRect(imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
+                                }
+                                
                                 ctx.restore();
                             } catch (e) { }
                         });
