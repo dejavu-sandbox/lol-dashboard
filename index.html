@@ -1582,24 +1582,15 @@
                 const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
 
-                // Header avec nom du joueur, icône et badges
+                // Header avec nom du joueur et icône
                 const header = document.createElement('div');
                 header.className = 'player-card-header';
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
-                
-                // Badges
-                let badgesHtml = '';
-                if (player.Badges && player.Badges.length > 0) {
-                    badgesHtml = player.Badges.map(badge => 
-                        `<img src="img/${badge}.png" class="badge-icon badge-${badge}" title="${badge}" style="width:24px; height:24px; margin-left:4px;">`
-                    ).join('');
-                }
                 
                 header.innerHTML = `
                     <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
                         <img src="${iconUrl}" style="width:32px; height:32px; border-radius:50%; border:2px solid #c8aa6e;">
                         <span>${player.name}#${player.Tag}</span>
-                        ${badgesHtml}
                     </div>
                 `;
                 playerCard.appendChild(header);
