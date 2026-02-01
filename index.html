@@ -39,10 +39,11 @@
         
         .visual-stats-container {
             max-width: 1400px;
-            margin: 40px auto;   /* Même centrage que le premier */
-            padding: 0;
+            margin: 40px auto;
+            padding: 20px; /* Padding interne pour le contenu */
             display: block;
             box-sizing: border-box;
+            width: 100%; /* Force à prendre 1400px comme le premier tableau */
         }
 
         .visual-stats-container {
@@ -1730,10 +1731,14 @@
                 });
             }
             
-            // Attendre que toutes les images soient chargées avant de créer le chart
-            Promise.all(imagePromises).then(() => {
+            // Attendre que toutes les images soient chargées avant de créer le chart (ou créer immédiatement si pas d'images)
+            if (imagePromises.length > 0) {
+                Promise.all(imagePromises).then(() => {
+                    createChartAfterImagesLoaded();
+                });
+            } else {
                 createChartAfterImagesLoaded();
-            });
+            }
             
             function createChartAfterImagesLoaded() {
             
@@ -1783,7 +1788,7 @@
                         if (label === 'Autres' || !championIcons[label]) return;
                         
                         const img = championIcons[label];
-                        if (!img.complete) return; // Attendre le chargement
+                        // Les images sont déjà chargées grâce à Promise.all, pas besoin de vérifier
                         
                         // Calculer le centre du segment
                         const { x, y, startAngle, endAngle, outerRadius } = element;
