@@ -1861,12 +1861,14 @@
                 }
                 
                 return `
-                    <div class="legend-item" title="${label}: ${value} games">
+                    <div class="legend-item">
                         ${iconHtml}
-                        <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
+                        <span>${label}: ${value}</span>
                     </div>
                 `;
             }).join('');
+            
+            } // Fin de createChartAfterImagesLoaded
         }
     </script>
 </body>
