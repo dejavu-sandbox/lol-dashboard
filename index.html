@@ -1626,12 +1626,16 @@
                     const worstSection = document.createElement('div');
                     worstSection.className = 'personal-worst';
                     worstSection.onclick = () => openModal(player);
+                    const champIconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${worstPingsGame.Champion}.png`;
                     worstSection.innerHTML = `
                         <div class="personal-worst-title">
                             Ping Record
                         </div>
                         <div class="personal-worst-content">
-                            <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings total
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                                <img src="${champIconUrl}" style="width:32px; height:32px; border-radius:4px; border:1px solid #444;">
+                                <strong>${worstPingsGame.Champion}</strong> - ${worstPingsGame.totalPings} pings total
+                            </div>
                             <div class="game-info">
                                 ${worstPingsGame.dateStr} - <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span> - ${worstPingsGame.kda}
                             </div>
