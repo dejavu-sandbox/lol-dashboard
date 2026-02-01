@@ -32,11 +32,12 @@
         .container {
             max-width: 1400px;
             margin: 40px auto;
-            padding: 0;        /* Pas de padding - le tableau a ses propres bordures */
+            padding: 0;
+            /* Pas de padding - le tableau a ses propres bordures */
             display: block;
             box-sizing: border-box;
         }
-        
+
         .visual-stats-container {
             max-width: 1400px;
             margin: 40px auto;
@@ -84,15 +85,52 @@
         }
 
         /* --- FIXED COLUMN WIDTHS FOR PERFECT ALIGNMENT --- */
-        table th:nth-child(1), table td:nth-child(1) { width: 280px; text-align: left; padding-left: 20px; }
-        table th:nth-child(2), table td:nth-child(2) { width: 180px; }
-        table th:nth-child(3), table td:nth-child(3) { width: 100px; }
-        table th:nth-child(4), table td:nth-child(4) { width: 100px; }
-        table th:nth-child(5), table td:nth-child(5) { width: 100px; }
-        table th:nth-child(6), table td:nth-child(6) { width: 140px; }
-        table th:nth-child(7), table td:nth-child(7) { width: 100px; }
-        table th:nth-child(8), table td:nth-child(8) { width: 100px; }
-        table th:nth-child(9), table td:nth-child(9) { width: 200px; }
+        table th:nth-child(1),
+        table td:nth-child(1) {
+            width: 280px;
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        table th:nth-child(2),
+        table td:nth-child(2) {
+            width: 180px;
+        }
+
+        table th:nth-child(3),
+        table td:nth-child(3) {
+            width: 100px;
+        }
+
+        table th:nth-child(4),
+        table td:nth-child(4) {
+            width: 100px;
+        }
+
+        table th:nth-child(5),
+        table td:nth-child(5) {
+            width: 100px;
+        }
+
+        table th:nth-child(6),
+        table td:nth-child(6) {
+            width: 140px;
+        }
+
+        table th:nth-child(7),
+        table td:nth-child(7) {
+            width: 100px;
+        }
+
+        table th:nth-child(8),
+        table td:nth-child(8) {
+            width: 100px;
+        }
+
+        table th:nth-child(9),
+        table td:nth-child(9) {
+            width: 200px;
+        }
 
         tr.player-row:hover {
             background-color: #1e282d;
@@ -678,10 +716,12 @@
         /* --- STRUCTURE DES CARTES --- */
         .player-stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Force 4 colonnes égales */
+            grid-template-columns: repeat(4, 1fr);
+            /* Force 4 colonnes égales */
             gap: 20px;
             margin-bottom: 40px;
-            align-items: stretch; /* Force toutes les cartes à avoir la même hauteur */
+            align-items: stretch;
+            /* Force toutes les cartes à avoir la même hauteur */
         }
 
         .player-card {
@@ -716,14 +756,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 0; /* Empêche le débordement flex */
-            height: 350px; /* Hauteur fixe: 140px canvas + 30px titre + 144px légende (6 lignes) + marges */
+            min-width: 0;
+            /* Empêche le débordement flex */
+            height: 350px;
+            /* Hauteur fixe: 140px canvas + 30px titre + 144px légende (6 lignes) + marges */
             flex-shrink: 0;
         }
 
         .pie-wrapper {
             position: relative;
-            height: 140px; /* Un peu plus petit pour l'élégance */
+            height: 140px;
+            /* Un peu plus petit pour l'élégance */
             width: 100%;
             display: flex;
             justify-content: center;
@@ -737,11 +780,14 @@
 
         .custom-legend {
             display: flex;
-            flex-direction: column; /* Liste verticale plus propre */
-            align-items: flex-start; /* Aligné à gauche pour cohérence */
+            flex-direction: column;
+            /* Liste verticale plus propre */
+            align-items: flex-start;
+            /* Aligné à gauche pour cohérence */
             gap: 4px;
             width: 100%;
-            padding: 0 10px; /* Centré avec padding */
+            padding: 0 10px;
+            /* Centré avec padding */
         }
 
         .legend-item {
@@ -749,9 +795,11 @@
             align-items: center;
             gap: 6px;
             font-size: 0.8em;
-            color: #a09b8c; /* Couleur beige LoL */
+            color: #a09b8c;
+            /* Couleur beige LoL */
             white-space: nowrap;
-            width: 100%; /* Prend toute la largeur */
+            width: 100%;
+            /* Prend toute la largeur */
         }
 
         .legend-color {
@@ -767,14 +815,16 @@
             height: 18px;
             border-radius: 3px;
             border: 1px solid #444;
-            flex-shrink: 0; /* Empêche la compression */
+            flex-shrink: 0;
+            /* Empêche la compression */
             vertical-align: middle;
         }
-        
+
         .role-icon {
             width: 16px;
             height: 16px;
-            object-fit: contain; /* Pour les icônes de rôle */
+            object-fit: contain;
+            /* Pour les icônes de rôle */
         }
 
         .chart-title {
@@ -791,7 +841,8 @@
             border-left: 3px solid #ff5859;
             padding: 15px;
             border-radius: 5px;
-            margin-top: 20px; /* Espace après la zone charts */
+            margin-top: 20px;
+            /* Espace après la zone charts */
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -835,7 +886,8 @@
 
         .ping-breakdown {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Force 2 colonnes fixes */
+            grid-template-columns: repeat(2, 1fr);
+            /* Force 2 colonnes fixes */
             gap: 6px;
             margin-top: 10px;
             /* Pas de limitation de hauteur - le bloc grandit vers le bas */
@@ -989,30 +1041,30 @@
         // Format time ago
         function formatTimeAgo(timestamp) {
             if (!timestamp) return "Never";
-            
+
             const now = Date.now();
             const diff = now - timestamp;
-            
+
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            
+
             let parts = [];
             if (days > 0) parts.push(`${days}d`);
             if (hours > 0) parts.push(`${hours}h`);
             if (minutes > 0) parts.push(`${minutes}m`);
-            
+
             // If less than 1 minute, show "< 1m ago"
             const timeAgo = parts.length === 0 ? "< 1m ago" : `${parts.join(' ')} ago`;
-            
+
             const date = new Date(timestamp);
-            const dateStr = date.toLocaleString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            const dateStr = date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
-            
+
             return `${dateStr} (${timeAgo})`;
         }
 
@@ -1029,12 +1081,12 @@
             const cachedData = localStorage.getItem(CACHE_KEY);
             const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
             const apiRefreshTimestamp = localStorage.getItem(API_REFRESH_TIMESTAMP_KEY);
-            
+
             if (cachedData) {
                 try {
                     const data = JSON.parse(cachedData);
                     displayData(data);
-                    
+
                     if (cachedTimestamp) {
                         lastRefreshTime = parseInt(cachedTimestamp);
                     }
@@ -1042,7 +1094,7 @@
                         lastApiRefreshTime = parseInt(apiRefreshTimestamp);
                         updateRefreshButton();
                     }
-                    
+
                     // Hide loading spinner
                     document.getElementById('loading').style.display = 'none';
                     return true;
@@ -1059,22 +1111,22 @@
             const textSpan = document.getElementById('refreshText');
             const now = Date.now();
             const timeSinceApiRefresh = now - lastApiRefreshTime;
-            
+
             // Update last updated text
             updateLastUpdatedText();
-            
+
             // Cooldown only applies if we've done a manual API refresh (lastApiRefreshTime > 0)
             if (lastApiRefreshTime > 0 && timeSinceApiRefresh < MIN_REFRESH_INTERVAL) {
                 const remainingSeconds = Math.ceil((MIN_REFRESH_INTERVAL - timeSinceApiRefresh) / 1000);
                 btn.disabled = true;
                 textSpan.textContent = `Wait ${remainingSeconds}s`;
-                
+
                 setTimeout(updateRefreshButton, 1000);
             } else {
                 // Enable button (either no API refresh yet, or cooldown expired)
                 btn.disabled = false;
                 textSpan.textContent = 'Refresh';
-                
+
                 // Continue updating time ago every 10 seconds
                 setTimeout(updateRefreshButton, 10000);
             }
@@ -1085,14 +1137,14 @@
             const btn = document.getElementById('refreshBtn');
             const icon = document.getElementById('refreshIcon');
             const loading = document.getElementById('loading');
-            
+
             // Show loading spinner (keep dashboard visible)
             loading.style.display = 'block';
             btn.disabled = true;
             btn.classList.add('loading');
-            
+
             await fetchStats(true);
-            
+
             // Hide loading spinner
             loading.style.display = 'none';
             btn.classList.remove('loading');
@@ -1105,7 +1157,7 @@
                 if (isManualRefresh) {
                     document.getElementById('loading').style.display = 'block';
                 }
-                
+
                 // Fetch DDragon version
                 const vResponse = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
                 const versions = await vResponse.json();
@@ -1116,17 +1168,17 @@
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("Azure connection error");
                 const responseData = await response.json();
-                
+
                 // Extract data and LastUpdate timestamp from response
                 const data = responseData.Data || responseData;  // Handle both formats
                 const backendLastUpdate = responseData.LastUpdate ? new Date(responseData.LastUpdate).getTime() : null;
-                
+
                 // Save to cache
                 const now = Date.now();
                 localStorage.setItem(CACHE_KEY, JSON.stringify(data));
                 localStorage.setItem(CACHE_TIMESTAMP_KEY, now.toString());
                 lastRefreshTime = now;
-                
+
                 // Update API refresh time
                 if (isManualRefresh) {
                     // Manual refresh - use current time
@@ -1137,12 +1189,12 @@
                     localStorage.setItem(API_REFRESH_TIMESTAMP_KEY, backendLastUpdate.toString());
                     lastApiRefreshTime = backendLastUpdate;
                 }
-                
+
                 displayData(data);
-                
+
                 // Hide loading spinner
                 document.getElementById('loading').style.display = 'none';
-                
+
                 // Enable and update refresh button after first load
                 updateRefreshButton();
             } catch (error) {
@@ -1153,11 +1205,11 @@
         }
 
         // Initialize on page load
-        window.onload = function() {
+        window.onload = function () {
             const hasCachedData = loadCachedData();
             const now = Date.now();
             const cacheAge = now - lastRefreshTime;
-            
+
             // Fetch backend cache if no localStorage OR if cache > 60s old
             if (!hasCachedData || cacheAge >= MIN_REFRESH_INTERVAL) {
                 // Fetch backend cache (not forcing refresh)
@@ -1278,7 +1330,7 @@
                     .replace("MASTER I", "MASTER")
                     .replace("GRANDMASTER I", "GRANDMASTER")
                     .replace("CHALLENGER I", "CHALLENGER");
-                
+
                 // Extract tier for rank icon
                 let rankTier = "Unranked";
                 if (player.Rank && player.Rank !== "Unranked") {
@@ -1290,7 +1342,7 @@
                     }
                 }
                 const rankIconUrl = `img/Rank=${rankTier}.png`;
-                
+
                 let pingClass = player.AvgPings > 6 ? "toxic-ping" : "";
                 const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
 
@@ -1492,11 +1544,11 @@
         function generateVisualStats(data) {
             const visualStatsContainer = document.getElementById('visualStats');
             const playerStatsGrid = document.getElementById('playerStatsGrid');
-            
+
             playerStatsGrid.innerHTML = "";
-            
+
             const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
-            
+
             // Sort players by rank (same logic as main table)
             const tierValues = {
                 "CHALLENGER": 90000,
@@ -1529,29 +1581,29 @@
                 return score;
             }
             players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
-            
+
             players.forEach(player => {
                 if (!player.History || player.History.length === 0) return;
-                
+
                 // Créer la carte du joueur
                 const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
-                
+
                 // Header avec nom du joueur
                 const header = document.createElement('div');
                 header.className = 'player-card-header';
                 header.textContent = `${player.name}#${player.Tag}`;
                 playerCard.appendChild(header);
-                
+
                 // Préparer les données pour les graphiques
                 const championsData = getChampionsData(player.History);
                 const rolesData = getRolesData(player.History);
                 const worstPingsGame = getWorstPingsGame(player.History);
-                
+
                 // Container pour les deux camemberts
                 const chartsRow = document.createElement('div');
                 chartsRow.className = 'charts-row';
-                
+
                 // Champions chart
                 const champChartContainer = document.createElement('div');
                 champChartContainer.className = 'chart-container';
@@ -1561,7 +1613,7 @@
                     <div id="legend-champ-${player.name}" class="custom-legend"></div>
                 `;
                 chartsRow.appendChild(champChartContainer);
-                
+
                 // Roles chart
                 const rolesChartContainer = document.createElement('div');
                 rolesChartContainer.className = 'chart-container';
@@ -1571,9 +1623,9 @@
                     <div id="legend-roles-${player.name}" class="custom-legend"></div>
                 `;
                 chartsRow.appendChild(rolesChartContainer);
-                
+
                 playerCard.appendChild(chartsRow);
-                
+
                 // Personal Worst section
                 if (worstPingsGame) {
                     const worstSection = document.createElement('div');
@@ -1589,56 +1641,56 @@
                                 ${worstPingsGame.dateStr} - <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span> - ${worstPingsGame.kda}
                             </div>
                             <div class="ping-breakdown">
-                                ${worstPingsGame.breakdown.map(ping => 
-                                    ping.count > 0 && ping.icon ? `
+                                ${worstPingsGame.breakdown.map(ping =>
+                        ping.count > 0 && ping.icon ? `
                                     <div class="ping-item">
                                         <img src="${ping.icon}" class="ping-icon" alt="${ping.name}">
                                         <div class="ping-type">${ping.name}</div>
                                         <div class="ping-count">${ping.count}</div>
                                     </div>` : ''
-                                ).join('')}
+                    ).join('')}
                             </div>
                         </div>
                     `;
                     playerCard.appendChild(worstSection);
                 }
-                
+
                 playerStatsGrid.appendChild(playerCard);
-                
+
                 // Appel avec le TYPE ('champion' ou 'role')
                 createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData, 'champion');
                 createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData, 'role');
             });
-            
+
             // Afficher la section
             visualStatsContainer.style.display = 'block';
         }
-        
+
         function getChampionsData(history) {
             const champCounts = {};
             history.forEach(match => {
                 const champ = match.Champion;
                 champCounts[champ] = (champCounts[champ] || 0) + 1;
             });
-            
+
             // Trier et prendre le top 5
             const sorted = Object.entries(champCounts)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 5);
-            
+
             const labels = sorted.map(([champ]) => champ);
             const data = sorted.map(([, count]) => count);
-            
+
             // Ajouter "Autres" si nécessaire
             const top5Total = data.reduce((sum, val) => sum + val, 0);
             if (top5Total < history.length) {
                 labels.push('Autres');
                 data.push(history.length - top5Total);
             }
-            
+
             return { labels, data };
         }
-        
+
         function getRolesData(history) {
             const roleCounts = {};
             history.forEach(match => {
@@ -1647,17 +1699,17 @@
                     roleCounts[role] = (roleCounts[role] || 0) + 1;
                 }
             });
-            
+
             const labels = Object.keys(roleCounts);
             const data = Object.values(roleCounts);
-            
+
             return { labels, data };
         }
-        
+
         function getWorstPingsGame(history) {
             let worst = null;
             let maxPings = 0;
-            
+
             history.forEach(match => {
                 const totalPings = match.Pings || 0;
                 if (totalPings > maxPings) {
@@ -1665,9 +1717,9 @@
                     worst = match;
                 }
             });
-            
+
             if (!worst || maxPings === 0) return null;
-            
+
             // Format date
             let dateStr = "-";
             if (worst.Date) {
@@ -1676,7 +1728,7 @@
                     dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
                 } catch (e) { }
             }
-            
+
             const pingTypes = [
                 { name: 'All In', count: worst.AllInPings || 0, icon: null },
                 { name: 'Assist Me', count: worst.AssistMePings || 0, icon: 'img/assistMe.png' },
@@ -1692,7 +1744,7 @@
                 { name: 'On My Way', count: worst.OnMyWayPings || 0, icon: 'img/onMyWay.png' },
                 { name: 'Push', count: worst.PushPings || 0, icon: 'img/pushForward.png' }
             ];
-            
+
             return {
                 Champion: worst.Champion,
                 totalPings: maxPings,
@@ -1702,20 +1754,20 @@
                 breakdown: pingTypes.filter(p => p.count > 0).sort((a, b) => b.count - a.count)
             };
         }
-        
+
         function createPieChart(canvasId, legendId, chartData, type) {
             const ctx = document.getElementById(canvasId);
             const legendContainer = document.getElementById(legendId);
-            
+
             if (!ctx || !legendContainer) return;
-            
+
             // 1. Préparation des couleurs
-            const roleColors = { 
-                'TOP': '#4A5568', 'JUNGLE': '#2deb90', 'MIDDLE': '#7B2CBF', 'MID': '#7B2CBF', 
-                'BOTTOM': '#ff5859', 'ADC': '#ff5859', 'SUPPORT': '#C8AA6E', 'UTILITY': '#C8AA6E' 
+            const roleColors = {
+                'TOP': '#4A5568', 'JUNGLE': '#2deb90', 'MIDDLE': '#7B2CBF', 'MID': '#7B2CBF',
+                'BOTTOM': '#ff5859', 'ADC': '#ff5859', 'SUPPORT': '#C8AA6E', 'UTILITY': '#C8AA6E'
             };
             const championColors = ['#C8AA6E', '#0AC8B9', '#4A5568', '#A09B8C', '#1E282D', '#3C3C41'];
-            
+
             let chartColors;
             if (type === 'role') {
                 chartColors = chartData.labels.map(label => roleColors[label.toUpperCase()] || '#3C3C41');
@@ -1761,7 +1813,7 @@
 
                         const { ctx, data } = chart;
                         const meta = chart.getDatasetMeta(0);
-                        
+
                         // Calcul du total pour les pourcentages
                         const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
 
@@ -1774,7 +1826,7 @@
                             if (percentage < 10 || label === 'Autres' || !championIcons[label]) return;
 
                             const { x, y, startAngle, endAngle, outerRadius } = element;
-                            
+
                             // Calculs trigonométriques pour trouver le centre de la part
                             // On se place à 65% du rayon (mid-radius)
                             const angle = startAngle + (endAngle - startAngle) / 2;
@@ -1783,7 +1835,7 @@
                             const imgY = y + Math.sin(angle) * radiusOffset;
 
                             // Taille de l'icône (adaptée à la taille du chart)
-                            const iconSize = 24; 
+                            const iconSize = 24;
 
                             // Dessin de l'image
                             try {
@@ -1792,7 +1844,7 @@
                                 ctx.shadowColor = 'rgba(0,0,0,0.5)';
                                 ctx.shadowBlur = 4;
                                 // On dessine l'image centrée sur X/Y
-                                ctx.drawImage(championIcons[label], imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
+                                ctx.drawImage(championIcons[label], imgX - iconSize / 2, imgY - iconSize / 2, iconSize, iconSize);
                                 ctx.restore();
                             } catch (e) {
                                 // Ignorer les erreurs de dessin
@@ -1816,50 +1868,59 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         layout: {
-                            padding: 0
+                            padding: 10 // Ajoute un peu d'espace autour du camembert pour que le tooltip ne soit pas coupé tout de suite
                         },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
+                                // --- CORRECTION AFFICHAGE TOOLTIP ---
+                                enabled: true,
+                                position: 'nearest', // Suit la souris de près
+                                yAlign: 'bottom',    // S'affiche AU-DESSUS de la souris (évite d'être coupé en bas)
+
                                 backgroundColor: 'rgba(10, 10, 12, 0.95)',
                                 titleColor: '#c8aa6e',
                                 bodyColor: '#f0e6d2',
                                 borderColor: '#333',
                                 borderWidth: 1,
-                                padding: 10,
+                                padding: 8,
+                                boxPadding: 4,
+                                caretSize: 6, // Flèche plus petite
+                                displayColors: true, // Garde le carré de couleur
+
                                 callbacks: {
-                                    label: function(context) {
+                                    label: function (context) {
                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                         const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                        return ` ${context.label}: ${context.parsed} games (${percentage}%)`;
+                                        // Texte plus court pour éviter le débordement
+                                        return ` ${context.label}: ${percentage}% (${context.parsed})`;
                                     }
                                 }
                             }
-                        }
-                    },
-                    plugins: [iconPlugin] // On active notre plugin ici
+                        },
+                        plugins: [championIconPlugin]
+                    }
                 });
-
                 // Génération de la légende HTML
                 legendContainer.innerHTML = chartData.labels.map((label, index) => {
-                    const color = Array.isArray(chartColors) ? chartColors[index % chartColors.length] : chartColors;
-                    const value = chartData.data[index];
-                    
-                    let iconHtml = '';
-                    if (type === 'champion' && label !== 'Autres') {
-                        iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
-                    } else {
-                        iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
-                    }
-                    
-                    return `
+                        const color = Array.isArray(chartColors) ? chartColors[index % chartColors.length] : chartColors;
+                        const value = chartData.data[index];
+
+                        let iconHtml = '';
+                        if (type === 'champion' && label !== 'Autres') {
+                            iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
+                        } else {
+                            iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
+                        }
+
+                        return `
                         <div class="legend-item" title="${label}: ${value} games">
                             ${iconHtml}
                             <span>${label} <span style="color:#666; font-size:0.9em">(${value})</span></span>
                         </div>
                     `;
-                }).join('');
-            }
+                    }).join('');
+                }
         }
     </script>
 </body>
