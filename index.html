@@ -33,7 +33,6 @@
             max-width: 1400px;
             margin: 40px auto;
             padding: 0;
-            /* Pas de padding - le tableau a ses propres bordures */
             display: block;
             box-sizing: border-box;
         }
@@ -41,7 +40,7 @@
         .visual-stats-container {
             max-width: 1400px;
             margin: 40px auto;
-            padding: 20px;
+            padding: 0;
             display: block;
             box-sizing: border-box;
         }
@@ -51,6 +50,15 @@
             border: 2px solid #c8aa6e;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Padding seulement pour le titre et la grille */
+        .visual-stats-title {
+            padding: 20px 20px 0 20px;
+        }
+        
+        .player-stats-grid {
+            padding: 0 20px 20px 20px;
         }
 
         table {
