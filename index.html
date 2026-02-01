@@ -923,6 +923,130 @@
         .last-updated #lastUpdatedText {
             font-style: italic;
         }
+
+        /* --- RESPONSIVE MOBILE --- */
+        @media (max-width: 768px) {
+            /* Ajustement du padding général */
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+
+            /* Tableau principal - permet le scroll horizontal mais réduit les paddings */
+            .container {
+                max-width: 100%;
+                margin: 20px 0;
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 8px 5px;
+                font-size: 0.8em;
+            }
+
+            /* VISUAL STATS - Passage en 1 colonne sur mobile */
+            .visual-stats-container {
+                max-width: 100%;
+                margin: 20px 0;
+                padding: 15px 10px;
+            }
+
+            .visual-stats-title {
+                font-size: 1.2em;
+                margin-bottom: 20px;
+            }
+
+            .player-stats-grid {
+                grid-template-columns: 1fr; /* 1 seule colonne sur mobile */
+                gap: 20px;
+            }
+
+            .player-card {
+                padding: 15px;
+            }
+
+            .player-card-header {
+                font-size: 1.1em;
+                margin-bottom: 15px;
+            }
+
+            /* Charts - En colonne au lieu de côte à côte */
+            .charts-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .chart-container {
+                width: 100%;
+                height: auto;
+                min-height: 280px; /* Réduit pour mobile */
+            }
+
+            .pie-wrapper {
+                height: 120px;
+            }
+
+            /* Ping breakdown - 1 colonne sur très petits écrans */
+            @media (max-width: 480px) {
+                .ping-breakdown {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            /* Modal plus adapté au mobile */
+            .modal-content {
+                width: 98%;
+                margin: 1% auto;
+                padding: 15px;
+                max-height: 95vh;
+            }
+
+            .match-header,
+            .match-row {
+                font-size: 0.75em;
+                padding: 8px;
+                grid-template-columns: 2fr 0.3fr 0.6fr 0.8fr 0.8fr 0.8fr 0.8fr 0.7fr 0.7fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 colonnes au lieu de 5 */
+                gap: 8px;
+            }
+
+            .stat-box {
+                padding: 8px;
+            }
+
+            .stat-label {
+                font-size: 0.7em;
+            }
+
+            .stat-value {
+                font-size: 1em;
+            }
+        }
+
+        /* Tablettes - 2 colonnes */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .player-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Petits écrans desktop - 3 colonnes */
+        @media (min-width: 1025px) and (max-width: 1400px) {
+            .player-stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
     </style>
 </head>
 
@@ -1790,8 +1914,8 @@
                 chartColors = championColors;
             }
 
-            // 2. Gestion des Images pour les Champions
-            const championIcons = {};
+            // 2. Gestion des Images pour Champions ET Rôles
+            const icons = {};
             const imagePromises = [];
 
             if (type === 'champion') {
@@ -1799,13 +1923,36 @@
                     if (label !== 'Autres') {
                         const img = new Image();
                         img.src = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png`;
-                        championIcons[label] = img;
+                        icons[label] = img;
                         const p = new Promise((resolve) => {
                             img.onload = resolve;
                             img.onerror = resolve; 
                         });
                         imagePromises.push(p);
                     }
+                });
+            } else if (type === 'role') {
+                chartData.labels.forEach(label => {
+                    const img = new Image();
+                    // Map role names to icon filenames
+                    const roleMap = {
+                        'TOP': 'topRole',
+                        'JUNGLE': 'jungleRole',
+                        'MIDDLE': 'midRole',
+                        'MID': 'midRole',
+                        'BOTTOM': 'bottomRole',
+                        'ADC': 'bottomRole',
+                        'SUPPORT': 'supportRole',
+                        'UTILITY': 'supportRole'
+                    };
+                    const iconName = roleMap[label.toUpperCase()] || label;
+                    img.src = `img/${iconName}.png`;
+                    icons[label] = img;
+                    const p = new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve; 
+                    });
+                    imagePromises.push(p);
                 });
             }
 
@@ -1815,11 +1962,11 @@
             });
 
             function renderChart() {
-                // PLUGIN : Dessiner les icônes sur le camembert
+                // PLUGIN : Dessiner les icônes sur le camembert (Champions ET Rôles)
                 const iconPlugin = {
                     id: 'sliceIcons',
                     afterDatasetDraw(chart) {
-                        if (type !== 'champion') return;
+                        if (type !== 'champion' && type !== 'role') return;
 
                         const { ctx, data } = chart;
                         const meta = chart.getDatasetMeta(0);
@@ -1830,21 +1977,27 @@
                             const label = data.labels[index];
                             const percentage = (value / total) * 100;
 
-                            // Condition : Ne pas afficher si < 15% ou si c'est "Autres"
-                            if (percentage < 15 || label === 'Autres' || !championIcons[label]) return;
+                            // Condition pour champions : Ne pas afficher si < 15% ou si c'est "Autres"
+                            if (type === 'champion' && (percentage < 15 || label === 'Autres')) return;
+                            
+                            // Pour les rôles, afficher si >= 10%
+                            if (type === 'role' && percentage < 10) return;
+                            
+                            // Vérifier que l'icône existe
+                            if (!icons[label]) return;
 
                             const { x, y, startAngle, endAngle, outerRadius } = element;
                             const angle = startAngle + (endAngle - startAngle) / 2;
                             const radiusOffset = outerRadius * 0.65;
                             const imgX = x + Math.cos(angle) * radiusOffset;
                             const imgY = y + Math.sin(angle) * radiusOffset;
-                            const iconSize = 24; 
+                            const iconSize = type === 'role' ? 28 : 24; // Légèrement plus grand pour les rôles
 
                             try {
                                 ctx.save();
                                 ctx.shadowColor = 'rgba(0,0,0,0.5)';
                                 ctx.shadowBlur = 4;
-                                ctx.drawImage(championIcons[label], imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
+                                ctx.drawImage(icons[label], imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
                                 ctx.restore();
                             } catch (e) { }
                         });
@@ -1902,6 +2055,21 @@
                     let iconHtml = '';
                     if (type === 'champion' && label !== 'Autres') {
                         iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
+                    } else if (type === 'role') {
+                        // Utiliser les icônes de rôle depuis le dossier img
+                        const roleMap = {
+                            'TOP': 'topRole',
+                            'JUNGLE': 'jungleRole',
+                            'MIDDLE': 'midRole',
+                            'MID': 'midRole',
+                            'BOTTOM': 'bottomRole',
+                            'ADC': 'bottomRole',
+                            'SUPPORT': 'supportRole',
+                            'UTILITY': 'supportRole'
+                        };
+                        const iconName = roleMap[label.toUpperCase()] || label;
+                        iconHtml = `<img src="img/${iconName}.png" class="legend-icon" alt="${label}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                                    <div class="legend-color" style="background-color: ${color}; display: none;"></div>`;
                     } else {
                         iconHtml = `<div class="legend-color" style="background-color: ${color};"></div>`;
                     }
