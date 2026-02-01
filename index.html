@@ -1662,43 +1662,59 @@
         }
 
         function getChampionsData(history) {
-            const champCounts = {};
+            const champStats = {};
             history.forEach(match => {
                 const champ = match.Champion;
-                champCounts[champ] = (champCounts[champ] || 0) + 1;
+                if (!champStats[champ]) {
+                    champStats[champ] = { count: 0, wins: 0, losses: 0 };
+                }
+                champStats[champ].count++;
+                if (match.Win) champStats[champ].wins++;
+                else champStats[champ].losses++;
             });
 
             // Trier et prendre le top 5
-            const sorted = Object.entries(champCounts)
-                .sort((a, b) => b[1] - a[1])
+            const sorted = Object.entries(champStats)
+                .sort((a, b) => b[1].count - a[1].count)
                 .slice(0, 5);
 
             const labels = sorted.map(([champ]) => champ);
-            const data = sorted.map(([, count]) => count);
+            const data = sorted.map(([, stats]) => stats.count);
+            const winLoss = sorted.map(([, stats]) => ({ wins: stats.wins, losses: stats.losses }));
 
             // Ajouter "Autres" si nécessaire
             const top5Total = data.reduce((sum, val) => sum + val, 0);
             if (top5Total < history.length) {
                 labels.push('Autres');
                 data.push(history.length - top5Total);
+                // Calculer wins/losses pour "Autres"
+                const otherWins = history.filter(m => !sorted.some(([champ]) => champ === m.Champion) && m.Win).length;
+                const otherLosses = history.length - top5Total - otherWins;
+                winLoss.push({ wins: otherWins, losses: otherLosses });
             }
 
-            return { labels, data };
+            return { labels, data, winLoss };
         }
 
         function getRolesData(history) {
-            const roleCounts = {};
+            const roleStats = {};
             history.forEach(match => {
                 const role = match.Role === 'UTILITY' ? 'SUPPORT' : match.Role;
                 if (role) {
-                    roleCounts[role] = (roleCounts[role] || 0) + 1;
+                    if (!roleStats[role]) {
+                        roleStats[role] = { count: 0, wins: 0, losses: 0 };
+                    }
+                    roleStats[role].count++;
+                    if (match.Win) roleStats[role].wins++;
+                    else roleStats[role].losses++;
                 }
             });
 
-            const labels = Object.keys(roleCounts);
-            const data = Object.values(roleCounts);
+            const labels = Object.keys(roleStats);
+            const data = Object.values(roleStats).map(s => s.count);
+            const winLoss = Object.values(roleStats).map(s => ({ wins: s.wins, losses: s.losses }));
 
-            return { labels, data };
+            return { labels, data, winLoss };
         }
 
         function getWorstPingsGame(history) {
@@ -1877,9 +1893,7 @@
                 // Légende HTML
                 legendContainer.innerHTML = chartData.labels.map((label, index) => {
                     const color = Array.isArray(chartColors) ? chartColors[index % chartColors.length] : chartColors;
-                    const value = chartData.data[index];
-                    const total = chartData.data.reduce((a, b) => a + b, 0);
-                    const percentage = ((value / total) * 100).toFixed(1);
+                    const wl = chartData.winLoss[index];
                     
                     let iconHtml = '';
                     if (type === 'champion' && label !== 'Autres') {
@@ -1889,9 +1903,9 @@
                     }
                     
                     return `
-                        <div class="legend-item" title="${label}: ${value} games (${percentage}%)">
+                        <div class="legend-item" title="${label}: ${wl.wins}W / ${wl.losses}L">
                             ${iconHtml}
-                            <span>${label}: ${value} <span style="color:#666; font-size:0.7em">(${percentage}%)</span></span>
+                            <span>${label} (<span style="color:#2deb90">${wl.wins}w</span>/<span style="color:#ff5859">${wl.losses}l</span>)</span>
                         </div>
                     `;
                 }).join('');
