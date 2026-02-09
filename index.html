@@ -565,6 +565,11 @@
             border: 1px solid #ffd700;
         }
 
+        .badge-lowwr {
+            border: 1px solid #4a90e2;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+        }
+
         /* --- EXTERNAL LINKS --- */
         .external-links {
             display: flex;
@@ -1767,9 +1772,12 @@
                 return { labels: [], data: [], winLoss: [] };
             }
 
-            const labels = player.TopChampions.map(c => c.Name);
-            const data = player.TopChampions.map(c => c.Count);
-            const winLoss = player.TopChampions.map(c => ({ wins: c.Wins, losses: c.Losses }));
+            // Sort by count descending
+            const sorted = [...player.TopChampions].sort((a, b) => b.Count - a.Count);
+            
+            const labels = sorted.map(c => c.Name);
+            const data = sorted.map(c => c.Count);
+            const winLoss = sorted.map(c => ({ wins: c.Wins, losses: c.Losses }));
 
             return { labels, data, winLoss };
         }
@@ -1780,9 +1788,12 @@
                 return { labels: [], data: [], winLoss: [] };
             }
 
-            const labels = player.RoleStats.map(r => r.Name);
-            const data = player.RoleStats.map(r => r.Count);
-            const winLoss = player.RoleStats.map(r => ({ wins: r.Wins, losses: r.Losses }));
+            // Sort by count descending
+            const sorted = [...player.RoleStats].sort((a, b) => b.Count - a.Count);
+            
+            const labels = sorted.map(r => r.Name);
+            const data = sorted.map(r => r.Count);
+            const winLoss = sorted.map(r => ({ wins: r.Wins, losses: r.Losses }));
 
             return { labels, data, winLoss };
         }
@@ -1837,7 +1848,7 @@
             // 1. Préparation des couleurs
             const roleColors = { 
                 'TOP': '#4A5568', 'JUNGLE': '#2deb90', 'MIDDLE': '#7B2CBF', 'MID': '#7B2CBF', 
-                'BOTTOM': '#ff5859', 'ADC': '#ff5859', 'SUPPORT': '#C8AA6E', 'UTILITY': '#C8AA6E' 
+                'BOTTOM': '#ff5859', 'ADC': '#ff5859', 'SUPPORT': '#FF69B4', 'UTILITY': '#FF69B4' 
             };
             const championColors = ['#C8AA6E', '#0AC8B9', '#4A5568', '#A09B8C', '#1E282D', '#3C3C41'];
             
