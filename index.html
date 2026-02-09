@@ -570,6 +570,10 @@
             box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
         }
 
+        .badge-blind {
+            border: 1px solid #8B4513;
+        }
+
         /* --- EXTERNAL LINKS --- */
         .external-links {
             display: flex;
@@ -1445,6 +1449,7 @@
                         else if (badge.Type === "carry") extraClass = "badge-carry";
                         else if (badge.Type === "farmer") extraClass = "badge-farmer";
                         else if (badge.Type === "lowwr") extraClass = "badge-lowwr";
+                        else if (badge.Type === "blind") extraClass = "badge-blind";
                         else if (badge.Type === "smurf" || badge.Type === "penta") extraStyle = "border: 1px solid #ffd700;";
                         else if (badge.Type === "quadra") extraStyle = "border: 1px solid #ff4c4c;";
 
