@@ -1391,49 +1391,8 @@
             tbody.innerHTML = "";
             const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
 
-            // Tri par Rang
-            const tierValues = {
-                "CHALLENGER": 90000,
-                "GRANDMASTER": 80000,
-                "MASTER": 70000,
-                "DIAMOND": 60000,
-                "EMERALD": 50000,
-                "PLATINUM": 40000,
-                "GOLD": 30000,
-                "SILVER": 20000,
-                "BRONZE": 10000,
-                "IRON": 0,
-                "UNRANKED": -10000
-            };
-            const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
-
-            function getRankScore(rankStr) {
-                if (!rankStr || rankStr === "Unranked") return -10000;
-
-                // Regex pour attraper : Tier, Division (Optionnelle), LP
-                // Ex: "DIAMOND I (53 LP)" ou "MASTER (8 LP)"
-                let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
-
-                if (!match) return 0;
-
-                let tier = match[1];       // Ex: DIAMOND
-                let div = match[2] || "";  // Ex: I (ou vide pour Master+)
-                let lp = parseInt(match[3]); // Ex: 53
-
-                // Calcul du Score
-                let score = (tierValues[tier] || 0);
-
-                // Si Master+, pas de division, on ajoute juste les LP
-                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
-                    score += lp;
-                } else {
-                    // Sinon on ajoute le score de division + LP
-                    score += (divValues[div] || 0) + lp;
-                }
-
-                return score;
-            }
-            players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
+            // Tri par Rang (using pre-calculated RankScore from backend)
+            players.sort((a, b) => (b.RankScore || -10000) - (a.RankScore || -10000));
 
             players.forEach(player => {
                 const tr = document.createElement("tr");
@@ -1705,38 +1664,8 @@
 
             const players = Object.keys(data).map(key => ({ name: key, ...data[key] }));
 
-            // Sort players by rank (same logic as main table)
-            const tierValues = {
-                "CHALLENGER": 90000,
-                "GRANDMASTER": 80000,
-                "MASTER": 70000,
-                "DIAMOND": 60000,
-                "EMERALD": 50000,
-                "PLATINUM": 40000,
-                "GOLD": 30000,
-                "SILVER": 20000,
-                "BRONZE": 10000,
-                "IRON": 0,
-                "UNRANKED": -10000
-            };
-            const divValues = { "I": 1200, "II": 800, "III": 400, "IV": 0 };
-
-            function getRankScore(rankStr) {
-                if (!rankStr || rankStr === "Unranked") return -10000;
-                let match = rankStr.toUpperCase().match(/^(\w+)(?:\s+([IVX]+))?\s+\((\d+)\s+LP\)/);
-                if (!match) return 0;
-                let tier = match[1];
-                let div = match[2] || "";
-                let lp = parseInt(match[3]);
-                let score = (tierValues[tier] || 0);
-                if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
-                    score += lp;
-                } else {
-                    score += (divValues[div] || 0) + lp;
-                }
-                return score;
-            }
-            players.sort((a, b) => getRankScore(b.Rank) - getRankScore(a.Rank));
+            // Sort players by rank (using pre-calculated RankScore from backend)
+            players.sort((a, b) => (b.RankScore || -10000) - (a.RankScore || -10000));
 
             players.forEach(player => {
                 if (!player.History || player.History.length === 0) return;
@@ -1757,10 +1686,10 @@
                 `;
                 playerCard.appendChild(header);
 
-                // Préparer les données pour les graphiques
-                const championsData = getChampionsData(player.History);
-                const rolesData = getRolesData(player.History);
-                const worstPingsGame = getWorstPingsGame(player.History);
+                // Préparer les données pour les graphiques (using pre-calculated backend data)
+                const championsData = getChampionsData(player);
+                const rolesData = getRolesData(player);
+                const worstPingsGame = getWorstPingsGame(player);
 
                 // Container pour les deux camemberts
                 const chartsRow = document.createElement('div');
@@ -1832,75 +1761,37 @@
             visualStatsContainer.style.display = 'block';
         }
 
-        function getChampionsData(history) {
-            const champStats = {};
-            history.forEach(match => {
-                const champ = match.Champion;
-                if (!champStats[champ]) {
-                    champStats[champ] = { count: 0, wins: 0, losses: 0 };
-                }
-                champStats[champ].count++;
-                if (match.Win) champStats[champ].wins++;
-                else champStats[champ].losses++;
-            });
-
-            // Trier et prendre le top 5
-            const sorted = Object.entries(champStats)
-                .sort((a, b) => b[1].count - a[1].count)
-                .slice(0, 5);
-
-            const labels = sorted.map(([champ]) => champ);
-            const data = sorted.map(([, stats]) => stats.count);
-            const winLoss = sorted.map(([, stats]) => ({ wins: stats.wins, losses: stats.losses }));
-
-            // Ajouter "Autres" si nécessaire
-            const top5Total = data.reduce((sum, val) => sum + val, 0);
-            if (top5Total < history.length) {
-                labels.push('Autres');
-                data.push(history.length - top5Total);
-                // Calculer wins/losses pour "Autres"
-                const otherWins = history.filter(m => !sorted.some(([champ]) => champ === m.Champion) && m.Win).length;
-                const otherLosses = history.length - top5Total - otherWins;
-                winLoss.push({ wins: otherWins, losses: otherLosses });
+        function getChampionsData(player) {
+            // Use pre-calculated data from backend
+            if (!player.TopChampions || player.TopChampions.length === 0) {
+                return { labels: [], data: [], winLoss: [] };
             }
 
-            return { labels, data, winLoss };
-        }
-
-        function getRolesData(history) {
-            const roleStats = {};
-            history.forEach(match => {
-                const role = match.Role === 'UTILITY' ? 'SUPPORT' : match.Role;
-                if (role) {
-                    if (!roleStats[role]) {
-                        roleStats[role] = { count: 0, wins: 0, losses: 0 };
-                    }
-                    roleStats[role].count++;
-                    if (match.Win) roleStats[role].wins++;
-                    else roleStats[role].losses++;
-                }
-            });
-
-            const labels = Object.keys(roleStats);
-            const data = Object.values(roleStats).map(s => s.count);
-            const winLoss = Object.values(roleStats).map(s => ({ wins: s.wins, losses: s.losses }));
+            const labels = player.TopChampions.map(c => c.Name);
+            const data = player.TopChampions.map(c => c.Count);
+            const winLoss = player.TopChampions.map(c => ({ wins: c.Wins, losses: c.Losses }));
 
             return { labels, data, winLoss };
         }
 
-        function getWorstPingsGame(history) {
-            let worst = null;
-            let maxPings = 0;
+        function getRolesData(player) {
+            // Use pre-calculated data from backend
+            if (!player.RoleStats || player.RoleStats.length === 0) {
+                return { labels: [], data: [], winLoss: [] };
+            }
 
-            history.forEach(match => {
-                const totalPings = match.Pings || 0;
-                if (totalPings > maxPings) {
-                    maxPings = totalPings;
-                    worst = match;
-                }
-            });
+            const labels = player.RoleStats.map(r => r.Name);
+            const data = player.RoleStats.map(r => r.Count);
+            const winLoss = player.RoleStats.map(r => ({ wins: r.Wins, losses: r.Losses }));
 
-            if (!worst || maxPings === 0) return null;
+            return { labels, data, winLoss };
+        }
+
+        function getWorstPingsGame(player) {
+            // Use pre-calculated data from backend
+            if (!player.WorstPingGame || player.WorstPingGame.TotalPings === 0) return null;
+
+            const worst = player.WorstPingGame;
 
             // Format date
             let dateStr = "-";
@@ -1929,7 +1820,7 @@
 
             return {
                 Champion: worst.Champion,
-                totalPings: maxPings,
+                totalPings: worst.TotalPings,
                 win: worst.Win,
                 kda: worst.KDA,
                 dateStr: dateStr,
