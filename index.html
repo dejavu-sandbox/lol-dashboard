@@ -531,7 +531,8 @@
         }
 
         .badge-sad {
-            border: 1px solid #888;
+            border: 1px solid #2D6B5F;
+            box-shadow: 0 0 6px rgba(45, 107, 95, 0.4);
         }
 
         .badge-feed {
@@ -566,8 +567,8 @@
         }
 
         .badge-lowwr {
-            border: 1px solid #4a90e2;
-            box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+            border: 1px solid #ffd700;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
         }
 
         /* --- EXTERNAL LINKS --- */
@@ -1444,6 +1445,7 @@
                         else if (badge.Type === "unkillable") extraClass = "badge-unkillable";
                         else if (badge.Type === "carry") extraClass = "badge-carry";
                         else if (badge.Type === "farmer") extraClass = "badge-farmer";
+                        else if (badge.Type === "lowwr") extraClass = "badge-lowwr";
                         else if (badge.Type === "smurf" || badge.Type === "penta") extraStyle = "border: 1px solid #ffd700;";
                         else if (badge.Type === "quadra") extraStyle = "border: 1px solid #ff4c4c;";
 
