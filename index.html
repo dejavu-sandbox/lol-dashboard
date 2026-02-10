@@ -1853,10 +1853,10 @@
             
             // 1. Préparation des couleurs
             const roleColors = { 
-                'TOP': '#4A5568', 'JUNGLE': '#3D7C47', 'MIDDLE': '#7B2CBF', 'MID': '#7B2CBF', 
-                'BOTTOM': '#ff5859', 'ADC': '#ff5859', 'SUPPORT': '#FF69B4', 'UTILITY': '#FF69B4' 
+                'TOP': '#4A5568', 'JUNGLE': '#3D7C47', 'MIDDLE': '#7B2CBF', 
+                'BOTTOM': '#ff5859', 'SUPPORT': '#FF69B4'
             };
-            const championColors = ['#C8AA6E', '#0AC8B9', '#4A5568', '#A09B8C', '#1E282D', '#3C3C41'];
+            const championColors = ['#C8AA6E', '#3D7C47', '#4A5568', '#A09B8C', '#FF69B4', '#3C3C41'];
             
             let chartColors;
             if (type === 'role') {
@@ -1890,11 +1890,8 @@
                         'TOP': 'topRole',
                         'JUNGLE': 'jungleRole',
                         'MIDDLE': 'midRole',
-                        'MID': 'midRole',
                         'BOTTOM': 'bottomRole',
-                        'ADC': 'bottomRole',
-                        'SUPPORT': 'supportRole',
-                        'UTILITY': 'supportRole'
+                        'SUPPORT': 'supportRole'
                     };
                     const iconName = roleMap[label.toUpperCase()] || label;
                     img.src = `img/${iconName}.png`;
@@ -2028,11 +2025,8 @@
                             'TOP': 'topRole',
                             'JUNGLE': 'jungleRole',
                             'MIDDLE': 'midRole',
-                            'MID': 'midRole',
                             'BOTTOM': 'bottomRole',
-                            'ADC': 'bottomRole',
-                            'SUPPORT': 'supportRole',
-                            'UTILITY': 'supportRole'
+                            'SUPPORT': 'supportRole'
                         };
                         const iconName = roleMap[label.toUpperCase()] || label;
                         iconHtml = `<img src="img/${iconName}.png" class="legend-icon role-legend-icon" alt="${label}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
