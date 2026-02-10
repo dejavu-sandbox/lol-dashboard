@@ -1,5 +1,7 @@
 # 🏆 Le Chaudron : LoL Ranked Dashboard
 
+🔗 **Live Demo:** https://dejavu-sandbox.github.io/lol-dashboard/
+
 A sleek League of Legends ranked statistics dashboard built with vanilla HTML/CSS/JavaScript and powered by Azure Functions.
 
 ## 📋 Features
@@ -35,6 +37,7 @@ The following League of Legends summoners are tracked:
 - **Megumin Full AP** (Tag: EUW)
 - **BlasterFly** (Tag: EUW)
 - **Green Goober** (Tag: GOOB)
+- **Macon Capule** (Tag: CHIER)
 
 ## 📊 UI Components
 
