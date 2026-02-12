@@ -1946,6 +1946,14 @@
                                 ctx.shadowColor = 'rgba(0,0,0,0.5)';
                                 ctx.shadowBlur = 4;
                                 
+                                // Rendre circulaire pour les champions
+                                if (type === 'champion') {
+                                    ctx.beginPath();
+                                    ctx.arc(imgX, imgY, iconSize/2, 0, 2 * Math.PI);
+                                    ctx.closePath();
+                                    ctx.clip();
+                                }
+                                
                                 ctx.drawImage(icons[label], imgX - iconSize/2, imgY - iconSize/2, iconSize, iconSize);
                                 
                                 ctx.restore();
