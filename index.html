@@ -2012,7 +2012,7 @@
                     
                     let iconHtml = '';
                     if (type === 'champion' && label !== 'Autres') {
-                        iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}">`;
+                        iconHtml = `<img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${label}.png" class="legend-icon" alt="${label}" style="border: 2px solid ${color};">`;
                     } else if (type === 'role') {
                         // Utiliser les icônes de rôle depuis le dossier img
                         const roleMap = {
