@@ -1430,6 +1430,8 @@
 
                         if (badge.LocalIcon) {
                             imgSrc = badge.LocalIcon;
+                        } else if (badge.Passive) {
+                            imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/passive/${badge.Passive}.png`;
                         } else if (badge.Spell) {
                             imgSrc = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/spell/${badge.Spell}.png`;
                         } else if (badge.Icon) {
