@@ -1204,9 +1204,10 @@
         const CACHE_KEY = "lol_dashboard_cache";
         const CACHE_TIMESTAMP_KEY = "lol_dashboard_cache_timestamp";
         const API_REFRESH_TIMESTAMP_KEY = "lol_dashboard_api_refresh_timestamp";
+        const DDRAGON_VERSION_KEY = "lol_ddragon_version";
         const MIN_REFRESH_INTERVAL = 60000; // 60 seconds
 
-        let ddragonVersion = "16.2.1";
+        let ddragonVersion = localStorage.getItem(DDRAGON_VERSION_KEY) || "16.2.1";
         let lastRefreshTime = 0; // Last time we fetched from backend (for cooldown)
         let lastApiRefreshTime = 0; // Last time we forced a real API refresh (for display)
 
@@ -1334,6 +1335,7 @@
                 const vResponse = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
                 const versions = await vResponse.json();
                 ddragonVersion = versions[0];
+                localStorage.setItem(DDRAGON_VERSION_KEY, ddragonVersion);
 
                 // Fetch stats from Azure (add refresh param if manual)
                 const url = isManualRefresh ? `${apiUrl}?refresh=true` : apiUrl;
@@ -1387,7 +1389,14 @@
                 // Fetch backend cache (not forcing refresh)
                 fetchStats(false);
             } else {
-                // Cache is fresh (< 60s), just show it
+                // Cache is fresh (< 60s), but still refresh DDragon version in background
+                fetch("https://ddragon.leagueoflegends.com/api/versions.json")
+                    .then(r => r.json())
+                    .then(versions => {
+                        ddragonVersion = versions[0];
+                        localStorage.setItem(DDRAGON_VERSION_KEY, ddragonVersion);
+                    })
+                    .catch(() => {});
                 updateRefreshButton();
             }
         };
