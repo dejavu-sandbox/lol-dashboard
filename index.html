@@ -775,6 +775,8 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
         }
 
         .player-card-header {
@@ -941,6 +943,11 @@
             position: relative;
             height: 90px;
             width: 100%;
+            max-width: 100%;
+        }
+
+        .cs-chart-container canvas {
+            max-width: 100% !important;
         }
 
         .personal-worst {
@@ -1156,6 +1163,86 @@
                 grid-template-columns: repeat(3, 1fr);
             }
         }
+
+        /* --- EXPAND CARD MODAL --- */
+        .expand-modal {
+            display: none;
+            position: fixed;
+            z-index: 1100;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+        }
+        .expand-modal.active { display: flex; }
+
+        .expand-modal-content {
+            background: #151a21;
+            border: 2px solid #c8aa6e;
+            border-radius: 12px;
+            padding: 28px 28px 20px;
+            width: 92vw;
+            max-width: 860px;
+            max-height: 92vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
+        }
+
+        .expand-close {
+            position: absolute;
+            top: 14px; right: 18px;
+            font-size: 1.5em;
+            color: #555;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.15s;
+            background: none; border: none;
+        }
+        .expand-close:hover { color: #c8aa6e; }
+
+        .expand-charts-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 8px;
+        }
+
+        .expand-chart-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .expand-pie-wrapper {
+            position: relative;
+            height: 220px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .expand-cs-chart-container {
+            position: relative;
+            height: 150px;
+            width: 100%;
+            max-width: 100%;
+        }
+        .expand-cs-chart-container canvas { max-width: 100% !important; }
+
+        /* Card hover hint */
+        .player-card {
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .player-card:hover {
+            border-color: #c8aa6e;
+            box-shadow: 0 0 14px rgba(200,170,110,0.2);
+        }
     </style>
 </head>
 
@@ -1234,6 +1321,14 @@
         <h2 class="visual-stats-title">Visual Statistics - Last 20 Games</h2>
         <div class="player-stats-grid" id="playerStatsGrid">
             </div>
+    </div>
+
+    <!-- Expand card modal -->
+    <div id="expandModal" class="expand-modal" onclick="if(event.target===this)closeExpandCard()">
+        <div class="expand-modal-content">
+            <button class="expand-close" onclick="closeExpandCard()">✕</button>
+            <div id="expandModalBody"></div>
+        </div>
     </div>
 
     <div id="myModal" class="modal">
@@ -1857,6 +1952,11 @@
 
                 playerStatsGrid.appendChild(playerCard);
 
+                // Click on card → expand view (but not on ping record section)
+                playerCard.onclick = (e) => {
+                    if (!e.target.closest('.personal-worst')) openExpandCard(player);
+                };
+
                 // Appel avec le TYPE ('champion' ou 'role')
                 createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData, 'champion');
                 createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData, 'role');
@@ -2133,6 +2233,104 @@
                 }).join('');
             }
         }
+
+        let expandCurrentPlayer = null;
+
+        function openExpandCard(player) {
+            expandCurrentPlayer = player;
+            const modal = document.getElementById('expandModal');
+            const body = document.getElementById('expandModalBody');
+
+            // Destroy any charts still alive in the modal
+            modal.querySelectorAll('canvas').forEach(c => { const ch = Chart.getChart(c); if (ch) ch.destroy(); });
+
+            const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
+            const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT');
+            const avgCSMin = (player.AvgCSMin ?? 0).toFixed(1);
+            const avgDmgShare = (player.AvgDmgShare ?? 0).toFixed(1);
+            const worstPingsGame = getWorstPingsGame(player);
+            const pname = player.name.replace(/[^a-z0-9]/gi, '_'); // safe ID
+
+            let pingHtml = '';
+            if (worstPingsGame) {
+                const champIconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${worstPingsGame.Champion}.png`;
+                pingHtml = `
+                    <div class="personal-worst" onclick="openModal(expandCurrentPlayer); event.stopPropagation();" style="margin-top:20px;">
+                        <div class="personal-worst-title">Ping Record</div>
+                        <div class="personal-worst-content">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                                <img src="${champIconUrl}" style="width:32px;height:32px;border-radius:4px;border:1px solid #444;">
+                                <strong>${worstPingsGame.Champion}</strong> — ${worstPingsGame.totalPings} pings total
+                            </div>
+                            <div class="game-info">
+                                ${worstPingsGame.dateStr} — <span class="result-${worstPingsGame.win ? 'win' : 'loss'}">${worstPingsGame.win ? 'VICTORY' : 'DEFEAT'}</span> — ${worstPingsGame.kda}
+                            </div>
+                            <div class="ping-breakdown">
+                                ${worstPingsGame.breakdown.filter(p => p.count > 0 && p.icon).map(ping => `
+                                    <div class="ping-item">
+                                        <img src="${ping.icon}" class="ping-icon" alt="${ping.name}">
+                                        <div class="ping-type">${ping.name}</div>
+                                        <div class="ping-count">${ping.count}</div>
+                                    </div>`).join('')}
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            body.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:22px;">
+                    <img src="${iconUrl}" style="width:54px;height:54px;border-radius:50%;border:2px solid #c8aa6e;">
+                    <span style="color:#c8aa6e;font-size:1.4em;font-weight:bold;">${player.name}#${player.Tag}</span>
+                </div>
+                <div class="expand-charts-row">
+                    <div class="expand-chart-container">
+                        <div class="chart-title">Top Champions</div>
+                        <div class="expand-pie-wrapper"><canvas id="exp-champ-${pname}"></canvas></div>
+                        <div id="exp-leg-champ-${pname}" class="custom-legend"></div>
+                    </div>
+                    <div class="expand-chart-container">
+                        <div class="chart-title">Preferred Roles</div>
+                        <div class="expand-pie-wrapper"><canvas id="exp-roles-${pname}"></canvas></div>
+                        <div id="exp-leg-roles-${pname}" class="custom-legend"></div>
+                    </div>
+                </div>
+                <div class="perf-stats-section">
+                    <div class="perf-stats-title">Farming &amp; Impact <span style="color:#444;font-size:0.85em;">(non-support games)</span></div>
+                    <div class="perf-stats-row">
+                        <div class="perf-stat-box">
+                            <div class="perf-stat-icon">🌾</div>
+                            <div class="perf-stat-value">${avgCSMin}</div>
+                            <div class="perf-stat-label">CS / min</div>
+                        </div>
+                        <div class="perf-stat-box">
+                            <div class="perf-stat-icon">⚔️</div>
+                            <div class="perf-stat-value">${avgDmgShare}%</div>
+                            <div class="perf-stat-label">Team Dmg Share</div>
+                        </div>
+                    </div>
+                    ${nonSupMatches.length > 0 ? `<div class="expand-cs-chart-container"><canvas id="exp-cs-${pname}"></canvas></div>` : ''}
+                </div>
+                ${pingHtml}
+            `;
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Render charts (larger)
+            createPieChart(`exp-champ-${pname}`, `exp-leg-champ-${pname}`, getChampionsData(player), 'champion');
+            createPieChart(`exp-roles-${pname}`, `exp-leg-roles-${pname}`, getRolesData(player), 'role');
+            if (nonSupMatches.length > 0) createCSChart(`exp-cs-${pname}`, nonSupMatches);
+        }
+
+        function closeExpandCard() {
+            const modal = document.getElementById('expandModal');
+            modal.querySelectorAll('canvas').forEach(c => { const ch = Chart.getChart(c); if (ch) ch.destroy(); });
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            expandCurrentPlayer = null;
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeExpandCard(); });
 
         function createCSChart(canvasId, matches) {
             const ctx = document.getElementById(canvasId);
