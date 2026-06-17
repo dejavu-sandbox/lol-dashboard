@@ -886,6 +886,63 @@
             letter-spacing: 1px;
         }
 
+        /* --- PERFORMANCE STATS SECTION --- */
+        .perf-stats-section {
+            margin-top: 15px;
+            padding: 12px 15px 8px;
+            border-top: 1px solid #1e2a3a;
+        }
+
+        .perf-stats-title {
+            color: #a09b8c;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .perf-stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .perf-stat-box {
+            text-align: center;
+            background: #0a0a0c;
+            border: 1px solid #1e2a3a;
+            border-radius: 6px;
+            padding: 8px 18px;
+            min-width: 80px;
+        }
+
+        .perf-stat-icon {
+            font-size: 1.1em;
+            margin-bottom: 2px;
+        }
+
+        .perf-stat-value {
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #c8aa6e;
+        }
+
+        .perf-stat-label {
+            font-size: 0.68em;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .cs-chart-container {
+            position: relative;
+            height: 90px;
+            width: 100%;
+        }
+
         .personal-worst {
             background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
             border-left: 3px solid #ff5859;
@@ -1739,6 +1796,32 @@
 
                 playerCard.appendChild(chartsRow);
 
+                // --- PERFORMANCE STATS SECTION (CS/min + Dmg share + CS/min chart) ---
+                const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT');
+                const avgCSMin = (player.AvgCSMin ?? 0).toFixed(1);
+                const avgDmgShare = (player.AvgDmgShare ?? 0).toFixed(1);
+                const csChartId = `csChart-${player.name}`;
+
+                const perfSection = document.createElement('div');
+                perfSection.className = 'perf-stats-section';
+                perfSection.innerHTML = `
+                    <div class="perf-stats-title">Farming &amp; Impact <span style="color:#444; font-size:0.85em;">(non-support games)</span></div>
+                    <div class="perf-stats-row">
+                        <div class="perf-stat-box">
+                            <div class="perf-stat-icon">🌾</div>
+                            <div class="perf-stat-value">${avgCSMin}</div>
+                            <div class="perf-stat-label">CS / min</div>
+                        </div>
+                        <div class="perf-stat-box">
+                            <div class="perf-stat-icon">⚔️</div>
+                            <div class="perf-stat-value">${avgDmgShare}%</div>
+                            <div class="perf-stat-label">Team Dmg Share</div>
+                        </div>
+                    </div>
+                    ${nonSupMatches.length > 0 ? `<div class="cs-chart-container"><canvas id="${csChartId}"></canvas></div>` : ''}
+                `;
+                playerCard.appendChild(perfSection);
+
                 // Personal Worst section
                 if (worstPingsGame) {
                     const worstSection = document.createElement('div');
@@ -1777,6 +1860,7 @@
                 // Appel avec le TYPE ('champion' ou 'role')
                 createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData, 'champion');
                 createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData, 'role');
+                if (nonSupMatches.length > 0) createCSChart(csChartId, nonSupMatches);
             });
 
             // Afficher la section
@@ -2048,6 +2132,73 @@
                     `;
                 }).join('');
             }
+        }
+
+        function createCSChart(canvasId, matches) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx || !matches || matches.length === 0) return;
+
+            // Oldest → newest (History comes in newest-first from API)
+            const chronological = [...matches].reverse();
+            const labels = chronological.map((_, i) => `G${i + 1}`);
+            const data = chronological.map(m => parseFloat(m.CSMin) || 0);
+
+            const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 90);
+            gradient.addColorStop(0, 'rgba(200,170,110,0.25)');
+            gradient.addColorStop(1, 'rgba(200,170,110,0.0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        borderColor: '#c8aa6e',
+                        backgroundColor: gradient,
+                        borderWidth: 1.5,
+                        pointRadius: 3,
+                        pointBackgroundColor: chronological.map(m => m.Win ? '#2deb90' : '#ff5859'),
+                        pointBorderColor: 'transparent',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(10,10,12,0.95)',
+                            titleColor: '#c8aa6e',
+                            bodyColor: '#f0e6d2',
+                            borderColor: '#333',
+                            borderWidth: 1,
+                            padding: 6,
+                            callbacks: {
+                                title: (items) => {
+                                    const m = chronological[items[0].dataIndex];
+                                    return `${m.Champion || '?'} — ${m.Win ? 'WIN' : 'LOSS'}`;
+                                },
+                                label: (item) => ` ${item.raw} CS/min`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#444', font: { size: 8 }, maxRotation: 0 },
+                            grid: { color: 'rgba(255,255,255,0.03)' }
+                        },
+                        y: {
+                            ticks: { color: '#444', font: { size: 8 }, maxTicksLimit: 4 },
+                            grid: { color: 'rgba(255,255,255,0.03)' },
+                            suggestedMin: 4,
+                            suggestedMax: 12
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>
