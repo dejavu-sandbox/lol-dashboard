@@ -2341,6 +2341,10 @@
             const labels = chronological.map((_, i) => `G${i + 1}`);
             const data = chronological.map(m => parseFloat(m.CSMin) || 0);
 
+            // Y axis: tight around actual data, step by 1
+            const minVal = Math.max(0, Math.floor(Math.min(...data)) - 1);
+            const maxVal = Math.ceil(Math.max(...data)) + 1;
+
             const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 90);
             gradient.addColorStop(0, 'rgba(200,170,110,0.25)');
             gradient.addColorStop(1, 'rgba(200,170,110,0.0)');
@@ -2389,10 +2393,15 @@
                             grid: { color: 'rgba(255,255,255,0.03)' }
                         },
                         y: {
-                            ticks: { color: '#444', font: { size: 8 }, maxTicksLimit: 4 },
-                            grid: { color: 'rgba(255,255,255,0.03)' },
-                            suggestedMin: 4,
-                            suggestedMax: 12
+                            min: minVal,
+                            max: maxVal,
+                            ticks: {
+                                color: '#555',
+                                font: { size: 8 },
+                                stepSize: 1,
+                                callback: v => Number.isInteger(v) ? v : ''
+                            },
+                            grid: { color: 'rgba(255,255,255,0.04)' }
                         }
                     }
                 }
