@@ -907,7 +907,8 @@
         .perf-stats-row {
             display: flex;
             justify-content: center;
-            gap: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 12px;
         }
 
@@ -1924,6 +1925,8 @@
                             <div class="perf-stat-label">Team Dmg Share</div>
                         </div>
                         ${player.AvgCSMin10 != null ? (() => { const v = player.AvgCSMin10; const col = v >= 7 ? '#2deb90' : v >= 6 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">⏱️</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">CS/min @10</div></div>`; })() : ''}
+                        ${player.AvgSoloKills != null ? (() => { const v = player.AvgSoloKills; const col = v >= 1.5 ? '#2deb90' : v >= 0.7 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">🗡️</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">Solo Kills</div></div>`; })() : ''}
+                        ${player.AvgPlates != null ? (() => { const v = player.AvgPlates; const col = v >= 2.5 ? '#2deb90' : v >= 1.5 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">🏰</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">Plates</div></div>`; })() : ''}
                     </div>
                     ${nonSupMatchesWith10.length > 0 ? `<div class="cs-chart-label">⏱ CS/min @10 — Early laning</div><div class="cs-chart-container"><canvas id="${cs10ChartId}"></canvas></div>` : ''}
                     ${nonSupMatches.length > 0 ? `<div class="cs-chart-label">📈 CS/min — Full game</div><div class="cs-chart-container"><canvas id="${csChartId}"></canvas></div>` : ''}
@@ -2323,6 +2326,8 @@
                             <div class="perf-stat-label">Team Dmg Share</div>
                         </div>
                         ${player.AvgCSMin10 != null ? (() => { const v = player.AvgCSMin10; const col = v >= 7 ? '#2deb90' : v >= 6 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">⏱️</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">CS/min @10</div></div>`; })() : ''}
+                        ${player.AvgSoloKills != null ? (() => { const v = player.AvgSoloKills; const col = v >= 1.5 ? '#2deb90' : v >= 0.7 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">🗡️</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">Solo Kills</div></div>`; })() : ''}
+                        ${player.AvgPlates != null ? (() => { const v = player.AvgPlates; const col = v >= 2.5 ? '#2deb90' : v >= 1.5 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">🏰</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">Plates</div></div>`; })() : ''}
                     </div>
                     ${nonSupMatchesWith10.length > 0 ? `<div class="cs-chart-label">⏱ CS/min @10 — Early laning</div><div class="expand-cs-chart-container"><canvas id="exp-cs10-${pname}"></canvas></div>` : ''}
                     ${nonSupMatches.length > 0 ? `<div class="cs-chart-label">📈 CS/min — Full game</div><div class="expand-cs-chart-container"><canvas id="exp-cs-${pname}"></canvas></div>` : ''}
