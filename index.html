@@ -1902,7 +1902,7 @@
                 playerCard.appendChild(chartsRow);
 
                 // --- PERFORMANCE STATS SECTION (CS/min + Dmg share + CS/min chart) ---
-                const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT');
+                const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT' && m.Role !== 'JUNGLE');
                 const nonSupMatchesWith10 = nonSupMatches.filter(m => m.CSMin10 != null);
                 const avgCSMin = (player.AvgCSMin ?? 0).toFixed(1);
                 const avgDmgShare = (player.AvgDmgShare ?? 0).toFixed(1);
@@ -1912,7 +1912,7 @@
                 const perfSection = document.createElement('div');
                 perfSection.className = 'perf-stats-section';
                 perfSection.innerHTML = `
-                    <div class="perf-stats-title">Farming &amp; Impact <span style="color:#444; font-size:0.85em;">(non-support games)</span></div>
+                    <div class="perf-stats-title">Farming &amp; Impact <span style="color:#444; font-size:0.85em;">(lane roles only)</span></div>
                     <div class="perf-stats-row">
                         <div class="perf-stat-box">
                             <div class="perf-stat-icon">🌾</div>
@@ -2262,7 +2262,7 @@
             modal.querySelectorAll('canvas').forEach(c => { const ch = Chart.getChart(c); if (ch) ch.destroy(); });
 
             const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
-            const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT');
+            const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT' && m.Role !== 'JUNGLE');
             const nonSupMatchesWith10 = nonSupMatches.filter(m => m.CSMin10 != null);
             const avgCSMin = (player.AvgCSMin ?? 0).toFixed(1);
             const avgDmgShare = (player.AvgDmgShare ?? 0).toFixed(1);
@@ -2313,7 +2313,7 @@
                     </div>
                 </div>
                 <div class="perf-stats-section">
-                    <div class="perf-stats-title">Farming &amp; Impact <span style="color:#444;font-size:0.85em;">(non-support games)</span></div>
+                    <div class="perf-stats-title">Farming &amp; Impact <span style="color:#444;font-size:0.85em;">(lane roles only)</span></div>
                     <div class="perf-stats-row">
                         <div class="perf-stat-box">
                             <div class="perf-stat-icon">🌾</div>
@@ -2395,18 +2395,45 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(10,10,12,0.95)',
-                            titleColor: '#c8aa6e',
-                            bodyColor: '#f0e6d2',
-                            borderColor: '#333',
-                            borderWidth: 1,
-                            padding: 6,
-                            callbacks: {
-                                title: (items) => {
-                                    const m = chronological[items[0].dataIndex];
-                                    return `${m.Champion || '?'} — ${m.Win ? 'WIN' : 'LOSS'}`;
-                                },
-                                label: (item) => ` ${item.raw} CS/min`
+                            enabled: false,
+                            external: function(context) {
+                                let tooltipEl = document.getElementById('cs-chart-tooltip');
+                                if (!tooltipEl) {
+                                    tooltipEl = document.createElement('div');
+                                    tooltipEl.id = 'cs-chart-tooltip';
+                                    tooltipEl.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;background:rgba(10,10,12,0.96);border:1px solid #333;border-radius:7px;padding:8px 10px;font-size:12px;color:#f0e6d2;transition:opacity 0.1s;box-shadow:0 4px 16px rgba(0,0,0,0.6);';
+                                    document.body.appendChild(tooltipEl);
+                                }
+                                if (context.tooltip.opacity === 0) {
+                                    tooltipEl.style.opacity = '0';
+                                    return;
+                                }
+                                const m = chronological[context.tooltip.dataPoints[0].dataIndex];
+                                const value = context.tooltip.dataPoints[0].raw;
+                                const winColor = m.Win ? '#2deb90' : '#ff5859';
+                                const champIcon = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${m.Champion}.png`;
+                                const enemyHtml = m.EnemyChamp
+                                    ? `<div style="color:#888;font-size:0.85em;margin-bottom:4px;display:flex;align-items:center;gap:5px;">vs <img src="https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/champion/${m.EnemyChamp}.png" style="width:16px;height:16px;border-radius:50%;border:1px solid #555;"><span>${m.EnemyChamp}</span></div>`
+                                    : '';
+                                tooltipEl.innerHTML = `
+                                    <div style="color:#c8aa6e;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                                        <img src="${champIcon}" style="width:20px;height:20px;border-radius:3px;">
+                                        <span>${m.Champion}</span>
+                                        <span style="color:${winColor};margin-left:2px;">${m.Win ? 'WIN' : 'LOSS'}</span>
+                                    </div>
+                                    ${enemyHtml}
+                                    <div style="color:#f0e6d2;"> ${value} CS/min</div>`;
+                                const pos = context.chart.canvas.getBoundingClientRect();
+                                const cx = context.tooltip.caretX;
+                                const cy = context.tooltip.caretY;
+                                tooltipEl.style.opacity = '1';
+                                // Flip left if near right edge
+                                const tw = tooltipEl.offsetWidth || 160;
+                                const left = (pos.left + cx + 14 + tw > window.innerWidth)
+                                    ? pos.left + cx - tw - 8
+                                    : pos.left + cx + 14;
+                                tooltipEl.style.left = left + 'px';
+                                tooltipEl.style.top = (pos.top + cy - 10) + 'px';
                             }
                         }
                     },
