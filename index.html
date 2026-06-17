@@ -950,6 +950,15 @@
             max-width: 100% !important;
         }
 
+        .cs-chart-label {
+            color: #3a4a5a;
+            font-size: 0.65em;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-align: center;
+            margin: 8px 0 2px;
+        }
+
         .personal-worst {
             background: linear-gradient(90deg, rgba(255, 88, 89, 0.1) 0%, rgba(21, 26, 33, 0) 100%);
             border-left: 3px solid #ff5859;
@@ -1893,9 +1902,11 @@
 
                 // --- PERFORMANCE STATS SECTION (CS/min + Dmg share + CS/min chart) ---
                 const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT');
+                const nonSupMatchesWith10 = nonSupMatches.filter(m => m.CSMin10 != null);
                 const avgCSMin = (player.AvgCSMin ?? 0).toFixed(1);
                 const avgDmgShare = (player.AvgDmgShare ?? 0).toFixed(1);
                 const csChartId = `csChart-${player.name}`;
+                const cs10ChartId = `cs10Chart-${player.name}`;
 
                 const perfSection = document.createElement('div');
                 perfSection.className = 'perf-stats-section';
@@ -1912,8 +1923,10 @@
                             <div class="perf-stat-value">${avgDmgShare}%</div>
                             <div class="perf-stat-label">Team Dmg Share</div>
                         </div>
+                        ${player.AvgCSMin10 != null ? (() => { const v = player.AvgCSMin10; const col = v >= 7 ? '#2deb90' : v >= 6 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">⏱️</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">CS/min @10</div></div>`; })() : ''}
                     </div>
-                    ${nonSupMatches.length > 0 ? `<div class="cs-chart-container"><canvas id="${csChartId}"></canvas></div>` : ''}
+                    ${nonSupMatchesWith10.length > 0 ? `<div class="cs-chart-label">⏱ CS/min @10 — Early laning</div><div class="cs-chart-container"><canvas id="${cs10ChartId}"></canvas></div>` : ''}
+                    ${nonSupMatches.length > 0 ? `<div class="cs-chart-label">📈 CS/min — Full game</div><div class="cs-chart-container"><canvas id="${csChartId}"></canvas></div>` : ''}
                 `;
                 playerCard.appendChild(perfSection);
 
@@ -1960,7 +1973,8 @@
                 // Appel avec le TYPE ('champion' ou 'role')
                 createPieChart(`champChart-${player.name}`, `legend-champ-${player.name}`, championsData, 'champion');
                 createPieChart(`rolesChart-${player.name}`, `legend-roles-${player.name}`, rolesData, 'role');
-                if (nonSupMatches.length > 0) createCSChart(csChartId, nonSupMatches);
+                if (nonSupMatchesWith10.length > 0) createCSChart(cs10ChartId, nonSupMatchesWith10, 'CSMin10');
+                if (nonSupMatches.length > 0) createCSChart(csChartId, nonSupMatches, 'CSMin');
             });
 
             // Afficher la section
@@ -2246,6 +2260,7 @@
 
             const iconUrl = `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/img/profileicon/${player.ProfileIcon}.png`;
             const nonSupMatches = (player.History || []).filter(m => m.Role !== 'SUPPORT');
+            const nonSupMatchesWith10 = nonSupMatches.filter(m => m.CSMin10 != null);
             const avgCSMin = (player.AvgCSMin ?? 0).toFixed(1);
             const avgDmgShare = (player.AvgDmgShare ?? 0).toFixed(1);
             const worstPingsGame = getWorstPingsGame(player);
@@ -2307,8 +2322,10 @@
                             <div class="perf-stat-value">${avgDmgShare}%</div>
                             <div class="perf-stat-label">Team Dmg Share</div>
                         </div>
+                        ${player.AvgCSMin10 != null ? (() => { const v = player.AvgCSMin10; const col = v >= 7 ? '#2deb90' : v >= 6 ? '#ff8c00' : '#ff5859'; return `<div class="perf-stat-box"><div class="perf-stat-icon">⏱️</div><div class="perf-stat-value" style="color:${col}">${v.toFixed(1)}</div><div class="perf-stat-label">CS/min @10</div></div>`; })() : ''}
                     </div>
-                    ${nonSupMatches.length > 0 ? `<div class="expand-cs-chart-container"><canvas id="exp-cs-${pname}"></canvas></div>` : ''}
+                    ${nonSupMatchesWith10.length > 0 ? `<div class="cs-chart-label">⏱ CS/min @10 — Early laning</div><div class="expand-cs-chart-container"><canvas id="exp-cs10-${pname}"></canvas></div>` : ''}
+                    ${nonSupMatches.length > 0 ? `<div class="cs-chart-label">📈 CS/min — Full game</div><div class="expand-cs-chart-container"><canvas id="exp-cs-${pname}"></canvas></div>` : ''}
                 </div>
                 ${pingHtml}
             `;
@@ -2319,7 +2336,8 @@
             // Render charts (larger)
             createPieChart(`exp-champ-${pname}`, `exp-leg-champ-${pname}`, getChampionsData(player), 'champion');
             createPieChart(`exp-roles-${pname}`, `exp-leg-roles-${pname}`, getRolesData(player), 'role');
-            if (nonSupMatches.length > 0) createCSChart(`exp-cs-${pname}`, nonSupMatches);
+            if (nonSupMatchesWith10.length > 0) createCSChart(`exp-cs10-${pname}`, nonSupMatchesWith10, 'CSMin10');
+            if (nonSupMatches.length > 0) createCSChart(`exp-cs-${pname}`, nonSupMatches, 'CSMin');
         }
 
         function closeExpandCard() {
@@ -2332,14 +2350,14 @@
 
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeExpandCard(); });
 
-        function createCSChart(canvasId, matches) {
+        function createCSChart(canvasId, matches, field = 'CSMin') {
             const ctx = document.getElementById(canvasId);
             if (!ctx || !matches || matches.length === 0) return;
 
             // Oldest → newest (History comes in newest-first from API)
             const chronological = [...matches].reverse();
             const labels = chronological.map((_, i) => `G${i + 1}`);
-            const data = chronological.map(m => parseFloat(m.CSMin) || 0);
+            const data = chronological.map(m => parseFloat(m[field]) || 0);
 
             // Y axis: tight around actual data, step by 1
             const minVal = Math.max(0, Math.floor(Math.min(...data)) - 1);
